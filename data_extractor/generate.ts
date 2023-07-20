@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { load as cheerioLoad } from 'cheerio';
-import { getIdFromHref, getPokeIdFromImageUrl, parseEvolveTree } from './utils';
-import { BaseStat, BaseStatName, PokeType, Pokemon, PokemonSchema } from '../src/types/Pokemon';
+import { downloadImage, getIdFromHref, getPokeIdFromImageUrl, parseEvolveTree } from './utils';
+import { Ability, AbilitySchema, BaseStat, BaseStatName, PokeType, Pokemon, PokemonSchema } from '../src/types/Pokemon';
 import fs from "fs";
 
 const baseDatabaseUrl = "https://pokemondb.net"
@@ -209,16 +209,136 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon[]> {
   }
 }
 
-async function main() {
-  const dexMapping = await getDexMappingToURL()
+// async function fetchAllPokes() {
+//   const dexMapping = await getDexMappingToURL()
 
-  const allhrefs = Array.from(dexMapping.values())
-  const pokeResult = await Promise.all(
-    allhrefs.map(e => getPokemonFromUrl(e))
+//   const allhrefs = Array.from(dexMapping.values())
+//   const pokeResult = await Promise.all(
+//     allhrefs.map(e => getPokemonFromUrl(e))
+//   )
+
+//   fs.writeFileSync('./src/assets/pokemon.json', JSON.stringify(pokeResult.flat()))
+// }
+
+async function fetchAndParseAbility(abilityId: string): Promise<Ability> {
+  try {
+    const resp = await axios.get(`${baseDatabaseUrl}/ability/${abilityId}`)
+    const html = resp.data;
+
+    const $ = cheerioLoad(html);
+
+    const h1title = $('main h1').first()
+    const abilityDisplayName = h1title.contents().filter((index, node) => node.nodeType === 3).text().trim();
+
+    // get effect description
+    const effectH2 = $(`h2:contains("Effect")`).first();
+    const effectDescription = effectH2.nextUntil('h2').text().trim();
+
+    // get game description
+    const entriesTables = $(`h2:contains("Game descriptions")`).first().nextAll('.resp-scroll').first()
+    const gameEntry = entriesTables.find('.vitals-table tbody tr').last().find('.cell-med-text').text().trim()
+
+    return {
+      id: abilityId,
+      displayName: abilityDisplayName,
+      gameDescription: gameEntry,
+      effect: effectDescription,
+    }
+  } catch (err: any) {
+    console.log(`Error fetching abilityId: ${abilityId} error ${err}`)
+    return { id: "", displayName: "", gameDescription: "", effect: "" };
+  }
+}
+
+async function fetchAllAbilities() {
+  const abilityList = await axios.get(`${baseDatabaseUrl}/ability`) // get all abilities list
+  const $ = cheerioLoad(abilityList.data)
+
+  const allAbilities: string[] = []
+  $('#abilities tbody tr td a').each((idx, ele) => {
+    const href = $(ele).attr('href')
+    if (href)
+      allAbilities.push(getIdFromHref(href));
+  })
+
+  const abilityResult = await Promise.all(
+    allAbilities.map(e => fetchAndParseAbility(e))
   )
 
-  fs.writeFileSync('./src/assets/pokemon.json', JSON.stringify(pokeResult.flat()))
+  fs.writeFileSync('./src/assets/abilities.json', JSON.stringify(abilityResult.flat()))
 }
+
+
+async function downloadAllPokeImages() {
+  const pokemonJSON = JSON.parse(fs.readFileSync('./src/assets/pokemon.json').toString()) as Pokemon[];
+
+  // create poke image folder if it doesn't exist.
+  if (!fs.existsSync('./src/assets/pokeimages')) {
+    fs.mkdirSync('./src/assets/pokeimages')
+  }
+
+  const downloadPokeImage = async (poke: Pokemon) => {
+    const filename = getIdFromHref(poke.imageUrl);
+    const targetPath = `./src/assets/pokeimages/${filename}`
+    if (fs.existsSync(targetPath))
+      return;
+
+    await downloadImage(poke.imageUrl, targetPath, true)
+  }
+
+  await Promise.all(pokemonJSON.map(e => downloadPokeImage(e)));
+}
+
+function verifyDataIntegrity() {
+  if (!fs.existsSync('./src/assets/abilities.json'))
+    throw new Error("Unable to find ./src/assets/abilities.json")
+  if (!fs.existsSync('./src/assets/pokemon.json'))
+    throw new Error("Unable to find ./src/assets/pokemon.json")
+
+  // check that all pokemon abilities exist
+  const abilitiesJSON = JSON.parse(fs.readFileSync('./src/assets/abilities.json').toString()) as Ability[]
+  const pokemonJSON = JSON.parse(fs.readFileSync('./src/assets/pokemon.json').toString()) as Pokemon[]
+
+  // verify proper definitions pokemons
+  pokemonJSON.forEach((e) => PokemonSchema.parse(e))
+
+  // verify proper definitions abilities
+  abilitiesJSON.forEach((e) => AbilitySchema.parse(e))
+
+  const allAbilities = new Set(abilitiesJSON.map(e => e.id));
+  pokemonJSON.forEach(poke => {
+    poke.abilitiesId.forEach(id => {
+      if (!allAbilities.has(id))
+        throw new Error(`Invalid Ability: ${id}`)
+    })
+  })
+
+  // check that all images exist
+  pokemonJSON.forEach(poke => {
+    const filename = getIdFromHref(poke.imageUrl);
+    if (!fs.existsSync(`./src/assets/pokeimages/${filename}`))
+      throw new Error(`Missing image for: ${filename}`)
+  })
+
+  // check that all pokes in evos actually exists.
+  const allPokes = pokemonJSON.map(e => e.id)
+  const evoTrees = pokemonJSON.map(e => e.evoTree)
+
+  console.log(evoTrees)
+}
+
+async function main() {
+  // create assets directory if it doesn't exist
+  if (!fs.existsSync('./src/assets')) {
+    fs.mkdirSync('./src/assets')
+  }
+
+  // await Promise.all([fetchAllPokes(), fetchAllAbilities()]);
+
+  await downloadAllPokeImages();
+  verifyDataIntegrity();
+}
+
 
 main()
 
