@@ -10,11 +10,12 @@
     "test": "jest",
     "android_production_install": "react-native run-android --mode=release",
     "build:android": "ts-node ./scripts/buildApk.ts",
-    "datagen": "ts-node --files data_extractor/generate.ts data_extractor/pokemon-showdown.d.ts"
+    "datagen": "ts-node data_extractor/generate.ts"
   },
   "dependencies": {
     "react": "18.2.0",
-    "react-native": "0.72.3"
+    "react-native": "0.72.3",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -25,16 +26,15 @@
     "@tsconfig/react-native": "^3.0.0",
     "@types/react": "^18.0.24",
     "@types/react-test-renderer": "^18.0.0",
+    "axios": "^1.4.0",
     "babel-jest": "^29.2.1",
+    "cheerio": "^1.0.0-rc.12",
     "eslint": "^8.19.0",
     "jest": "^29.2.1",
     "metro-react-native-babel-preset": "0.76.7",
-    "pokemon-showdown": "^0.11.9",
     "react-test-renderer": "18.2.0",
-    "typescript": "4.8.4",
-    "axios": "^1.4.0",
-    "cheerio": "^1.0.0-rc.12",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typescript": "4.8.4"
   },
   "engines": {
     "node": ">=16"

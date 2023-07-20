@@ -1,146 +1,224 @@
-import { Dex as BaseDex } from 'pokemon-showdown'
 import axios from 'axios';
-import fs from 'fs';
 import { load as cheerioLoad } from 'cheerio';
+import { getIdFromHref, getPokeIdFromImageUrl, parseEvolveTree } from './utils';
+import { BaseStat, BaseStatName, PokeType, Pokemon, PokemonSchema } from '../src/types/Pokemon';
+import fs from "fs";
 
-const validNonStandards = [];
+const baseDatabaseUrl = "https://pokemondb.net"
 
-let Dex = BaseDex;  //BaseDex.mod('gen8')
+async function getDexMappingToURL(): Promise<Map<number, string>> {
+  const response = await axios.get(`${baseDatabaseUrl}/pokedex/all`)
+  if (response.status !== 200)
+    throw Error("Unable to get index of all pokemon.")
+  const $ = cheerioLoad(response.data);
 
-function printAllNonstandardValues(pokeArray: any) {
-  const x = new Set();
-  pokeArray.forEach((ele: any) => {
-    x.add(ele.isNonstandard)
+  const rows = $('#pokedex tbody tr')
+
+  let dexMapping = new Map<number, string>();
+
+  rows.each((idx, row) => {
+    const anchor = $(row).find('a.ent-name');
+    // Get the href value of the anchor element
+    const hrefValue = anchor.attr('href');
+
+    // get pokedex number
+    const cellNum = parseInt($(row).find('.infocard-cell-data').text().trim(), 10);
+    if (hrefValue)
+      dexMapping.set(cellNum, hrefValue);
   })
+
+  return dexMapping;
 }
 
-var allPoke = Dex.species.all();
-var truePoke = allPoke.filter((e: any) =>
-  (e.exists) && [null, "Past", "Future"].includes(e.isNonstandard)
-)
+type TabInfo = {
+  displayName: string,
+  tabId: string,
+  dexEntry: string,
+  generationalChanges: string[],
+  evoTree: Record<string, { evolveReason: string, pokeId: string }[]>
+}
 
-const dexMapping = new Map<number, any>();
+async function getPokevariantsTabs(html: any): Promise<TabInfo[]> {
+  const $ = cheerioLoad(html);
 
-truePoke.forEach((ele: any) => {
-  let samelist = dexMapping.get(ele.num);
-  if (samelist === undefined)
-    samelist = []
+  const res = $('.tabset-basics.sv-tabs-wrapper .sv-tabs-tab-list').first()
+  if (res.length === 0)
+    throw new Error(`Unable to find pokevariants`)
 
-  samelist.push(ele)
-  dexMapping.set(ele.num, samelist);
-});
+  let result: TabInfo[] = []
 
+  const entriesTables = $('#dex-flavor').first().nextAll('.resp-scroll').first()
 
-const dexNumberWithMultipleEntries: number[] = [];
+  const pokedexEntry = entriesTables.find('.vitals-table tbody tr').last()
+    .find('.cell-med-text').text().trim();
 
-dexMapping.forEach((a, b) => {
-  if (a.length > 1) {
-    // console.log(b)
-    dexNumberWithMultipleEntries.push(b)
+  const mainpageFullName = $('main h1').first().text().trim();
+
+  const possibleChanges = $(`h2:contains("${mainpageFullName} changes")`).first();
+  const generationalChanges: string[] = [];
+
+  if (possibleChanges.length > 0) {
+    possibleChanges.next().find('li').each((idx, ele) => {
+      generationalChanges.push($(ele).text().trim())
+    })
   }
-})
 
-// async function downloadPokeImage(pokedexIndex: number) {
-//   try {
-//     const paddedNumber = pokedexIndex.toString().padStart(3, '0');
-//     const targetImagePath = `./assets/pokeimages/${pokedexIndex}.png`
-//     if (fs.existsSync(targetImagePath))
-//       return;
+  const evoTree = parseEvolveTree(html);
 
-//     const response = await axios.get(`https://assets.pokemon.com/assets/cms2/img/pokedex/full/${paddedNumber}.png`, { responseType: 'arraybuffer' });
-//     const imageData = Buffer.from(response.data, 'binary');
+  res.find('.sv-tabs-tab').each((e, ele) => {
+    const id = $(ele).attr('href');
+    const displayName = $(ele).text().trim()
 
-//     fs.writeFileSync(targetImagePath, imageData);
-//   } catch (error: any) {
-//     console.warn('Error downloading the image:', error.message);
-//   }
-// }
+    if (id) {// remove id hash at start
+      result.push({
+        displayName: displayName, tabId: id.replace(/^#/, ''),
+        dexEntry: pokedexEntry,
+        generationalChanges: generationalChanges,
+        evoTree: evoTree
+      });
+    }
+  })
 
 
-async function getFetchPokeOptions(pokeName: string): Promise<string[]> {
+  return result;
+}
+
+
+function parsePokeTab(html: any,
+  tabInfo: TabInfo): Pokemon {
+  const $ = cheerioLoad(html);
+
+  const tab = $(`#${tabInfo.tabId}`).first();
+
+
+  // get image
+  // const imageSrc = $(tab.find('a[rel=lightbox]')).attr('href')
+  const imageSrc = tab.find('img').first().attr('src')
+  if (!imageSrc)
+    throw new Error("Unable to parse html, could not find image href")
+
+  // get ID from image
+  const pokeId = getPokeIdFromImageUrl(imageSrc)
+
+  // Get base stats and total
+  const pokeBaseStats: BaseStat[] = []
+  let baseStatTotal = 0;
+
+  const DexStatsWrapper = tab.find('#dex-stats').parent();
+  const statOrder: BaseStatName[] = ["hp", "atk", "def", "spa", "spd", "spe"]
+
+  DexStatsWrapper.find('tbody tr').each((idx, ele) => {
+    const value = parseInt($(ele).find('.cell-num').first().text().trim(), 10)
+    const stat = statOrder[idx];
+
+    pokeBaseStats.push({ statName: stat, statValue: value })
+    baseStatTotal += value;
+  })
+
+  // get types
+  const pokeTypes: PokeType[] = [];
+
+  const typesWrapper = tab.find('.type-icon').first().parent()
+  typesWrapper.find('.type-icon').each((idx, ele) => {
+    const type = $(ele).text().trim();
+    pokeTypes.push(type as PokeType);
+  })
+
+  // get pokedex data
+
+  let dexNumber = -1;
+  let pokeSpecies = "";
+  let hiddenAbility: string | undefined;
+
+  const abilities_id: string[] = []
+
+  const pokedexDataTable = tab.find('.vitals-table').first();
+  pokedexDataTable.find('tr th').each((idx, ele) => {
+    const rowText = $(ele).text().trim()
+    if (rowText === "National №") {
+      dexNumber = parseInt($(ele).parent().find('td').first().text().trim(), 10);
+    }
+
+    if (rowText === "Species") {
+      pokeSpecies = $(ele).parent().find('td').first().text().trim()
+    }
+
+    if (rowText === "Abilities") {
+      $(ele).parent().find('td span a').each((_, ele2) => {
+        const href = $(ele2).attr('href')?.trim()
+        if (href)
+          abilities_id.push(getIdFromHref(href))
+      })
+
+      // check for hidden ability
+      const possHidden = $(ele).parent().find('td small a').first().attr('href');
+      if (possHidden)
+        hiddenAbility = getIdFromHref(possHidden)
+    }
+  })
+
+  const isMega = pokeId.endsWith('mega') || pokeId.includes('-mega-'); // works for charizard x / y
+
+
+  const returnPoke: Pokemon = {
+    id: pokeId,
+    displayName: tabInfo.displayName,
+    species: pokeSpecies,
+
+    baseStats: pokeBaseStats,
+    baseStatTotal: baseStatTotal,
+
+    type: pokeTypes,
+
+    imageUrl: imageSrc,
+
+    nationalDexNumber: dexNumber,
+    pokedexEntryDescription: tabInfo.dexEntry,
+
+    abilitiesId: abilities_id,
+    hiddenAbility: hiddenAbility,
+
+    isMega: isMega,
+    generationalChanges: tabInfo.generationalChanges,
+
+    evoTree: tabInfo.evoTree
+  }
+
+  // validate it
+  const validated = PokemonSchema.parse(returnPoke);
+  return validated
+}
+
+
+async function getPokemonFromUrl(url: string): Promise<Pokemon[]> {
   try {
-    const response = await axios.get(`https://www.pokemon.com/us/pokedex/${pokeName}`);
+    const response = await axios.get(`${baseDatabaseUrl}${url}`);
+    if (response.status !== 200)
+      throw new Error(`Could not fetch data for ${url}`)
+
     const html = response.data;
-    const $ = cheerioLoad(html);
 
-    const options: string[] = [];
+    const tabsPoke = await getPokevariantsTabs(html);
+    const poke = tabsPoke.map(e => parsePokeTab(html, e))
 
-    $('#formes option').each((index, element) => {
-      const text = $(element).text().trim();
-      options.push(text);
-    });
-
-    return options;
-  } catch (error: any) {
-    console.error(`Error scraping data for ${pokeName}:`, error.message);
+    return poke;
+  }
+  catch (err: any) {
+    console.log(`Error fetching: ${url} error ${err}`)
     return [];
   }
 }
 
+async function main() {
+  const dexMapping = await getDexMappingToURL()
 
-async function downloadSmogonPokeImage(pokeSprite: string) {
-  try {
-    const targetImagePath = `./src/pokeimages/${pokeSprite}.gif`
-    if (fs.existsSync(targetImagePath))
-      return;
+  const allhrefs = Array.from(dexMapping.values())
+  const pokeResult = await Promise.all(
+    allhrefs.map(e => getPokemonFromUrl(e))
+  )
 
-    // const response = await axios.get(`https://www.smogon.com/dex/media/sprites/sv/${pokeSprite}.gif`, { responseType: 'arraybuffer' })
-    //   .catch(async (err) => {
-    //     if (err.response?.status === 404)
-    //       return await axios.get(`https://www.smogon.com/dex/media/sprites/ss/${pokeSprite}.gif`, { responseType: 'arraybuffer' })
-    //     else
-    //       throw err;
-    //   }).catch(async (err) => {
-    //     if (err.response?.status === 404)
-    //       return await axios.get(`https://www.smogon.com/dex/media/sprites/ss/${pokeSprite}.gif`, { responseType: 'arraybuffer' })
-    //     else
-    //       throw err;
-    //   })
-
-    const response = await axios.get(`https://play.pokemonshowdown.com/sprites/ani/${pokeSprite}.gif`, { responseType: 'arraybuffer' })
-      .catch(async (err) => {
-        if (err.response?.status === 404)
-          return await axios.get(`https://play.pokemonshowdown.com/sprites/dex/${pokeSprite}.png`, { responseType: 'arraybuffer' })
-        else
-          throw err;
-      })
-
-    // https://play.pokemonshowdown.com/sprites/ani/gastrodon.gif
-
-    const imageData = Buffer.from(response.data, 'binary');
-
-    fs.writeFileSync(targetImagePath, imageData);
-  } catch (error: any) {
-    console.warn(`Error downloading the image for ${pokeSprite}:`, error.message);
-  }
+  fs.writeFileSync('./src/assets/pokemon.json', JSON.stringify(pokeResult.flat()))
 }
 
-if (!fs.existsSync('./src/pokeimages')) {
-  fs.mkdirSync("./src/pokeimages")
-}
+main()
 
-dexMapping.forEach((a) => {
-  a.forEach((pokeEntry: any) => {
-    downloadSmogonPokeImage(pokeEntry.spriteid)
-  })
-})
-
-// console.log(dexMapping.get(1))
-
-// console.log(Array.from(dexMapping.keys()).reduce((a, b) => Math.max(a, b)))
-// dexMapping.forEach((pokeEntryList) => {
-//   downloadSmogonPokeImage(i)
-// })
-
-// async function verifyEntry(pokeName: string, pokeIndex: number) {
-//   const options = await getFetchPokeOptions(pokeName)
-//   if (options.length !== dexMapping.get(pokeIndex).length)
-//     console.warn(`Different mapping for: ${pokeIndex} ${pokeName}`)
-// }
-
-// dexNumberWithMultipleEntries.forEach(e => {
-//   verifyEntry(dexMapping.get(e)[0].id, e)
-// })
-
-// getFetchPokeOptions("charmander")
-// console.log(dexMapping.get(855))
