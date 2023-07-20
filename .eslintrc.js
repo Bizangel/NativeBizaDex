@@ -12,5 +12,6 @@ module.exports = {
     "comma-dangle": "off",
     "no-trailing-spaces": "off",
     "curly": "off",
+    "react-native/no-inline-styles": "off",
   },
 };
