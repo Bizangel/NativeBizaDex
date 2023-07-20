@@ -78,20 +78,69 @@ async function getFetchPokeOptions(pokeName: string): Promise<string[]> {
 }
 
 
-// console.log(Array.from(dexMapping.keys()).reduce((a, b) => Math.max(a, b)))
-// dexMapping.forEach((pokeEntryList, index) => {
-//   downloadPokeImage(index)
-// })
+async function downloadSmogonPokeImage(pokeSprite: string) {
+  try {
+    const targetImagePath = `./src/pokeimages/${pokeSprite}.gif`
+    if (fs.existsSync(targetImagePath))
+      return;
 
-async function verifyEntry(pokeName: string, pokeIndex: number) {
-  const options = await getFetchPokeOptions(pokeName)
-  if (options.length !== dexMapping.get(pokeIndex).length)
-    console.warn(`Different mapping for: ${pokeIndex} ${pokeName}`)
+    // const response = await axios.get(`https://www.smogon.com/dex/media/sprites/sv/${pokeSprite}.gif`, { responseType: 'arraybuffer' })
+    //   .catch(async (err) => {
+    //     if (err.response?.status === 404)
+    //       return await axios.get(`https://www.smogon.com/dex/media/sprites/ss/${pokeSprite}.gif`, { responseType: 'arraybuffer' })
+    //     else
+    //       throw err;
+    //   }).catch(async (err) => {
+    //     if (err.response?.status === 404)
+    //       return await axios.get(`https://www.smogon.com/dex/media/sprites/ss/${pokeSprite}.gif`, { responseType: 'arraybuffer' })
+    //     else
+    //       throw err;
+    //   })
+
+    const response = await axios.get(`https://play.pokemonshowdown.com/sprites/ani/${pokeSprite}.gif`, { responseType: 'arraybuffer' })
+      .catch(async (err) => {
+        if (err.response?.status === 404)
+          return await axios.get(`https://play.pokemonshowdown.com/sprites/dex/${pokeSprite}.png`, { responseType: 'arraybuffer' })
+        else
+          throw err;
+      })
+
+    // https://play.pokemonshowdown.com/sprites/ani/gastrodon.gif
+
+    const imageData = Buffer.from(response.data, 'binary');
+
+    fs.writeFileSync(targetImagePath, imageData);
+  } catch (error: any) {
+    console.warn(`Error downloading the image for ${pokeSprite}:`, error.message);
+  }
 }
 
-dexNumberWithMultipleEntries.forEach(e => {
-  verifyEntry(dexMapping.get(e)[0].id, e)
+if (!fs.existsSync('./src/pokeimages')) {
+  fs.mkdirSync("./src/pokeimages")
+}
+
+dexMapping.forEach((a) => {
+  a.forEach((pokeEntry: any) => {
+    downloadSmogonPokeImage(pokeEntry.spriteid)
+  })
 })
 
+// console.log(dexMapping.get(1))
+
+// console.log(Array.from(dexMapping.keys()).reduce((a, b) => Math.max(a, b)))
+// dexMapping.forEach((pokeEntryList) => {
+//   downloadSmogonPokeImage(i)
+// })
+
+// async function verifyEntry(pokeName: string, pokeIndex: number) {
+//   const options = await getFetchPokeOptions(pokeName)
+//   if (options.length !== dexMapping.get(pokeIndex).length)
+//     console.warn(`Different mapping for: ${pokeIndex} ${pokeName}`)
+// }
+
+// dexNumberWithMultipleEntries.forEach(e => {
+//   verifyEntry(dexMapping.get(e)[0].id, e)
+// })
+
 // getFetchPokeOptions("charmander")
-console.log(dexMapping.get(855))
+// console.log(dexMapping.get(855))
