@@ -11,7 +11,7 @@ function MainScreen() {
 
       <ScrollView>
         <Text style={[textStyle.default]}> hello </Text>
-        <Text style={[textStyle.default]}> some time to load the project </Text>
+        <Text style={[textStyle.default]}> hot reloaded </Text>
       </ScrollView>
       {/* Status bar is atop network etc  */}
 
