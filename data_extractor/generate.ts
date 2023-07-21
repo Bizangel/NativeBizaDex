@@ -239,7 +239,7 @@ async function fetchAndParseAbility(abilityId: string): Promise<Ability> {
 
     // get effect description
     const effectH2 = $(`h2:contains("Effect")`).first();
-    const effectDescription = effectH2.nextUntil('h2').text().trim();
+    const effectDescription = effectH2.nextUntil('h2, h3').text().trim();
 
     // get game description
     const entriesTables = $(`h2:contains("Game descriptions")`).first().nextAll('.resp-scroll').first()
