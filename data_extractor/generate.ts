@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { load as cheerioLoad } from 'cheerio';
-import { downloadImage, getIdFromHref, getPokeIdFromImageUrl, parseEvolveTree } from './utils';
+import { downloadImage, getIdFromHref, getPokeIdFromImageUrl, handleIdExceptions, parseEvolveTree, lowercaseAZNormalize } from './utils';
 import { Ability, AbilitySchema, BaseStat, BaseStatName, PokeType, Pokemon, PokemonSchema } from '../src/types/Pokemon';
 import fs from "fs";
 
@@ -67,7 +67,13 @@ async function getPokevariantsTabs(html: any): Promise<TabInfo[]> {
 
   res.find('.sv-tabs-tab').each((e, ele) => {
     const id = $(ele).attr('href');
-    const displayName = $(ele).text().trim()
+    let displayName = $(ele).text().trim()
+
+
+    if (!lowercaseAZNormalize(displayName).includes(lowercaseAZNormalize(mainpageFullName))) {
+      // displayname doesn't have name so add it
+      displayName = `${mainpageFullName} (${displayName})`
+    }
 
     if (id) {// remove id hash at start
       result.push({
@@ -98,7 +104,7 @@ function parsePokeTab(html: any,
     throw new Error("Unable to parse html, could not find image href")
 
   // get ID from image
-  const pokeId = getPokeIdFromImageUrl(imageSrc)
+  let pokeId = getPokeIdFromImageUrl(imageSrc)
 
   // Get base stats and total
   const pokeBaseStats: BaseStat[] = []
@@ -184,8 +190,9 @@ function parsePokeTab(html: any,
     evoTree: tabInfo.evoTree
   }
 
+
   // validate it
-  const validated = PokemonSchema.parse(returnPoke);
+  const validated = PokemonSchema.parse(handleIdExceptions(returnPoke));
   return validated
 }
 
@@ -209,16 +216,16 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon[]> {
   }
 }
 
-// async function fetchAllPokes() {
-//   const dexMapping = await getDexMappingToURL()
+async function fetchAllPokes() {
+  const dexMapping = await getDexMappingToURL()
 
-//   const allhrefs = Array.from(dexMapping.values())
-//   const pokeResult = await Promise.all(
-//     allhrefs.map(e => getPokemonFromUrl(e))
-//   )
+  const allhrefs = Array.from(dexMapping.values())
+  const pokeResult = await Promise.all(
+    allhrefs.map(e => getPokemonFromUrl(e))
+  )
 
-//   fs.writeFileSync('./src/assets/pokemon.json', JSON.stringify(pokeResult.flat()))
-// }
+  fs.writeFileSync('./src/assets/pokemon.json', JSON.stringify(pokeResult.flat()))
+}
 
 async function fetchAndParseAbility(abilityId: string): Promise<Ability> {
   try {
@@ -320,11 +327,55 @@ function verifyDataIntegrity() {
       throw new Error(`Missing image for: ${filename}`)
   })
 
+  // make a list of all PokeIds, also check that there are no repeated-ids
+  const allPokes = new Set<string>();
+
   // check that all pokes in evos actually exists.
-  const allPokes = pokemonJSON.map(e => e.id)
+  pokemonJSON.forEach(e => {
+    if (allPokes.has(e.id))
+      throw new Error(`Repeated poke id: ${e.id}`)
+
+    allPokes.add(e.id);
+  })
+
   const evoTrees = pokemonJSON.map(e => e.evoTree)
 
-  console.log(evoTrees)
+  evoTrees.forEach(evoTree => {
+    Object.keys(evoTree).forEach(e => {
+      if (!allPokes.has(e)) {
+        throw new Error(`Invalid evo doesn't exist: ${e}`)
+      }
+    })
+
+    Object.values(evoTree).flat().map(e => {
+      if (!allPokes.has(e.pokeId)) {
+        throw new Error(`Invalid evo doesn't exist: ${e.pokeId}`)
+      }
+    })
+
+    // check that there's no repeated evo targets
+    // NVM there's actually multiple ways to evolve to same poke so not bad.
+    // Object.entries(evoTree).forEach(([prevo, targetEvos]) => {
+    //   const ids = targetEvos.map(e => e.pokeId);
+
+    //   if (ids.length !== (new Set(ids)).size)
+    //     throw new Error(`Duplicates found in evo targets: ${prevo} -> ${ids}`)
+    // })
+  })
+
+  // check that ids and displays names are consistent.
+  // Some display names might be "Three-Segment Form" which is not truly a display name.
+  // thus every segment (word splitted by dash -) should be contained in some way in the display name.
+  pokemonJSON.forEach((e) => {
+    e.id.split("-").forEach(id_split => {
+      if (id_split.length < 3) // ignore it if too short split
+        return;
+
+      if (!lowercaseAZNormalize(e.displayName).includes(lowercaseAZNormalize(id_split)))
+        throw new Error(`ID doesn't match with display name: ${e.id} | ${e.displayName}`)
+
+    })
+  })
 }
 
 async function main() {
@@ -333,9 +384,10 @@ async function main() {
     fs.mkdirSync('./src/assets')
   }
 
-  // await Promise.all([fetchAllPokes(), fetchAllAbilities()]);
+  await Promise.all([fetchAllPokes(), fetchAllAbilities()]);
 
   await downloadAllPokeImages();
+
   verifyDataIntegrity();
 }
 
