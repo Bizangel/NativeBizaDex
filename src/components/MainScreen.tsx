@@ -2,6 +2,10 @@ import { FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
 import TopSearchBar from './TopSearchBar';
 import PokeCard from './PokeCard';
 import { textStyle } from '../styles/styles';
+import { Ability, Pokemon } from '../types/Pokemon';
+
+const allPokemon = require('../assets/pokemon.json') as Pokemon[];
+const allAbilities = require('../assets/abilities.json') as Ability[];
 
 function MainScreen() {
   return (
@@ -15,9 +19,10 @@ function MainScreen() {
       <View style={{ justifyContent: "center", flexGrow: 1 }}>
         <FlatList
           numColumns={2}
-          style={{ backgroundColor: "blue", width: "100%" }}
-          renderItem={() => <PokeCard />}
-          data={Array.from(Array(100).keys())}
+          style={{ width: "100%" }}
+          renderItem={(e) => <PokeCard pokemon={e.item} />}
+          keyExtractor={e => e.id}
+          data={allPokemon}
         />
       </View>
 
