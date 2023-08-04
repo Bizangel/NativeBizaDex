@@ -10,7 +10,8 @@
     "test": "jest",
     "android_production_install": "react-native run-android --mode=release",
     "build:android": "ts-node ./scripts/buildApk.ts",
-    "datagen": "ts-node data_extractor/generate.ts"
+    "datagen": "ts-node data_extractor/generate.ts",
+    "imagegen": "ts-node data_extractor/generate_imageassets.ts"
   },
   "dependencies": {
     "react": "18.2.0",
