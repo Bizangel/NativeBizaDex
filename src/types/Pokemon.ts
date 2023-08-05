@@ -52,6 +52,8 @@ export const PokemonSchema = z.object({
       pokeId: z.string().nonempty(),
     }).array()
   ),
+
+  variantName: z.string(),
 });
 
 // extract the inferred type

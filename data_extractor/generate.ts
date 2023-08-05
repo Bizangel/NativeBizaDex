@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { load as cheerioLoad } from 'cheerio';
-import { downloadImage, getIdFromHref, getPokeIdFromImageUrl, handleIdExceptions, parseEvolveTree, lowercaseAZNormalize } from './utils';
+import { getIdFromHref, getPokeIdFromImageUrl, handleIdExceptions, parseEvolveTree, lowercaseAZNormalize } from './utils';
 import { Ability, AbilitySchema, BaseStat, BaseStatName, PokeType, Pokemon, PokemonSchema } from '../src/types/Pokemon';
 import fs from "fs";
+
+const excludedPokemonId = new Set(["eternatus-eternamax"]); // ensure to exclude so that everything is valid ! (don't exclude an evo and forget to exclude its prevo)
 
 const baseDatabaseUrl = "https://pokemondb.net"
 
@@ -32,6 +34,9 @@ async function getDexMappingToURL(): Promise<Map<number, string>> {
 
 type TabInfo = {
   displayName: string,
+
+  tabRawName: string,
+
   tabId: string,
   dexEntry: string,
   generationalChanges: string[],
@@ -68,7 +73,7 @@ async function getPokevariantsTabs(html: any): Promise<TabInfo[]> {
   res.find('.sv-tabs-tab').each((e, ele) => {
     const id = $(ele).attr('href');
     let displayName = $(ele).text().trim()
-
+    const rawTabName = displayName;
 
     if (!lowercaseAZNormalize(displayName).includes(lowercaseAZNormalize(mainpageFullName))) {
       // displayname doesn't have name so add it
@@ -80,7 +85,8 @@ async function getPokevariantsTabs(html: any): Promise<TabInfo[]> {
         displayName: displayName, tabId: id.replace(/^#/, ''),
         dexEntry: pokedexEntry,
         generationalChanges: generationalChanges,
-        evoTree: evoTree
+        evoTree: evoTree,
+        tabRawName: rawTabName
       });
     }
   })
@@ -97,8 +103,7 @@ function parsePokeTab(html: any,
   const tab = $(`#${tabInfo.tabId}`).first();
 
 
-  // get image
-  // const imageSrc = $(tab.find('a[rel=lightbox]')).attr('href')
+  // get image and use that as unique identifier!
   const imageSrc = tab.find('img').first().attr('src')
   if (!imageSrc)
     throw new Error("Unable to parse html, could not find image href")
@@ -187,7 +192,9 @@ function parsePokeTab(html: any,
     isMega: isMega,
     generationalChanges: tabInfo.generationalChanges,
 
-    evoTree: tabInfo.evoTree
+    evoTree: tabInfo.evoTree,
+
+    variantName: tabInfo.tabRawName
   }
 
 
@@ -208,8 +215,10 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon[]> {
     const tabsPoke = await getPokevariantsTabs(html);
     const poke = tabsPoke.map(e => parsePokeTab(html, e))
 
-    return poke;
+
+    return poke.filter(e => !excludedPokemonId.has(e.id));
   }
+
   catch (err: any) {
     console.log(`Error fetching: ${url} error ${err}`)
     return [];
@@ -220,6 +229,7 @@ async function fetchAllPokes() {
   const dexMapping = await getDexMappingToURL()
 
   const allhrefs = Array.from(dexMapping.values())
+
   const pokeResult = await Promise.all(
     allhrefs.map(e => getPokemonFromUrl(e))
   )
@@ -276,25 +286,25 @@ async function fetchAllAbilities() {
 }
 
 
-async function downloadAllPokeImages() {
-  const pokemonJSON = JSON.parse(fs.readFileSync('./src/assets/pokemon.json').toString()) as Pokemon[];
+// async function downloadAllPokeImages() {
+//   const pokemonJSON = JSON.parse(fs.readFileSync('./src/assets/pokemon.json').toString()) as Pokemon[];
 
-  // create poke image folder if it doesn't exist.
-  if (!fs.existsSync('./src/assets/pokeimages')) {
-    fs.mkdirSync('./src/assets/pokeimages')
-  }
+//   // create poke image folder if it doesn't exist.
+//   if (!fs.existsSync('./src/assets/pokeimages')) {
+//     fs.mkdirSync('./src/assets/pokeimages')
+//   }
 
-  const downloadPokeImage = async (poke: Pokemon) => {
-    const filename = getIdFromHref(poke.imageUrl);
-    const targetPath = `./src/assets/pokeimages/${filename}`
-    if (fs.existsSync(targetPath))
-      return;
+//   const downloadPokeImage = async (poke: Pokemon) => {
+//     const filename = getIdFromHref(poke.imageUrl);
+//     const targetPath = `./src/assets/pokeimages/${filename}`
+//     if (fs.existsSync(targetPath))
+//       return;
 
-    await downloadImage(poke.imageUrl, targetPath, true)
-  }
+//     await downloadImage(poke.imageUrl, targetPath, true)
+//   }
 
-  await Promise.all(pokemonJSON.map(e => downloadPokeImage(e)));
-}
+//   await Promise.all(pokemonJSON.map(e => downloadPokeImage(e)));
+// }
 
 function verifyDataIntegrity() {
   if (!fs.existsSync('./src/assets/abilities.json'))
@@ -318,13 +328,6 @@ function verifyDataIntegrity() {
       if (!allAbilities.has(id))
         throw new Error(`Invalid Ability: ${id}`)
     })
-  })
-
-  // check that all images exist
-  pokemonJSON.forEach(poke => {
-    const filename = getIdFromHref(poke.imageUrl);
-    if (!fs.existsSync(`./src/assets/pokeimages/${filename}`))
-      throw new Error(`Missing image for: ${filename}`)
   })
 
   // make a list of all PokeIds, also check that there are no repeated-ids
@@ -385,8 +388,6 @@ async function main() {
   }
 
   await Promise.all([fetchAllPokes(), fetchAllAbilities()]);
-
-  await downloadAllPokeImages();
 
   verifyDataIntegrity();
 }
