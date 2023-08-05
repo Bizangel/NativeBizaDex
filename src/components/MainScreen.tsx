@@ -1,20 +1,16 @@
-import { FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
-import TopSearchBar from './TopSearchBar';
+import { FlatList, StatusBar, StyleSheet, View } from 'react-native';
+import TopBar from './TopBar';
 import PokeCard from './PokeCard';
-import { textStyle } from '../styles/styles';
-import { Ability, Pokemon } from '../types/Pokemon';
+import { Pokemon } from '../types/Pokemon';
 
 const allPokemon = require('../assets/pokemon.json') as Pokemon[];
-const allAbilities = require('../assets/abilities.json') as Ability[];
+// const allAbilities = require('../assets/abilities.json') as Ability[];
 
 function MainScreen() {
   return (
     <View style={styles.container}>
 
-      <TopSearchBar />
-
-      <Text style={[textStyle.default]}> hello </Text>
-      <Text style={[textStyle.default]}> hot reloaded again 2</Text>
+      <TopBar />
 
       <View style={{ justifyContent: "center", flexGrow: 1 }}>
         <FlatList
@@ -36,7 +32,7 @@ function MainScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
   },

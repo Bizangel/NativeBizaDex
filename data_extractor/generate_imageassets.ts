@@ -1,6 +1,7 @@
 import fs from "fs"
 import { Pokemon } from "../src/types/Pokemon"
 import { getIdFromHref } from "./utils"
+import { execSync } from "child_process"
 
 const indentSpaces = 2;
 
@@ -17,9 +18,14 @@ if (!fs.existsSync(pokeJSONPath)) {
   throw new Error(`Unable to find ${pokeJSONPath}. Ensure you have executed "npm run datagen" first.`)
 }
 
+execSync(`powershell.exe -ExecutionPolicy Bypass -File data_extractor/transform_images.ps1`, { stdio: 'inherit' })
+process.exit()
 if (fs.existsSync(targetGenPath)) {
   throw new Error(`File ${targetGenPath} already exists! Delete it first to execute script again.`)
 }
+
+
+
 
 const fileStart = `
 import { ImageSourcePropType } from "react-native";

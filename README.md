@@ -7,8 +7,13 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 ## Generate/fetch PokeData Required
 ```bash
 # using npm
-npm run datagen && npm run imagegen
+npm run datagen
+npm run imagegen
 ```
+
+Ensure the datagen runs without errors before running the imagegen!
+The datagen may fail sometimes as it has to fetch many images. It will cache the previous ones.
+So if it fails just run multiple times until it finishes successfully.
 
 ## Step 1: Start the Metro Server
 
