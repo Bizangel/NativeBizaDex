@@ -86,34 +86,35 @@ const pokeJSON = JSON.parse(fs.readFileSync("./src/assets/pokemon.json").toStrin
 let lastPokedexNumber = -1;
 let lastFormNumber = 1;
 
-pokeJSON.forEach(poke => {
-  if (poke.nationalDexNumber === lastPokedexNumber) {
-    // means it's a variant form
-    lastFormNumber++;
-    downloadPokeImage(poke.id, poke.nationalDexNumber, lastFormNumber)
-  } else {
-    // just fetch first one, no specific form
-    downloadPokeImage(poke.id, poke.nationalDexNumber, null)
-    lastFormNumber = 1;
-  }
+async function MainFunc() {
+  await Promise.all(pokeJSON.map(async poke => {
+    if (poke.nationalDexNumber === lastPokedexNumber) {
+      // means it's a variant form
+      lastFormNumber++;
+      await downloadPokeImage(poke.id, poke.nationalDexNumber, lastFormNumber)
+    } else {
+      // just fetch first one, no specific form
+      await downloadPokeImage(poke.id, poke.nationalDexNumber, null)
+      lastFormNumber = 1;
+    }
 
-  lastPokedexNumber = poke.nationalDexNumber;
-})
+    lastPokedexNumber = poke.nationalDexNumber;
+  }))
 
-// validate that all exists
-pokeJSON.forEach((e) => {
-  if (fs.existsSync(pokeImagesPath + e.id + ".png"))
-    throw new Error(`Missing image for: ${e.id} ${e.displayName}`)
-})
+  // validate that all exists
+  pokeJSON.forEach((e) => {
+    if (!fs.existsSync(pokeImagesPath + '/' + e.id + ".png"))
+      throw new Error(`Missing image for: ${e.id} ${e.displayName}`)
+  })
 
-/**
- * TS FILE GENERATION with images
- * ============================
- */
+  /**
+   * TS FILE GENERATION with images
+   * ============================
+   */
 
-const indentSpaces = 2;
-const targetGenPath = "./src/assets/pokeImages.ts"
-const fileStart = `
+  const indentSpaces = 2;
+  const targetGenPath = "./src/assets/pokeImages.ts"
+  const fileStart = `
 import { ImageSourcePropType } from "react-native";
 
 /* =====================================================
@@ -126,10 +127,13 @@ import { ImageSourcePropType } from "react-native";
 const pokeImages: Record<string, ImageSourcePropType> = {
 `
 
-const fileEnd = `}\n\nexport default pokeImages;`
+  const fileEnd = `}\n\nexport default pokeImages;`
 
-const jsonLine = pokeJSON.map((e) => `${" ".repeat(indentSpaces)}'${e.id}': require('../assets/pokeimages/${e.id}.png'),`)
+  const jsonLine = pokeJSON.map((e) => `${" ".repeat(indentSpaces)}'${e.id}': require('../assets/pokeimages/${e.id}.png'),`)
 
-// write the contents
-const fullFileContents = fileStart + jsonLine.join("\n") + fileEnd;
-fs.writeFileSync(targetGenPath, fullFileContents)
+  // write the contents
+  const fullFileContents = fileStart + jsonLine.join("\n") + fileEnd;
+  fs.writeFileSync(targetGenPath, fullFileContents)
+}
+
+MainFunc()
