@@ -1,24 +1,41 @@
-import { Dimensions, FlatList, ListRenderItemInfo, StatusBar, StyleSheet, View } from 'react-native';
+import { Dimensions, FlatList, StatusBar } from 'react-native';
 import TopBar from './TopBar';
 import PokeCard from './PokeCard';
 import { Pokemon } from '../types/Pokemon';
+import styled from 'styled-components/native'
+
+const Body = styled.View`
+`
+
+const FlatListWrapper = styled.View`
+  justify-content: center;
+  flex-grow: 1;
+  background-color: black;
+`
+
 
 const allPokemon = require('../assets/pokemon.json') as Pokemon[];
 // const allAbilities = require('../assets/abilities.json') as Ability[];
-function FlatListRender(e: ListRenderItemInfo<Pokemon>) {
-  return <PokeCard pokemon={e.item} />
+function FlatListRender(e: any): any {
+  return <PokeCard pokemon={e.item as Pokemon} /> as any; // this expression for sm reason just breaks so yeah
 }
 
 function MainScreen() {
   const screenWidth = Dimensions.get('window').width;
 
   const getItemLayout = (data: any, index: number) => {
-    return { length: screenWidth / 2, offset: screenWidth / 2 * index, index: index };
+    const aspectRatio = 0.8;
+    const height = screenWidth / (2 * aspectRatio);
+    return {
+      length: height, // length means height in this csae
+      offset: height * index,
+      index: index
+    };
   }
 
   return (
-    <View style={styles.body}>
-      <View style={styles.verticalFlatListStyle}>
+    <Body>
+      <FlatListWrapper>
         <FlatList
           ListHeaderComponent={<TopBar />}
           stickyHeaderIndices={[0]}
@@ -32,29 +49,13 @@ function MainScreen() {
           maxToRenderPerBatch={5}
           windowSize={5}
         />
-      </View>
+      </FlatListWrapper>
 
       {/* Status bar is atop network etc  */}
 
       <StatusBar backgroundColor="white" barStyle="dark-content" />
-    </View>
+    </Body>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  verticalFlatListStyle: {
-    justifyContent: "center",
-    flexGrow: 1,
-    backgroundColor: "rgba(0,0,0,1)",
-    // width: "100%",
-    // height: "100%",
-  }
-});
 
 export default MainScreen;
