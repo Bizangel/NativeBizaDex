@@ -1,20 +1,21 @@
 import { useState } from "react"
-import { View, StyleSheet, StatusBar, TextInput, Image } from "react-native";
-import pokeImages from "../assets/pokeImages";
+import { View, StyleSheet, TextInput, Image } from "react-native";
 
 const styles = StyleSheet.create({
   topBarWrapper: {
-    backgroundColor: "rgba(200,200,200,0.7)",
+    backgroundColor: 'rgba(255,255,255, .7)',
+
     height: 70,
     width: "100%",
-    top: 0,
-    // borderRadius: 30,
+
+
     display: "flex",
     flexDirection: "row",
 
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
+
   input: {
     fontSize: 16,
   },
@@ -27,11 +28,10 @@ const styles = StyleSheet.create({
 
 
 function TopBar() {
-  const statusBarHeight = StatusBar.currentHeight || 0;
   const [currentSearch, setCurrentSearch] = useState("")
 
   return (
-    <View style={[styles.topBarWrapper, { marginTop: statusBarHeight }]}>
+    <View style={[styles.topBarWrapper]}>
       <View style={[styles.searchBarWrapper]}>
         <TextInput
           style={[styles.input]}
