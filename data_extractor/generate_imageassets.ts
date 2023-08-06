@@ -86,19 +86,22 @@ const pokeJSON = JSON.parse(fs.readFileSync("./src/assets/pokemon.json").toStrin
 let lastPokedexNumber = -1;
 let lastFormNumber = 1;
 
-async function MainFunc() {
-  await Promise.all(pokeJSON.map(async poke => {
-    if (poke.nationalDexNumber === lastPokedexNumber) {
-      // means it's a variant form
-      lastFormNumber++;
-      await downloadPokeImage(poke.id, poke.nationalDexNumber, lastFormNumber)
-    } else {
-      // just fetch first one, no specific form
-      await downloadPokeImage(poke.id, poke.nationalDexNumber, null)
-      lastFormNumber = 1;
-    }
-
+const pokeInfoPrev: [string, number, number | null][] = pokeJSON.map(poke => {
+  if (poke.nationalDexNumber === lastPokedexNumber) {
+    // means it's a variant form
+    lastFormNumber++;
+    return [poke.id, poke.nationalDexNumber, lastFormNumber]
+  } else {
+    // just fetch first one, no specific form
+    lastFormNumber = 1;
     lastPokedexNumber = poke.nationalDexNumber;
+    return [poke.id, poke.nationalDexNumber, null]
+  }
+})
+
+async function MainFunc() {
+  await Promise.all(pokeInfoPrev.map(async ([pokeId, dexNumber, formIndex]) => {
+    await downloadPokeImage(pokeId, dexNumber, formIndex)
   }))
 
   // validate that all exists
