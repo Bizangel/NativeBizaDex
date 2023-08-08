@@ -117,6 +117,16 @@ export function handleIdExceptions(pokemon: Pokemon): Pokemon {
     return { ...pokemon, id: "eevee-partner" }
   }
 
+  if (pokemon.id === "nidoran-m") {
+    return { ...pokemon, displayName: "Nidoran (male)" }
+  }
+
+  if (pokemon.id === "nidoran-f") {
+    return { ...pokemon, displayName: "Nidoran (female)" }
+  }
+
+
+
   if (pokemon.id.startsWith("tauros-")) {
     return { ...pokemon, displayName: `Paldean ${pokemon.displayName}` }
   }
