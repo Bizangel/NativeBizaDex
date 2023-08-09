@@ -5,3 +5,7 @@ export function getPokeimage(poke: Pokemon) {
   const extractedString = poke.imageUrl.substring(startIndex, poke.imageUrl.length);
   return extractedString;
 }
+
+export function lowercaseAZNormalizeMobile(str: string) {
+  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z ]/g, '')
+}

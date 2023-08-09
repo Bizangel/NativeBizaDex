@@ -1,50 +1,58 @@
 import { useState } from "react"
-import { View, StyleSheet, TextInput, Image } from "react-native";
-
-const styles = StyleSheet.create({
-  topBarWrapper: {
-    backgroundColor: 'rgba(255,255,255, .7)',
-
-    height: 70,
-    width: "100%",
+import { View, StyleSheet, TextInput, Image, Keyboard } from "react-native";
+import { styled } from "styled-components/native";
 
 
-    display: "flex",
-    flexDirection: "row",
+const TopbarWrapper = styled.View`
+  background-color: rgba(0,0,0, 0.7);
 
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  height: 50px;
+  width: 100%;
 
-  input: {
-    fontSize: 16,
-  },
+  display: flex;
+  flex-direction: row;
 
-  searchBarWrapper: {
-    width: "50%",
-    backgroundColor: "blue",
-  }
-});
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0px 20px;
+`
+
+const SearchBarWrapper = styled.View`
+  width: 75%;
+  background-color: rgba(0,0,0,.7);
+
+  border-radius: 20px;
+  margin: 5px 0px;
+`
+
+const SearchInput = styled.TextInput`
+  font-size: 16px;
+  padding-left: 15px;
+`
 
 
-function TopBar() {
-  const [currentSearch, setCurrentSearch] = useState("")
+export type TopBarProps = {
+  currentSearch: string,
+  setCurrentSearch: (x: string) => void,
+}
+
+function TopBar({ currentSearch, setCurrentSearch }: TopBarProps) {
 
   return (
-    <View style={[styles.topBarWrapper]}>
-      <View style={[styles.searchBarWrapper]}>
-        <TextInput
-          style={[styles.input]}
+    <TopbarWrapper>
+      <SearchBarWrapper>
+        <SearchInput
           placeholder="Search"
           onChangeText={(x) => setCurrentSearch(x)}
           value={currentSearch}
           defaultValue={""}
         />
-      </View>
+      </SearchBarWrapper>
 
 
       <Image source={require('../icons/filter.png')} style={{ width: 40, height: 40 }} />
-    </View>
+    </TopbarWrapper>
   )
 }
 
