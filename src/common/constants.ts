@@ -20,3 +20,24 @@ export const types2color: Record<PokeType, string> = {
   Steel: "rgb(170,170,187)",
   Fairy: "rgb(238,153,238)"
 } as const
+
+export const types2semiEndColor: Record<PokeType, string> = {
+  Normal: "rgb(194, 194, 188)",
+  Fire: "rgb(245, 118, 95)",
+  Water: "rgb(123, 181, 240)",
+  Electric: "rgb(243, 231, 121)",
+  Grass: "rgb(149, 235, 115)",
+  Ice: "rgb(156, 215, 245)",
+  Fighting: "rgb(219, 124, 107)",
+  Poison: "rgb(218, 122, 198)",
+  Ground: "rgb(238, 208, 119)",
+  Flying: "rgb(156, 169, 245)",
+  Psychic: "rgb(250, 130, 178)",
+  Bug: "rgb(195, 211, 72)",
+  Rock: "rgb(228, 209, 133)",
+  Ghost: "rgb(140, 140, 223)",
+  Dragon: "rgb(151, 137, 245)",
+  Dark: "rgb(170, 120, 95)",
+  Steel: "rgb(203, 203, 223)",
+  Fairy: "rgb(238, 177, 238)"
+} as const

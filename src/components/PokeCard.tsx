@@ -3,7 +3,7 @@ import { useWindowDimensions, Image } from "react-native"
 import { PokeType, Pokemon } from "../types/Pokemon";
 import styled from 'styled-components/native'
 import LinearGradient from 'react-native-linear-gradient';
-import { types2color } from "../common/constants";
+import { types2color, types2semiEndColor } from "../common/constants";
 import pokeImages from "../assets/pokeImages";
 import { RectButton } from 'react-native-gesture-handler';
 
@@ -47,6 +47,7 @@ const TypeDisplayWrapper = styled.View`
 
   flex-direction: row;
   padding-bottom: 5px;
+  margin-bottom: 5px;
 `
 
 const TypeDisplay = styled.Text<{ type: PokeType }>`
@@ -85,8 +86,12 @@ const PokeCard = memo(({ pokemon }: { pokemon: Pokemon }) => {
   const dimension = useWindowDimensions();
 
   let gradientColor = pokemon.type.map(e => types2color[e]);
-  if (gradientColor.length === 1)
-    gradientColor = [gradientColor[0], "rgb(200, 200, 200)"] // repeat 1st color twice.
+
+  if (gradientColor.length === 1) {
+    gradientColor = [gradientColor[0], types2semiEndColor[pokemon.type[0]]] // repeat 1st color twice.
+  }
+
+
 
   return (
     <CardWrapper style={[{ width: dimension.width / 2 }]} key={pokemon.id}>
