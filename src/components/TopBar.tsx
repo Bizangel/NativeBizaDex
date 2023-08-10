@@ -3,7 +3,7 @@ import { styled } from "styled-components/native";
 
 
 const TopbarWrapper = styled.View`
-  background-color: rgba(0,0,0, 0.7);
+  background-color: rgba(33, 46, 51, .7);
 
   height: 50px;
   width: 100%;
@@ -19,7 +19,7 @@ const TopbarWrapper = styled.View`
 
 const SearchBarWrapper = styled.View`
   width: 75%;
-  background-color: rgba(0,0,0,.7);
+  background-color: rgba(33, 46, 51, .7);
 
   border-radius: 20px;
   margin: 5px 0px;
@@ -28,6 +28,9 @@ const SearchBarWrapper = styled.View`
 const SearchInput = styled.TextInput`
   font-size: 16px;
   padding-left: 15px;
+
+  /* color: rgb(200,200,200); */
+  color: white;
 `
 
 
@@ -43,6 +46,7 @@ function TopBar({ currentSearch, setCurrentSearch }: TopBarProps) {
       <SearchBarWrapper>
         <SearchInput
           placeholder="Search"
+          placeholderTextColor="#dddddd"
           onChangeText={(x: string) => setCurrentSearch(x)}
           value={currentSearch}
           defaultValue={""}
