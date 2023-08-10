@@ -1,4 +1,4 @@
-import { Dimensions, StatusBar } from 'react-native';
+import { Dimensions, ListRenderItemInfo, StatusBar } from 'react-native';
 import TopBar from './TopBar';
 import PokeCard from './PokeCard';
 import { PokeType, Pokemon } from '../types/Pokemon';
@@ -6,6 +6,7 @@ import styled from 'styled-components/native'
 import { useCallback, useMemo, useState } from 'react';
 import { PokeFilter, filterPokemon } from './util/filterPokemon';
 import { FlatList } from 'react-native-gesture-handler';
+import { PokeDetails } from './PokeDetails';
 
 const bgColor = "#212e33"
 const Body = styled.View`
@@ -32,9 +33,7 @@ const EmptyDisplay = styled.Text`
 
 const allPokemon = require('../assets/pokemon.json') as Pokemon[];
 // const allAbilities = require('../assets/abilities.json') as Ability[];
-function FlatListRender(e: any): any {
-  return <PokeCard pokemon={e.item as Pokemon} /> as any; // this expression for sm reason just breaks so yeah
-}
+
 
 const AllTypes = [
   "Normal", "Fire", "Water", "Electric",
@@ -47,12 +46,20 @@ const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes }
 
 function MainScreen() {
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(initialFilter)
+  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
+
   const currentData = useMemo(() => filterPokemon(allPokemon, currentFilter), [currentFilter])
   const screenWidth = Dimensions.get('window').width;
 
   const updateCurrentSearchFilter = useCallback((x: string) => {
     setCurrentFilter(e => { return { ...e, searchString: x } })
   }, [setCurrentFilter])
+
+  const renderPokecard = useCallback(({ item }: ListRenderItemInfo<Pokemon>) => {
+    //@ts-ignore // for some reason this line is too complex so ignore
+    return <PokeCard pokemon={item} setSelectedPokemon={setSelectedPokemon} />;
+  }, [setSelectedPokemon])
+
 
   const getItemLayout = (data: any, index: number) => {
     const aspectRatio = 0.8;
@@ -73,7 +80,7 @@ function MainScreen() {
           numColumns={2}
           getItemLayout={getItemLayout}
           // style={{ width: "100%", height: "100%" }}
-          renderItem={FlatListRender}
+          renderItem={renderPokecard}
           data={currentData}
           initialNumToRender={15}
           // viewabilityConfig={{ minimumViewTime: 1000 }}
@@ -90,7 +97,7 @@ function MainScreen() {
         }
       </FlatListWrapper>
 
-
+      {selectedPokemon && <PokeDetails pokemon={selectedPokemon} setSelectedPokemon={setSelectedPokemon} />}
 
       {/* Status bar is atop network etc  */}
 

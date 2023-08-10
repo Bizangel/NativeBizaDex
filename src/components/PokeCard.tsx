@@ -82,7 +82,7 @@ const PokenameDisplay = styled.Text`
 
 // Pokecard dimension must always be screenWidth / 2 with same height (square!).
 
-const PokeCard = memo(({ pokemon }: { pokemon: Pokemon }) => {
+const PokeCard = memo(({ pokemon, setSelectedPokemon }: { pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void }) => {
   const dimension = useWindowDimensions();
 
   let gradientColor = pokemon.type.map(e => types2color[e]);
@@ -91,13 +91,11 @@ const PokeCard = memo(({ pokemon }: { pokemon: Pokemon }) => {
     gradientColor = [gradientColor[0], types2semiEndColor[pokemon.type[0]]] // repeat 1st color twice.
   }
 
-
-
   return (
     <CardWrapper style={[{ width: dimension.width / 2 }]} key={pokemon.id}>
 
       <RectButton
-        onPress={() => { console.log("clickity!") }}
+        onPress={() => { setSelectedPokemon(pokemon) }}
         underlayColor="black" foreground={true} style={{ backgroundColor: "black" }} rippleColor="black">
         <ActualCard colors={gradientColor} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
           <DexNumber>#{pokemon.nationalDexNumber}</DexNumber>

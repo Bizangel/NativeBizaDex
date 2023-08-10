@@ -43,7 +43,7 @@ function TopBar({ currentSearch, setCurrentSearch }: TopBarProps) {
       <SearchBarWrapper>
         <SearchInput
           placeholder="Search"
-          onChangeText={(x) => setCurrentSearch(x)}
+          onChangeText={(x: string) => setCurrentSearch(x)}
           value={currentSearch}
           defaultValue={""}
         />
