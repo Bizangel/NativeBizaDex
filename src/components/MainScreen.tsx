@@ -1,10 +1,11 @@
-import { Dimensions, FlatList, StatusBar } from 'react-native';
+import { Dimensions, StatusBar } from 'react-native';
 import TopBar from './TopBar';
 import PokeCard from './PokeCard';
 import { PokeType, Pokemon } from '../types/Pokemon';
 import styled from 'styled-components/native'
 import { useCallback, useMemo, useState } from 'react';
 import { PokeFilter, filterPokemon } from './util/filterPokemon';
+import { FlatList } from 'react-native-gesture-handler';
 
 const bgColor = "#212e33"
 const Body = styled.View`

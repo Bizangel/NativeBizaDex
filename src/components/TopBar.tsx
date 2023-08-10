@@ -1,5 +1,4 @@
-import { useState } from "react"
-import { View, StyleSheet, TextInput, Image, Keyboard } from "react-native";
+import { Image } from "react-native";
 import { styled } from "styled-components/native";
 
 

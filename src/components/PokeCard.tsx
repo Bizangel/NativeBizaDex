@@ -5,6 +5,7 @@ import styled from 'styled-components/native'
 import LinearGradient from 'react-native-linear-gradient';
 import { types2color } from "../common/constants";
 import pokeImages from "../assets/pokeImages";
+import { RectButton } from 'react-native-gesture-handler';
 
 const ActualCard = styled(LinearGradient)`
   width: 100%;
@@ -74,6 +75,9 @@ const PokenameDisplay = styled.Text`
   text-shadow: 1px 1px 2px rgba(0,0,0,.7);
 `
 
+// const PressableExample = styled.Pressable`
+// `
+
 
 // Pokecard dimension must always be screenWidth / 2 with same height (square!).
 
@@ -82,23 +86,27 @@ const PokeCard = memo(({ pokemon }: { pokemon: Pokemon }) => {
 
   let gradientColor = pokemon.type.map(e => types2color[e]);
   if (gradientColor.length === 1)
-    gradientColor = [gradientColor[0], ...gradientColor] // repeat 1st color twice.
+    gradientColor = [gradientColor[0], "rgb(200, 200, 200)"] // repeat 1st color twice.
 
   return (
     <CardWrapper style={[{ width: dimension.width / 2 }]} key={pokemon.id}>
 
-      <ActualCard colors={gradientColor} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-        <DexNumber>#{pokemon.nationalDexNumber}</DexNumber>
+      <RectButton
+        onPress={() => { console.log("clickity!") }}
+        underlayColor="black" foreground={true} style={{ backgroundColor: "black" }} rippleColor="black">
+        <ActualCard colors={gradientColor} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <DexNumber>#{pokemon.nationalDexNumber}</DexNumber>
 
-        <Image source={pokeImages[pokemon.id]} resizeMode="contain" style={{ flex: 1, width: undefined, height: undefined }} />
-        <PokenameDisplay>{pokemon.displayName}</PokenameDisplay>
-        <TypeDisplayWrapper>
-          {pokemon.type.map(e =>
-            <TypeDisplay type={e} key={e} style={{ elevation: 10 }}>{e}</TypeDisplay>
-          )}
-        </TypeDisplayWrapper>
+          <Image source={pokeImages[pokemon.id]} resizeMode="contain" style={{ flex: 1, width: undefined, height: undefined }} />
+          <PokenameDisplay>{pokemon.displayName}</PokenameDisplay>
+          <TypeDisplayWrapper>
+            {pokemon.type.map(e =>
+              <TypeDisplay type={e} key={e} style={{ elevation: 10 }}>{e}</TypeDisplay>
+            )}
+          </TypeDisplayWrapper>
 
-      </ActualCard>
+        </ActualCard>
+      </RectButton>
 
 
     </CardWrapper>
