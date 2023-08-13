@@ -7,10 +7,10 @@ import { useCallback, useMemo, useState } from 'react';
 import { PokeFilter, filterPokemon } from './util/filterPokemon';
 import { FlatList } from 'react-native-gesture-handler';
 import { PokeDetails } from './PokeDetails';
+import { colorPalette } from '../styles/styles';
 
-const bgColor = "#212e33"
 const Body = styled.View`
-  background-color: ${bgColor};
+  background-color: ${colorPalette.backgroundBlack};
   width: 100%;
   height: 100%;
 `
@@ -18,13 +18,13 @@ const Body = styled.View`
 const FlatListWrapper = styled.View`
   justify-content: center;
   flex-grow: 1;
-  background-color: ${bgColor};
+  background-color: ${colorPalette.backgroundBlack};
 `
 
 const EmptyDisplay = styled.Text`
   height: 80%;
   text-align: center;
-  color: white;
+  color: ${colorPalette.textWhite};
   padding: 7%;
 
   font-size: 20px;

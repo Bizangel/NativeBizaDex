@@ -3,9 +3,9 @@ import { useWindowDimensions, Image } from "react-native"
 import { PokeType, Pokemon } from "../types/Pokemon";
 import styled from 'styled-components/native'
 import LinearGradient from 'react-native-linear-gradient';
-import { types2color, types2semiEndColor } from "../common/constants";
 import pokeImages from "../assets/pokeImages";
 import { RectButton } from 'react-native-gesture-handler';
+import { colorPalette, types2color, types2semiEndColor } from "../styles/styles";
 
 const ActualCard = styled(LinearGradient)`
   width: 100%;
@@ -27,7 +27,7 @@ const DexNumber = styled.Text`
   left: 0;
 
   font-size: 16px;
-  color: white;
+  color: ${colorPalette.textWhite};
   margin-left: 5px;
 
   font-family: Arial;
@@ -57,7 +57,7 @@ const TypeDisplay = styled.Text<{ type: PokeType }>`
   text-transform: uppercase;
 
   background-color: ${p => types2color[p.type]};
-  color: white;
+  color: ${colorPalette.textWhite};
   text-shadow: 1px 1px 2px rgba(0,0,0,.7);
   text-align: center;
 

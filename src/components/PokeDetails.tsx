@@ -1,10 +1,12 @@
 import { styled } from "styled-components/native";
 import { Pokemon } from "../types/Pokemon";
-import { TouchableOpacity, TouchableWithoutFeedback, TapGesture, GestureDetector, Gesture } from "react-native-gesture-handler";
+import { GestureDetector, Gesture, ScrollView } from "react-native-gesture-handler";
 import { useCallback, useEffect, useRef } from "react";
 import { Animated, Image } from "react-native";
-import { types2color } from "../common/constants";
 import pokeImages from "../assets/pokeImages";
+import { types2color } from "../styles/styles";
+import { PokeStatsDisplay } from "./detailsComponents/PokestatsDisplay";
+import { DexNameAndDescription } from "./detailsComponents/DexNameAndDescription";
 
 const FullWrapper = styled(Animated.View)`
   position: absolute;
@@ -13,8 +15,6 @@ const FullWrapper = styled(Animated.View)`
 
   width: 100%;
   height: 100%;
-
-  background-color: rgba(0,0,0,.7);
 `
 
 const DetailsWrapper = styled(Animated.View)`
@@ -22,11 +22,27 @@ const DetailsWrapper = styled(Animated.View)`
   top: 35%;
   width: 100%;
   height: 65%;
-  background-color: blue;
-
-  transition: height;
 
   border-radius: 20px 20px 0px 0px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+`
+
+const ScrollableDetails = styled(ScrollView).attrs({
+  contentContainerStyle: { alignItems: "center" }
+})`
+  width: 100%;
+  height: 100%;
+
+  border-radius: 20px 20px 0px 0px;
+
+  display: flex;
+  flex-direction: column;
+
+  margin-top: 15%;
 `
 
 const PokeImageWrapper = styled.View`
@@ -37,9 +53,9 @@ const PokeImageWrapper = styled.View`
 
   width: 90%;
   height: 70%;
+
+  z-index: 10;
 `
-
-
 
 export function PokeDetails({ pokemon, setSelectedPokemon }: { pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void }) {
   const animOpeningProgress = useRef(new Animated.Value(0)).current;
@@ -75,13 +91,17 @@ export function PokeDetails({ pokemon, setSelectedPokemon }: { pokemon: Pokemon,
     <GestureDetector gesture={backgroundTap}>
       <FullWrapper style={{ backgroundColor: animatedOpacity }}>
 
-
         <GestureDetector gesture={detailsTap}>
           <DetailsWrapper style={{ top: animatedTop, backgroundColor: types2color[pokemon.type[0]] }}>
             <PokeImageWrapper>
               <Image source={pokeImages[pokemon.id]} resizeMode="contain" style={{ flex: 1, width: undefined, height: undefined }} />
             </PokeImageWrapper>
+            <ScrollableDetails style={{ backgroundColor: types2color[pokemon.type[0]] }}>
 
+              <DexNameAndDescription pokemon={pokemon} />
+              <PokeStatsDisplay stats={pokemon.baseStats} />
+
+            </ScrollableDetails>
           </DetailsWrapper>
         </GestureDetector>
       </FullWrapper >

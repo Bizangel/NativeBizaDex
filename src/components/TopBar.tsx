@@ -3,7 +3,7 @@ import { styled } from "styled-components/native";
 
 
 const TopbarWrapper = styled.View`
-  background-color: rgba(33, 46, 51, .7);
+  background-color: rgba(33, 46, 51, 0.698);
 
   height: 50px;
   width: 100%;
