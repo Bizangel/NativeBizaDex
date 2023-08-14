@@ -95,7 +95,7 @@ const PokeCard = memo(({ pokemon, setSelectedPokemon }: { pokemon: Pokemon, setS
     <CardWrapper style={[{ width: dimension.width / 2 }]} key={pokemon.id}>
 
       <RectButton
-        onPress={() => { setSelectedPokemon(pokemon) }}
+        onPress={() => { setSelectedPokemon(pokemon); }}
         underlayColor="black" foreground={true} style={{ backgroundColor: "black" }} rippleColor="black">
         <ActualCard colors={gradientColor} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
           <DexNumber>#{pokemon.nationalDexNumber}</DexNumber>

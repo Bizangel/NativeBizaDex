@@ -34,7 +34,7 @@ const PokeStatRow = styled.View`
 `
 
 const PokeStatNameDisplay = styled.Text`
-  width: 100px;
+  width: 30%;
   font-size: 16px;
   color: ${colorPalette.textWhite};
 
@@ -45,26 +45,23 @@ const PokeStatNameDisplay = styled.Text`
 `
 
 const PokeStatValueDisplay = styled.Text`
-  width: 40px;
+  width: 10%;
   font-size: 16px;
   color: ${colorPalette.textWhite};
   text-align: right;
-
-  /* background-color: gray; */
 `
 
 const PokeStatsBarWrapper = styled.View`
+  width: 60%;
+
   display: flex;
   flex-direction: row;
-  flex: 1;
 
   align-items: center;
   justify-content: start;
 
   padding-left: 5px;
   height: 100%;
-
-  /* background-color: brown; */
 `
 
 
@@ -84,11 +81,12 @@ const statDisplayName: Record<BaseStatName, string> = {
 // we consider 200 to be max stat for practical bar purposes.
 const getStatWidth = (statVal: number): DimensionValue => `${clamp(statVal / 2, 0, 100)}%`
 
-export function PokeStatsDisplay({ stats }: { stats: Pokemon["baseStats"] }) {
+function PokeStatsDisplay({ stats }: { stats: Pokemon["baseStats"] }) {
+
   return (
     <PokeStatsDisplayWrapper>
-      {stats.map(({ statName, statValue }) =>
-        <PokeStatRow>
+      {stats.map(({ statName, statValue }, idx) =>
+        <PokeStatRow key={idx}>
           <PokeStatNameDisplay>{statDisplayName[statName]}</PokeStatNameDisplay>
           <PokeStatValueDisplay>{statValue}</PokeStatValueDisplay>
           <PokeStatsBarWrapper>
@@ -104,3 +102,5 @@ export function PokeStatsDisplay({ stats }: { stats: Pokemon["baseStats"] }) {
     </PokeStatsDisplayWrapper>
   )
 }
+
+export default PokeStatsDisplay;
