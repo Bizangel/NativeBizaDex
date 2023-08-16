@@ -71,8 +71,6 @@ export function DexNameAndDescription({ pokemon }: { pokemon: Pokemon }) {
 
         </PokeNumberAndPokeNameWrapper>
 
-
-
         <DoubleTypeWrapper>
           {pokemon.type.map(e =>
             <TypeDisplay type={e} key={e}>{e}</TypeDisplay>

@@ -23,7 +23,7 @@ const PokeStatsDisplayWrapper = styled.View`
 const PokeStatRow = styled.View`
   display: flex;
   width: 100%;
-  height: 20px;
+  height: 25px;
 
   display: flex;
   flex-direction: row;
@@ -81,7 +81,11 @@ const statDisplayName: Record<BaseStatName, string> = {
 // we consider 200 to be max stat for practical bar purposes.
 const getStatWidth = (statVal: number): DimensionValue => `${clamp(statVal / 2, 0, 100)}%`
 
+// consider 700 as a max
+const getStatTotalWidth = (statTotal: number): DimensionValue => `${clamp(statTotal / 7, 0, 100)}%`
+
 function PokeStatsDisplay({ stats }: { stats: Pokemon["baseStats"] }) {
+  const statTotal = stats.reduce((acc, b) => (acc + b.statValue), 0);
 
   return (
     <PokeStatsDisplayWrapper>
@@ -99,6 +103,19 @@ function PokeStatsDisplay({ stats }: { stats: Pokemon["baseStats"] }) {
           </PokeStatsBarWrapper>
         </PokeStatRow>
       )}
+      {/* Exception for stat total */}
+      <PokeStatRow>
+        <PokeStatNameDisplay>Stat Total</PokeStatNameDisplay>
+        <PokeStatValueDisplay>{statTotal}</PokeStatValueDisplay>
+        <PokeStatsBarWrapper>
+          <PokeStatsBar style={
+            {
+              backgroundColor: getStatColorBasedOnAmount(statTotal * 0.2142), // pass 0 - 700 range to 0 - 150, then use stat colors
+              width: getStatTotalWidth(statTotal)
+            }
+          } />
+        </PokeStatsBarWrapper>
+      </PokeStatRow>
     </PokeStatsDisplayWrapper>
   )
 }

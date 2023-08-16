@@ -39,10 +39,12 @@ const ScrollableDetailsWrapperBackground = styled(Animated.View)`
 const ScrollableDetailsWrapperContent = styled(Animated.View)`
   width: 100%;
   height: 100%;
+
+  padding-top: 20%;
 `
 
 const ScrollableDetails = styled(ScrollView).attrs({
-  contentContainerStyle: { alignItems: "center", paddingTop: "15%", paddingBottom: 15 }
+  contentContainerStyle: { alignItems: "center", paddingBottom: 15 }
 })`
   width: 100%;
   height: 100%;
