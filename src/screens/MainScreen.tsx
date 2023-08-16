@@ -1,13 +1,16 @@
 import { Dimensions, ListRenderItemInfo, StatusBar } from 'react-native';
-import TopBar from './TopBar';
-import PokeCard from './PokeCard';
+import TopBar from '../components/TopBar';
+import PokeCard from '../components/PokeCard';
 import { PokeType, Pokemon } from '../types/Pokemon';
 import styled from 'styled-components/native'
 import { useCallback, useMemo, useState } from 'react';
-import { PokeFilter, filterPokemon } from './util/filterPokemon';
+import { PokeFilter, filterPokemon } from '../util/filterPokemon';
 import { FlatList } from 'react-native-gesture-handler';
-import { PokeDetails } from './PokeDetails';
+import { PokeDetails } from '../components/PokeDetails';
 import { colorPalette } from '../styles/styles';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App';
+import { allPokemon } from '../common/pokeInfo';
 
 const Body = styled.View`
   background-color: ${colorPalette.backgroundBlack};
@@ -30,11 +33,6 @@ const EmptyDisplay = styled.Text`
   font-size: 20px;
 `
 
-
-const allPokemon = require('../assets/pokemon.json') as Pokemon[];
-// const allAbilities = require('../assets/abilities.json') as Ability[];
-
-
 const AllTypes = [
   "Normal", "Fire", "Water", "Electric",
   "Grass", "Ice", "Fighting", "Poison",
@@ -44,7 +42,8 @@ const AllTypes = [
 
 const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes }
 
-function MainScreen() {
+function MainScreen(_props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
+
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(initialFilter)
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
 
@@ -72,6 +71,7 @@ function MainScreen() {
   }
 
   return (
+    // <GestureHandlerRootView>
     <Body>
       <FlatListWrapper>
         <FlatList
@@ -103,6 +103,7 @@ function MainScreen() {
 
       <StatusBar backgroundColor="black" barStyle="default" />
     </Body>
+    // </GestureHandlerRootView>
   );
 }
 

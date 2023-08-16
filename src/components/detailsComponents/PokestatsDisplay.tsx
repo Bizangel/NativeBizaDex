@@ -1,6 +1,6 @@
 import { DimensionValue } from "react-native";
 import { styled } from "styled-components/native"
-import { clamp, getStatColorBasedOnAmount } from "../util/utils";
+import { clamp, getStatColorBasedOnAmount } from "../../util/utils";
 import { BaseStatName, Pokemon } from "../../types/Pokemon";
 import { colorPalette } from "../../styles/styles";
 

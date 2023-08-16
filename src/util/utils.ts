@@ -1,4 +1,5 @@
-import { Pokemon } from "../../types/Pokemon";
+import { types2color, types2semiEndColor } from "../styles/styles";
+import { PokeType, Pokemon } from "../types/Pokemon";
 
 export function getPokeimage(poke: Pokemon) {
   const startIndex = poke.imageUrl.lastIndexOf('/') + 1;
@@ -51,4 +52,14 @@ export function getStatColorBasedOnAmount(statValue: number) {
   }
 
   return colorStops[colorStops.length - 1][1]; // Default to the last color
+}
+
+export function getPokegradientColorFromTypes(types: PokeType[]) {
+  let gradientColor = types.map(e => types2color[e]);
+
+  if (gradientColor.length === 1) {
+    gradientColor = [gradientColor[0], types2semiEndColor[types[0]]] // repeat 1st color twice.
+  }
+
+  return gradientColor;
 }

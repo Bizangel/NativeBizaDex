@@ -1,4 +1,4 @@
-import { PokeType, Pokemon } from "../../types/Pokemon";
+import { PokeType, Pokemon } from "../types/Pokemon";
 import { lowercaseAZNormalizeMobile } from "./utils";
 
 function stringSearchMatchSimilar(query: string, pokeName: string) {

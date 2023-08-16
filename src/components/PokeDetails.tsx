@@ -9,6 +9,7 @@ import PokeStatsDisplay from "./detailsComponents/PokestatsDisplay";
 import { DexNameAndDescription } from "./detailsComponents/DexNameAndDescription";
 import { useBackHandler } from "../hooks/useBackHandler";
 import { AbilityDisplayBox } from "./detailsComponents/abilitiesDisplay";
+import useActiveRoutes from "../hooks/useActiveRoutes";
 
 const FullWrapper = styled(Animated.View)`
   position: absolute;
@@ -61,12 +62,14 @@ const PokeImageWrapper = styled.View`
 
 const hideVelocityThreshold = 2; // how "hard" it needs to be dragged down for it to be hidden
 
-export function PokeDetails({ pokemon, setSelectedPokemon }: { pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void }) {
-
+export function PokeDetails({ pokemon, setSelectedPokemon }: {
+  pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void,
+}) {
   const animOpeningProgress = useRef(new Animated.Value(0)).current;
   const animatedTop = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ["130%", "35%"] });
   const animatedOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,.8)'] });
   const dragStartY = useRef(0);
+  const renderedScreens = useActiveRoutes().length;
 
   const hideLayout = useCallback(() => {
     Animated.timing(animOpeningProgress, {
@@ -80,6 +83,9 @@ export function PokeDetails({ pokemon, setSelectedPokemon }: { pokemon: Pokemon,
 
   // make hide on back
   useBackHandler(() => {
+    if (renderedScreens > 1)
+      return false; // if more screen, ignore until just this one is available
+
     hideLayout();
     return true;
   })
@@ -124,7 +130,8 @@ export function PokeDetails({ pokemon, setSelectedPokemon }: { pokemon: Pokemon,
 
               <DexNameAndDescription pokemon={pokemon} />
               <PokeStatsDisplay stats={pokemon.baseStats} />
-              <AbilityDisplayBox abilitiesId={pokemon.abilitiesId} hiddenAbilityId={pokemon.hiddenAbility} />
+              <AbilityDisplayBox abilitiesId={pokemon.abilitiesId}
+                hiddenAbilityId={pokemon.hiddenAbility} />
 
             </ScrollableDetails>
           </DetailsWrapper>

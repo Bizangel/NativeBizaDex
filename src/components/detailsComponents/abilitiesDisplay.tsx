@@ -2,13 +2,15 @@ import { styled } from "styled-components/native"
 import { colorPalette } from "../../styles/styles"
 import { Ability } from "../../types/Pokemon"
 import { RectButton } from "react-native-gesture-handler"
+import { abilityMap } from "../../common/pokeInfo"
+import useTypedNavigation from "../../hooks/useTypedNavigation"
 
 const AbilityDisplayWrapper = styled.View`
   background-color: ${colorPalette.backgroundBlack70};
   width: 90%;
   padding: 15px;
 
-  margin-top: 5px;
+  margin-top: 10px;
 
   border-radius: 10px;
 `
@@ -62,26 +64,26 @@ const HiddenAbilityDisplayWrapper = styled.View`
   opacity: 0.8;
 `
 
-const allAbilities = require('../../assets/abilities.json') as Ability[];
-const abilityMap = new Map<string, Ability>();
-
-allAbilities.forEach((abi) => {
-  abilityMap.set(abi.id, abi);
-})
 
 
-export function AbilityDisplayBox({ abilitiesId, hiddenAbilityId }: { abilitiesId: string[], hiddenAbilityId: string | undefined }) {
+export function AbilityDisplayBox({ abilitiesId, hiddenAbilityId }: {
+  abilitiesId: string[], hiddenAbilityId: string | undefined,
+}) {
   const abilities = abilitiesId.map(e => abilityMap.get(e)) as Ability[];
 
   const hiddenAbility = hiddenAbilityId ? abilityMap.get(hiddenAbilityId) : undefined;
-
+  const navigation = useTypedNavigation();
 
   return (
     <AbilityDisplayWrapper>
       <AbilityHeader>Abilities</AbilityHeader>
       <AbilityRowWrapper>
         {abilities.map(e =>
-          <AbilityDisplayButton style={{ borderRadius: 10 }} key={e.id}>
+          <AbilityDisplayButton style={{ borderRadius: 10 }} key={e.id}
+            onPress={() => {
+              navigation.push("AbilityScreen", { abilityId: e.id })
+            }}
+          >
             <AbilityDisplayText>
               {e.displayName}
             </AbilityDisplayText>
@@ -91,7 +93,7 @@ export function AbilityDisplayBox({ abilitiesId, hiddenAbilityId }: { abilitiesI
 
       {hiddenAbility &&
         <HiddenAbilityDisplayWrapper>
-          <AbilityDisplayButton style={{ borderRadius: 10 }}>
+          <AbilityDisplayButton style={{ borderRadius: 10 }} onPress={() => { navigation.push("AbilityScreen", { abilityId: hiddenAbility.id }) }}>
             <AbilityDisplayText>
               {hiddenAbility.displayName}
             </AbilityDisplayText>
