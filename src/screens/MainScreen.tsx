@@ -122,7 +122,9 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
         }
       </FlatListWrapper>
 
-      {selectedPokemon && <PokeDetails pokemon={selectedPokemon} setSelectedPokemon={setSelectedPokemon} />}
+      {selectedPokemon && <PokeDetails pokemon={selectedPokemon} setSelectedPokemon={setSelectedPokemon} fullDataRef={currentData}
+        dataIdx={currentData.findIndex(e => selectedPokemon.id === e.id) ?? 0}
+      />}
 
       {/* Status bar is atop network etc  */}
 
