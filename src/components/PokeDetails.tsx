@@ -46,6 +46,8 @@ const ScrollableDetails = styled(ScrollView).attrs({
   flex-direction: column;
 
   margin-top: 15%;
+
+  margin-bottom: 10px;
 `
 
 const PokeImageWrapper = styled.View`

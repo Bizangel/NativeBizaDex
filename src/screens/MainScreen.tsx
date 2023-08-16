@@ -3,7 +3,7 @@ import TopBar from '../components/TopBar';
 import PokeCard from '../components/PokeCard';
 import { PokeType, Pokemon } from '../types/Pokemon';
 import styled from 'styled-components/native'
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { PokeFilter, filterPokemon } from '../util/filterPokemon';
 import { FlatList } from 'react-native-gesture-handler';
 import { PokeDetails } from '../components/PokeDetails';
@@ -42,12 +42,38 @@ const AllTypes = [
 
 const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes }
 
-function MainScreen(_props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
-
+function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
+  const preSelectedPoke = props.route.params.preSelectedPokemonId
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(initialFilter)
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
 
-  const currentData = useMemo(() => filterPokemon(allPokemon, currentFilter), [currentFilter])
+  const [currentData, setCurrentData] = useState<Pokemon[]>(allPokemon);
+
+  useEffect(() => {
+    setSelectedPokemon(null);
+
+    const timeout = setTimeout(() => {
+      const foundPoke = allPokemon.find(e => e.id === preSelectedPoke)
+      if (foundPoke)
+        setSelectedPokemon(foundPoke)
+    }, 0);
+
+    return () => {
+      clearTimeout(timeout);
+    }
+  }, [preSelectedPoke])
+
+  // debounce filter for efficiency
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setCurrentData(filterPokemon(allPokemon, currentFilter))
+    }, 250);
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [currentFilter])
+
   const screenWidth = Dimensions.get('window').width;
 
   const updateCurrentSearchFilter = useCallback((x: string) => {
@@ -71,7 +97,6 @@ function MainScreen(_props: NativeStackScreenProps<RootStackParamList, 'MainScre
   }
 
   return (
-    // <GestureHandlerRootView>
     <Body>
       <FlatListWrapper>
         <FlatList
@@ -103,7 +128,6 @@ function MainScreen(_props: NativeStackScreenProps<RootStackParamList, 'MainScre
 
       <StatusBar backgroundColor="black" barStyle="default" />
     </Body>
-    // </GestureHandlerRootView>
   );
 }
 

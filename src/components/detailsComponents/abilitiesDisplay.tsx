@@ -53,6 +53,11 @@ const AbilityRowWrapper = styled.View`
 `
 
 
+const HiddenAbilityLiteralText = styled.Text`
+  color: ${colorPalette.textWhite};
+  margin-right: 10px;
+`
+
 const HiddenAbilityDisplayWrapper = styled.View`
   display: flex;
   flex-direction: row;
@@ -93,6 +98,9 @@ export function AbilityDisplayBox({ abilitiesId, hiddenAbilityId }: {
 
       {hiddenAbility &&
         <HiddenAbilityDisplayWrapper>
+          <HiddenAbilityLiteralText>
+            Hidden Ability:
+          </HiddenAbilityLiteralText>
           <AbilityDisplayButton style={{ borderRadius: 10 }} onPress={() => { navigation.push("AbilityScreen", { abilityId: hiddenAbility.id }) }}>
             <AbilityDisplayText>
               {hiddenAbility.displayName}

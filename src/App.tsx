@@ -8,7 +8,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AbilityScreen from './screens/AbilityScreen';
 
 export type RootStackParamList = {
-  MainScreen: undefined,
+  MainScreen: { preSelectedPokemonId: string | null },
   AbilityScreen: { abilityId: string },
 }
 
@@ -31,6 +31,7 @@ function App() {
         <Stack.Screen
           name="MainScreen"
           component={withGestureHandler(MainScreen)}
+          initialParams={{ preSelectedPokemonId: null }}
         />
         <Stack.Screen
           name="AbilityScreen"

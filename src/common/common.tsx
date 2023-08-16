@@ -3,7 +3,7 @@ import { colorPalette, types2color } from "../styles/styles";
 import { PokeType } from "../types/Pokemon";
 
 export const TypeDisplay = styled.Text<{ type: PokeType }>`
-  width: 80px;
+  min-width: 80px;
 
   text-transform: uppercase;
 
@@ -18,7 +18,7 @@ export const TypeDisplay = styled.Text<{ type: PokeType }>`
   align-items: center;
   justify-content: center;
 
-  font-size: 16px;
+  font-size: 15px;
 
   padding-top: 2px;
   padding-bottom: 2px;

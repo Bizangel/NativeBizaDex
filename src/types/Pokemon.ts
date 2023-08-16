@@ -57,6 +57,41 @@ export const PokemonSchema = z.object({
 });
 
 // extract the inferred type
-export type Pokemon = z.infer<typeof PokemonSchema>;
+// This is too slow for typescript, it just blows up. So just writing the type manually works better, sadly.
+
+// export type Pokemon = z.infer<typeof PokemonSchema>;
 export type Ability = z.infer<typeof AbilitySchema>;
 export type BaseStat = z.infer<typeof BaseStatSchema>;
+
+export type Pokemon = {
+  id: string,
+
+  displayName: string,
+  species: string,
+
+  baseStats: {
+    statName: BaseStatName,
+    statValue: number,
+  }[],
+
+  baseStatTotal: number,
+  type: PokeType[],
+
+  imageUrl: string,
+
+  nationalDexNumber: number,
+  pokedexEntryDescription: string,
+
+  abilitiesId: string[],
+  hiddenAbility?: string | undefined,
+
+  isMega: boolean,
+  generationalChanges: string[],
+
+  evoTree: Record<string, {
+    evolveReason: string,
+    pokeId: string,
+  }[]>,
+
+  variantName: string,
+}
