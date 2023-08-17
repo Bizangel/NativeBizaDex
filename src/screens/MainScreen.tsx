@@ -3,7 +3,7 @@ import TopBar from '../components/TopBar';
 import PokeCard from '../components/PokeCard';
 import { PokeType, Pokemon } from '../types/Pokemon';
 import styled from 'styled-components/native'
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { PokeFilter, filterPokemon } from '../util/filterPokemon';
 import { FlatList } from 'react-native-gesture-handler';
 import { PokeDetails } from '../components/PokeDetails';
@@ -42,12 +42,15 @@ const AllTypes = [
 
 const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes }
 
+
+const debounceDelay = 200;
+
 function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
   const preSelectedPoke = props.route.params.preSelectedPokemonId
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(initialFilter)
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
-
   const [currentData, setCurrentData] = useState<Pokemon[]>(allPokemon);
+  const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     setSelectedPokemon(null);
@@ -56,7 +59,7 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
       const foundPoke = allPokemon.find(e => e.id === preSelectedPoke)
       if (foundPoke)
         setSelectedPokemon(foundPoke)
-    }, 0);
+    }, debounceDelay);
 
     return () => {
       clearTimeout(timeout);
@@ -66,8 +69,9 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   // debounce filter for efficiency
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setCurrentData(filterPokemon(allPokemon, currentFilter))
-    }, 250);
+      const filteredPoke = filterPokemon(allPokemon, currentFilter);
+      setCurrentData(filteredPoke)
+    }, debounceDelay);
 
     return () => {
       clearTimeout(timeout)
@@ -100,6 +104,7 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
     <Body>
       <FlatListWrapper>
         <FlatList
+          ref={flatListRef}
           ListHeaderComponent={<TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter} />}
           stickyHeaderIndices={[0]}
           numColumns={2}
@@ -107,10 +112,11 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
           // style={{ width: "100%", height: "100%" }}
           renderItem={renderPokecard}
           data={currentData}
-          initialNumToRender={15}
-          // viewabilityConfig={{ minimumViewTime: 1000 }}
-          maxToRenderPerBatch={5}
-          windowSize={5}
+          initialNumToRender={6}
+          removeClippedSubviews={false}
+          windowSize={7}
+          maxToRenderPerBatch={3}
+          updateCellsBatchingPeriod={350}
           extraData={[currentData]} // basically, dependency props of flatlist
         />
 
@@ -122,7 +128,9 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
         }
       </FlatListWrapper>
 
-      {selectedPokemon && <PokeDetails pokemon={selectedPokemon} setSelectedPokemon={setSelectedPokemon} fullDataRef={currentData}
+      {selectedPokemon && <PokeDetails pokemon={selectedPokemon} setSelectedPokemon={setSelectedPokemon}
+        fullDataRef={currentData}
+        flatListRef={flatListRef}
         dataIdx={currentData.findIndex(e => selectedPokemon.id === e.id) ?? 0}
       />}
 

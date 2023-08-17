@@ -1,7 +1,7 @@
 import { styled } from "styled-components/native";
 import { Pokemon } from "../types/Pokemon";
-import { GestureDetector, Gesture, ScrollView, Directions, RectButton, TouchableHighlight, TouchableOpacity } from "react-native-gesture-handler";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { GestureDetector, Gesture, ScrollView, Directions, TouchableOpacity, FlatList } from "react-native-gesture-handler";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Image } from "react-native";
 import pokeImages from "../assets/pokeImages";
 import { types2color } from "../styles/styles";
@@ -99,10 +99,11 @@ const switchVelocityThreshold = 1.5;
 const switchAnimDurationMs = 350;
 
 
-export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx }: {
+export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx, flatListRef }: {
   pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void,
   fullDataRef: Pokemon[],
   dataIdx: number,
+  flatListRef: React.RefObject<FlatList>,
 }) {
   // used only for anim purposes
   const [pokeSwitchInfo, setPokeSwitchInfo] = useState<{ originPokeColor: string, targetPokeColor: string } | null>(null);
@@ -158,16 +159,19 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx 
   })
 
   // func to Switch Currently Selected pokemon, applying proper animations
-  const switchPoke = (newPoke: Pokemon) => {
+  const switchPoke = (newPoke: Pokemon, newIdx: number) => {
     if (isSwitchingAnimation.current) {
+      flatListRef.current?.scrollToIndex({ animated: true, index: Math.floor(newIdx / 2), viewPosition: 0 });
+
       // skip anim make it instant if spamming
       setSelectedPokemon(newPoke);
       animatedSwitchProgress.setValue(100);
       isSwitchingAnimation.current = false;
 
-      console.log("skipping to: ", newPoke.displayName)
       return;
     }
+
+    flatListRef.current?.scrollToIndex({ animated: true, index: Math.floor(newIdx / 2), viewPosition: 0 });
 
 
     isSwitchingAnimation.current = true;
@@ -191,8 +195,8 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx 
     });
   }
 
-  const switchToNextPoke = () => { if (fullDataRef[dataIdx + 1]) switchPoke(fullDataRef[dataIdx + 1]) }
-  const switchToPreviousPoke = () => { if (fullDataRef[dataIdx - 1]) switchPoke(fullDataRef[dataIdx - 1]) }
+  const switchToNextPoke = () => { if (fullDataRef[dataIdx + 1]) switchPoke(fullDataRef[dataIdx + 1], dataIdx + 1) }
+  const switchToPreviousPoke = () => { if (fullDataRef[dataIdx - 1]) switchPoke(fullDataRef[dataIdx - 1], dataIdx - 1) }
 
   // Hide layout when flinged downwards or background is tapped
   const backgroundTap = Gesture.Tap().onStart(() => { hideLayout(); })

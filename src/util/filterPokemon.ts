@@ -7,8 +7,6 @@ function stringSearchMatchSimilar(query: string, pokeName: string) {
 
 export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter): Pokemon[] {
   const filteredByString = allPokemon.filter(e => stringSearchMatchSimilar(filters.searchString, e.displayName))
-
-
   return filteredByString.filter(e => e.type.some(type => filters.typesFilter.includes(type)));
 }
 
