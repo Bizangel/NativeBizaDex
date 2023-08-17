@@ -1,4 +1,5 @@
 import { Image } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { styled } from "styled-components/native";
 
 
@@ -37,9 +38,10 @@ const SearchInput = styled.TextInput`
 export type TopBarProps = {
   currentSearch: string,
   setCurrentSearch: (x: string) => void,
+  onFilterClick: () => void,
 }
 
-function TopBar({ currentSearch, setCurrentSearch }: TopBarProps) {
+function TopBar({ currentSearch, setCurrentSearch, onFilterClick }: TopBarProps) {
 
   return (
     <TopbarWrapper>
@@ -54,7 +56,9 @@ function TopBar({ currentSearch, setCurrentSearch }: TopBarProps) {
       </SearchBarWrapper>
 
 
-      <Image source={require('../icons/filter.png')} style={{ width: 40, height: 40 }} />
+      <TouchableOpacity onPress={onFilterClick}>
+        <Image source={require('../icons/filter.png')} style={{ width: 40, height: 40 }} />
+      </TouchableOpacity>
     </TopbarWrapper>
   )
 }

@@ -10,7 +10,8 @@ import { PokeDetails } from '../components/PokeDetails';
 import { colorPalette } from '../styles/styles';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
-import { allPokemon } from '../common/pokeInfo';
+import { allPokemon, lastPokegen } from '../common/pokeInfo';
+import { PokeFilterMenu } from '../components/PokeFilterMenu';
 
 const Body = styled.View`
   background-color: ${colorPalette.backgroundBlack};
@@ -40,7 +41,7 @@ const AllTypes = [
   "Rock", "Ghost", "Dragon", "Dark",
   "Steel", "Fairy"] as PokeType[];
 
-const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes }
+const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes, genFilter: Array(lastPokegen).fill(true) }
 
 
 const debounceDelay = 200;
@@ -51,6 +52,12 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
   const [currentData, setCurrentData] = useState<Pokemon[]>(allPokemon);
   const flatListRef = useRef<FlatList>(null);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+
+
+  const onTopFilterClick = useCallback(() => {
+    setShowFilterMenu(true);
+  }, [setShowFilterMenu])
 
   useEffect(() => {
     setSelectedPokemon(null);
@@ -105,7 +112,7 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
       <FlatListWrapper>
         <FlatList
           ref={flatListRef}
-          ListHeaderComponent={<TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter} />}
+          ListHeaderComponent={<TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter} onFilterClick={onTopFilterClick} />}
           stickyHeaderIndices={[0]}
           numColumns={2}
           getItemLayout={getItemLayout}
@@ -117,7 +124,7 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
           windowSize={7}
           maxToRenderPerBatch={3}
           updateCellsBatchingPeriod={350}
-          extraData={[currentData]} // basically, dependency props of flatlist
+          extraData={[currentData, updateCurrentSearchFilter, onTopFilterClick]} // basically, dependency props of flatlist
         />
 
         {
@@ -134,7 +141,13 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
         dataIdx={currentData.findIndex(e => selectedPokemon.id === e.id) ?? 0}
       />}
 
+      {
+        showFilterMenu && <PokeFilterMenu currentFilter={currentFilter} setCurrentFilter={setCurrentFilter} dismissLayout={() => { setShowFilterMenu(false) }} />
+      }
+
       {/* Status bar is atop network etc  */}
+
+
 
       <StatusBar backgroundColor="black" barStyle="default" />
     </Body>

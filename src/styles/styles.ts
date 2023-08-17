@@ -13,6 +13,8 @@ export const colorPalette = {
 
   textWhite: "#ffffff",
 
+  foregroundButtonBlackInactive: "rgba(66, 83, 90, 0.7)",
+  foregroundButtonBlackActive: "rgba(141, 155, 160, 0.7)",
 } as const
 
 import { PokeType } from "../types/Pokemon";

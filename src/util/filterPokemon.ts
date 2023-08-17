@@ -13,4 +13,5 @@ export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter): Pokem
 export type PokeFilter = {
   searchString: string,
   typesFilter: PokeType[],
+  genFilter: boolean[],
 }
