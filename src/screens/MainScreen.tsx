@@ -3,8 +3,8 @@ import TopBar from '../components/TopBar';
 import PokeCard from '../components/PokeCard';
 import { PokeType, Pokemon } from '../types/Pokemon';
 import styled from 'styled-components/native'
-import { useCallback, useState, useEffect, useRef } from 'react';
-import { PokeFilter, filterPokemon } from '../util/filterPokemon';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
+import { MegaFilter, PokeFilter, filterPokemon } from '../util/filterPokemon';
 import { FlashList, ListRenderItem } from "@shopify/flash-list"
 import { PokeDetails } from '../components/PokeDetails';
 import { colorPalette } from '../styles/styles';
@@ -34,6 +34,10 @@ const EmptyDisplay = styled.Text`
   font-size: 20px;
 `
 
+const MemoPokeFilterMenu = React.memo(PokeFilterMenu)
+const MemodPokedetails = React.memo(PokeDetails)
+
+
 const AllTypes = [
   "Normal", "Fire", "Water", "Electric",
   "Grass", "Ice", "Fighting", "Poison",
@@ -41,9 +45,7 @@ const AllTypes = [
   "Rock", "Ghost", "Dragon", "Dark",
   "Steel", "Fairy"] as PokeType[];
 
-const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes, genFilter: Array(lastPokegen).fill(true) }
-
-
+const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas }
 const debounceDelay = 200;
 
 function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
@@ -53,7 +55,6 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   const [currentData, setCurrentData] = useState<Pokemon[]>(allPokemon);
   const flatListRef = useRef<FlashList<Pokemon>>(null);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-
 
   const onTopFilterClick = useCallback(() => {
     setShowFilterMenu(true);
@@ -96,16 +97,9 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
     return <PokeCard pokemon={item} setSelectedPokemon={setSelectedPokemon} />;
   }, [setSelectedPokemon])
 
-
-  // const getItemLayout = (data: any, index: number) => {
-  //   const aspectRatio = 0.8;
-  //   const height = screenWidth / (2 * aspectRatio);
-  //   return {
-  //     length: height, // length means height in this csae
-  //     offset: height * index,
-  //     index: index
-  //   };
-  // }
+  const dismissLayout = useCallback(() => {
+    setShowFilterMenu(false);
+  }, [])
 
   return (
     <Body>
@@ -128,14 +122,14 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
         }
       </FlatListWrapper>
 
-      {selectedPokemon && <PokeDetails pokemon={selectedPokemon} setSelectedPokemon={setSelectedPokemon}
+      {selectedPokemon && <MemodPokedetails pokemon={selectedPokemon} setSelectedPokemon={setSelectedPokemon}
         fullDataRef={currentData}
         flatListRef={flatListRef}
         dataIdx={currentData.findIndex(e => selectedPokemon.id === e.id) ?? 0}
       />}
 
       {
-        showFilterMenu && <PokeFilterMenu currentFilter={currentFilter} setCurrentFilter={setCurrentFilter} dismissLayout={() => { setShowFilterMenu(false) }} />
+        showFilterMenu && <MemoPokeFilterMenu currentFilter={currentFilter} setCurrentFilter={setCurrentFilter} dismissLayout={dismissLayout} />
       }
 
       {/* Status bar is atop network etc  */}

@@ -1,14 +1,8 @@
 import { z } from 'Zod'
+import { PokemonTypes } from '../common/pokeInfo';
 
 export const StatNames = ["hp", "atk", "def", "spa", "spd", "spe"] as const;
 export type BaseStatName = typeof StatNames[number]
-
-export const PokemonTypes = [
-  "Normal", "Fire", "Water", "Electric",
-  "Grass", "Ice", "Fighting", "Poison",
-  "Ground", "Flying", "Psychic", "Bug",
-  "Rock", "Ghost", "Dragon", "Dark",
-  "Steel", "Fairy"] as const;
 export type PokeType = typeof PokemonTypes[number]
 
 export const BaseStatSchema = z.object({

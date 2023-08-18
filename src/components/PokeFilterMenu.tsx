@@ -2,11 +2,11 @@ import { Animated, StyleSheet } from "react-native"
 import { styled } from "styled-components/native"
 import React, { useRef, useEffect } from "react"
 import { colorPalette } from "../styles/styles"
-import { Gesture, GestureDetector, TouchableOpacity } from "react-native-gesture-handler"
+import { Directions, Gesture, GestureDetector, ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler"
 import { GenFilterSection } from "./filterMenuComponents/GenFilterSection"
-import { PokeFilter } from "../util/filterPokemon"
+import { MegaFilter, PokeFilter } from "../util/filterPokemon"
 import { useBackHandler } from "../hooks/useBackHandler"
-
+import { TypesFilterSection } from "./filterMenuComponents/TypesFilterSection"
 
 const FullFilterOverlayWrapper = styled(Animated.View)`
   position: absolute;
@@ -24,7 +24,7 @@ const FilterWrapper = styled(Animated.View)`
   width: 60%;
   height: 100%;
 
-  padding: 40px 20px;
+  padding: 20px;
 
   background-color: ${colorPalette.backgroundBlack};
 `
@@ -37,28 +37,29 @@ const FilterHeader = styled.Text`
 
 
 const FilterSectionHeader = styled.Text`
+  margin-top: 10px;
 
   font-size: 20px;
-
   color: ${colorPalette.textWhite};
 `
 
-const CloseButtonWrapper = styled.View`
-  width: 25px;
-  height: 25px;
-  position: absolute;
-
-  margin-left: 20px;
-  margin-top: 10px;
-
-  top: 0px;
-  left: 0px;
+const IncludeMegaText = styled.Text`
+  font-size: 14px;
+  color: ${colorPalette.textWhite};
+  text-align: center;
+  padding: 4px;
 `
 
-const CloseButtonImage = styled.Image`
-  width: 100%;
-  height: 100%;
+const IncludeMegasButton = styled(TouchableWithoutFeedback) <{ megaFilter: MegaFilter }>`
+  margin-top: 5px;
+
+  width: 120px;
+  border-radius: 10px;
+  background-color: ${p => p.megaFilter === MegaFilter.OnlyMega ? "#e8578e" : colorPalette.foregroundButtonBlackActive};
+
+  opacity: ${p => p.megaFilter === MegaFilter.NoMega ? 0.3 : 1};
 `
+
 
 export const HorizontalBottomRule = styled.View`
   width: 85%;
@@ -113,33 +114,65 @@ export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout 
     hideLayoutAnimated();
   });
 
+  const closeFlingToRightGesture = Gesture.Fling().direction(Directions.RIGHT).onStart(() => hideLayoutAnimated())
+
   const backgroundTapAvoidCaptureEmptyTap = Gesture.Tap();
 
   return (
     <GestureDetector gesture={backgroundTapCloseGesture}>
       <FullFilterOverlayWrapper style={{ backgroundColor: animatedBackgroundOpacity }}>
-        <GestureDetector gesture={backgroundTapAvoidCaptureEmptyTap}>
+        <GestureDetector gesture={Gesture.Race(backgroundTapAvoidCaptureEmptyTap, closeFlingToRightGesture)}>
           <FilterWrapper style={{ right: animatedRightProp }}>
+            <ScrollView contentContainerStyle={{ alignItems: "center" }} fadingEdgeLength={25}>
+              <FilterHeader>
+                Filter Pokemon
+              </FilterHeader>
+              <HorizontalBottomRule />
 
-            <CloseButtonWrapper>
-              <TouchableOpacity onPress={hideLayoutAnimated}>
-                <CloseButtonImage source={require('../icons/cross.png')} resizeMode="contain" />
-              </TouchableOpacity>
-            </CloseButtonWrapper>
+              <FilterSectionHeader>
+                Generation
+              </FilterSectionHeader>
+              <HorizontalBottomRule />
 
-            <FilterHeader>
-              Filter Pokemon
-            </FilterHeader>
-            <HorizontalBottomRule />
+              <GenFilterSection {...{ currentFilter, setCurrentFilter }} />
 
-            <FilterSectionHeader>
-              Generation
-            </FilterSectionHeader>
-            <HorizontalBottomRule />
+              <FilterSectionHeader>
+                Types
+              </FilterSectionHeader>
+              <HorizontalBottomRule />
 
-            <GenFilterSection {...{ currentFilter, setCurrentFilter }} />
+              <TypesFilterSection {...{ currentFilter, setCurrentFilter }} />
 
+              <FilterSectionHeader>
+                Misc
+              </FilterSectionHeader>
+              <HorizontalBottomRule />
 
+              <IncludeMegasButton megaFilter={currentFilter.displayMegas}
+                onPress={() => {
+                  setCurrentFilter(prev => {
+                    // cycle
+                    if (prev.displayMegas === MegaFilter.IncludeMegas) {
+                      return {
+                        ...prev,
+                        displayMegas: MegaFilter.OnlyMega,
+                      }
+                    } else if (prev.displayMegas === MegaFilter.OnlyMega) {
+                      return {
+                        ...prev,
+                        displayMegas: MegaFilter.NoMega,
+                      }
+                    }
+                    return {
+                      ...prev,
+                      displayMegas: MegaFilter.IncludeMegas,
+                    }
+                  })
+                }}>
+                <IncludeMegaText>{currentFilter.displayMegas}</IncludeMegaText>
+              </IncludeMegasButton>
+
+            </ScrollView>
           </FilterWrapper>
         </GestureDetector>
       </FullFilterOverlayWrapper>

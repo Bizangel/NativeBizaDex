@@ -2,27 +2,28 @@ import { styled } from "styled-components/native"
 import { PokeFilter } from "../../util/filterPokemon"
 import { TouchableWithoutFeedback } from "react-native-gesture-handler"
 import { colorPalette } from "../../styles/styles"
+import { ProgressiveRenderer, ProgressiveRendererRenderItem } from "../../common/ProgressiveRenderer"
 import { produce } from "immer"
+import { useCallback } from "react"
 
 
-const GenFilterWrapper = styled.View`
+const GenFilterWrapper = styled(ProgressiveRenderer)`
   width: 100%;
-  height: 40%;
-
-  /* background-color: blue; */
 
   display: flex;
   flex-direction: row;
 
   flex-wrap: wrap;
   justify-content: space-evenly;
-`
+` as typeof ProgressiveRenderer // work around cuz idk why doesn't work
 
 const GenButton = styled(TouchableWithoutFeedback) <{ isActive: boolean }>`
   width: 80px;
   height: 40px;
 
-  background-color: ${p => p.isActive ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
+  background-color: ${colorPalette.foregroundButtonBlackActive};
+
+  opacity: ${p => p.isActive ? 1 : 0.3};
 
   display: flex;
   justify-content: center;
@@ -39,17 +40,21 @@ export function GenFilterSection({ currentFilter, setCurrentFilter }: {
   currentFilter: PokeFilter,
   setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
 }) {
+
+  const renderItem: ProgressiveRendererRenderItem<boolean> = useCallback((e, idx) =>
+    <GenButton style={{ borderRadius: 10 }} isActive={e} onPress={() => {
+      setCurrentFilter(prev => produce(prev, (draft) => { draft.genFilter[idx] = !draft.genFilter[idx]; }));
+    }}>
+      <GenButtonText>Gen {idx + 1}</GenButtonText>
+    </GenButton>
+    , [setCurrentFilter])
+
   return (
-    <GenFilterWrapper>
-      {currentFilter.genFilter.map((e, i) =>
-        <GenButton style={{ borderRadius: 10 }} key={i} isActive={e}
-          // rippleRadius={0}
-          onPress={() => {
-            setCurrentFilter(prev => produce(prev, (draft) => { draft.genFilter[i] = !draft.genFilter[i]; }));
-          }}>
-          <GenButtonText>Gen {i + 1}</GenButtonText>
-        </GenButton>
-      )}
-    </GenFilterWrapper>
+    <GenFilterWrapper
+      initHeight={250}// initial height, before all elements are rendered, an approximation, the better the less "sloppy it will see"
+      animatedOpacitySpawnDuration={300}
+      fullData={currentFilter.genFilter as boolean[]}
+      renderItem={renderItem}
+    />
   )
 }

@@ -81,7 +81,7 @@ export const PokeRowInAbility = React.memo(({ pokemon, addToList, toAddIndex }:
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 600,
+      duration: 400,
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
