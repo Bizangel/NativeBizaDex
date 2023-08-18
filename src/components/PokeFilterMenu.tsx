@@ -61,7 +61,34 @@ const IncludeMegasButton = styled(TouchableWithoutFeedback) <{ megaFilter: MegaF
 `
 
 
-export const HorizontalBottomRule = styled.View`
+
+const FilteredCountWrapper = styled(Animated.View)`
+  width: 36%;
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  margin-left: 2%;
+
+  display: flex;
+
+  text-align: center;
+  align-items: center;
+`
+
+const FilteredCountLiteralDisplay = styled.Text`
+  color: ${colorPalette.textWhite};
+  font-size: 13px;
+`
+
+const FilteredCountNumericalDisplay = styled.Text`
+  color: ${colorPalette.textWhite};
+  font-size: 24px;
+`
+
+
+const HorizontalBottomRule = styled.View`
   width: 85%;
   border-color: ${colorPalette.textWhite};
 
@@ -77,13 +104,15 @@ export type PokeFilterMenuProps = {
   setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
 
   dismissLayout: () => void,
+  amountFiltered: number,
 }
 
-export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout }: PokeFilterMenuProps) {
+export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout, amountFiltered }: PokeFilterMenuProps) {
   // animation regarding opening progress
   const animOpeningProgress = useRef(new Animated.Value(0)).current;
   const animatedRightProp = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ["-65%", "0%"] });
   const animatedBackgroundOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,.8)'] });
+  const animDissapearOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [0, 0.7] });
 
   useBackHandler(() => {
     hideLayoutAnimated();
@@ -175,6 +204,15 @@ export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout 
             </ScrollView>
           </FilterWrapper>
         </GestureDetector>
+
+        <FilteredCountWrapper style={{ opacity: animDissapearOpacity }}>
+          <FilteredCountLiteralDisplay>
+            Pokemon matching your search and filters
+          </FilteredCountLiteralDisplay>
+          <FilteredCountNumericalDisplay>
+            {amountFiltered}
+          </FilteredCountNumericalDisplay>
+        </FilteredCountWrapper>
       </FullFilterOverlayWrapper>
     </GestureDetector>
 

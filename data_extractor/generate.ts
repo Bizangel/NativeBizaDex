@@ -168,8 +168,7 @@ function parsePokeTab(html: any,
     }
   })
 
-  const isMega = pokeId.endsWith('mega') || pokeId.includes('-mega-'); // works for charizard x / y
-
+  const isMega = pokeId.endsWith(' mega') || pokeId.endsWith('-mega') || pokeId.includes('-mega-'); // works for charizard x / y
 
   const returnPoke: Pokemon = {
     id: pokeId,

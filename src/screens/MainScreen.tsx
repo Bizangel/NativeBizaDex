@@ -129,7 +129,7 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
       />}
 
       {
-        showFilterMenu && <MemoPokeFilterMenu currentFilter={currentFilter} setCurrentFilter={setCurrentFilter} dismissLayout={dismissLayout} />
+        showFilterMenu && <MemoPokeFilterMenu currentFilter={currentFilter} setCurrentFilter={setCurrentFilter} dismissLayout={dismissLayout} amountFiltered={currentData.length} />
       }
 
       {/* Status bar is atop network etc  */}
