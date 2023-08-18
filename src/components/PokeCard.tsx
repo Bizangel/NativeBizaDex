@@ -1,5 +1,5 @@
-import { memo, useEffect, useRef } from "react";
-import { useWindowDimensions, Animated, Image } from "react-native"
+import { memo } from "react";
+import { useWindowDimensions, Image } from "react-native"
 import { PokeType, Pokemon } from "../types/Pokemon";
 import styled from 'styled-components/native'
 import LinearGradient from 'react-native-linear-gradient';
@@ -17,7 +17,7 @@ const ActualCard = styled(LinearGradient)`
   padding-top: 5px;
 `
 
-const CardWrapper = styled(Animated.View)`
+const CardWrapper = styled.View`
   aspect-ratio: 0.8;
   padding: 10px;
 `
@@ -77,18 +77,9 @@ const PokenameDisplay = styled.Text`
 
 const PokeCard = memo(({ pokemon, setSelectedPokemon }: { pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void }) => {
   const dimension = useWindowDimensions();
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
 
   return (
-    <CardWrapper style={[{ width: dimension.width / 2, opacity: fadeAnim }]} key={pokemon.id}>
+    <CardWrapper style={[{ width: dimension.width / 2 }]}>
 
       <RectButton
         onPress={() => { setSelectedPokemon(pokemon); }}

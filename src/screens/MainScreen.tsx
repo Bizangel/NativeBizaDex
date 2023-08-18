@@ -1,11 +1,11 @@
-import { Dimensions, ListRenderItemInfo, StatusBar } from 'react-native';
+import { Dimensions, StatusBar } from 'react-native';
 import TopBar from '../components/TopBar';
 import PokeCard from '../components/PokeCard';
 import { PokeType, Pokemon } from '../types/Pokemon';
 import styled from 'styled-components/native'
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { PokeFilter, filterPokemon } from '../util/filterPokemon';
-import { FlatList } from 'react-native-gesture-handler';
+import { FlashList, ListRenderItem } from "@shopify/flash-list"
 import { PokeDetails } from '../components/PokeDetails';
 import { colorPalette } from '../styles/styles';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -51,7 +51,7 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(initialFilter)
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
   const [currentData, setCurrentData] = useState<Pokemon[]>(allPokemon);
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlashList<Pokemon>>(null);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
 
@@ -91,40 +91,33 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
     setCurrentFilter(e => { return { ...e, searchString: x } })
   }, [setCurrentFilter])
 
-  const renderPokecard = useCallback(({ item }: ListRenderItemInfo<Pokemon>) => {
+  const renderPokecard: ListRenderItem<Pokemon> = useCallback(({ item }) => {
     //@ts-ignore // for some reason this line is too complex so ignore
     return <PokeCard pokemon={item} setSelectedPokemon={setSelectedPokemon} />;
   }, [setSelectedPokemon])
 
 
-  const getItemLayout = (data: any, index: number) => {
-    const aspectRatio = 0.8;
-    const height = screenWidth / (2 * aspectRatio);
-    return {
-      length: height, // length means height in this csae
-      offset: height * index,
-      index: index
-    };
-  }
+  // const getItemLayout = (data: any, index: number) => {
+  //   const aspectRatio = 0.8;
+  //   const height = screenWidth / (2 * aspectRatio);
+  //   return {
+  //     length: height, // length means height in this csae
+  //     offset: height * index,
+  //     index: index
+  //   };
+  // }
 
   return (
     <Body>
       <FlatListWrapper>
-        <FlatList
+        <TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter} onFilterClick={onTopFilterClick} />
+        <FlashList
           ref={flatListRef}
-          ListHeaderComponent={<TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter} onFilterClick={onTopFilterClick} />}
-          stickyHeaderIndices={[0]}
           numColumns={2}
-          getItemLayout={getItemLayout}
-          // style={{ width: "100%", height: "100%" }}
+          estimatedItemSize={screenWidth / 2}
           renderItem={renderPokecard}
           data={currentData}
-          initialNumToRender={6}
-          removeClippedSubviews={false}
-          windowSize={7}
-          maxToRenderPerBatch={3}
-          updateCellsBatchingPeriod={350}
-          extraData={[currentData, updateCurrentSearchFilter, onTopFilterClick]} // basically, dependency props of flatlist
+          extraData={[updateCurrentSearchFilter, onTopFilterClick]} // basically, dependency props of flatlist
         />
 
         {

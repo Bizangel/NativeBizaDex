@@ -4,6 +4,8 @@ import { styled } from "styled-components/native";
 
 
 const TopbarWrapper = styled.View`
+  z-index: 1;
+
   background-color: rgba(33, 46, 51, 0.698);
 
   height: 50px;

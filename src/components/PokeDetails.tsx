@@ -1,6 +1,6 @@
 import { styled } from "styled-components/native";
 import { Pokemon } from "../types/Pokemon";
-import { GestureDetector, Gesture, ScrollView, Directions, TouchableOpacity, FlatList } from "react-native-gesture-handler";
+import { GestureDetector, Gesture, ScrollView, Directions, TouchableOpacity } from "react-native-gesture-handler";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Image } from "react-native";
 import pokeImages from "../assets/pokeImages";
@@ -10,6 +10,7 @@ import { DexNameAndDescription } from "./detailsComponents/DexNameAndDescription
 import { useBackHandler } from "../hooks/useBackHandler";
 import { AbilityDisplayBox } from "./detailsComponents/abilitiesDisplay";
 import useActiveRoutes from "../hooks/useActiveRoutes";
+import { FlashList } from "@shopify/flash-list"
 
 const FullWrapper = styled(Animated.View)`
   position: absolute;
@@ -103,7 +104,7 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx,
   pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void,
   fullDataRef: Pokemon[],
   dataIdx: number,
-  flatListRef: React.RefObject<FlatList>,
+  flatListRef: React.RefObject<FlashList<Pokemon>>,
 }) {
   // used only for anim purposes
   const [pokeSwitchInfo, setPokeSwitchInfo] = useState<{ originPokeColor: string, targetPokeColor: string } | null>(null);
@@ -161,7 +162,7 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx,
   // func to Switch Currently Selected pokemon, applying proper animations
   const switchPoke = (newPoke: Pokemon, newIdx: number) => {
     if (isSwitchingAnimation.current) {
-      flatListRef.current?.scrollToIndex({ animated: true, index: Math.floor(newIdx / 2), viewPosition: 0 });
+      flatListRef.current?.scrollToIndex({ animated: true, index: newIdx, viewPosition: 0 });
 
       // skip anim make it instant if spamming
       setSelectedPokemon(newPoke);
@@ -171,7 +172,7 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx,
       return;
     }
 
-    flatListRef.current?.scrollToIndex({ animated: true, index: Math.floor(newIdx / 2), viewPosition: 0 });
+    flatListRef.current?.scrollToIndex({ animated: true, index: newIdx, viewPosition: 0 });
 
 
     isSwitchingAnimation.current = true;
