@@ -7,8 +7,6 @@ import { Pokemon } from "../../types/Pokemon"
 import pokeImages from "../../assets/pokeImages"
 import { TypeDisplay as ExtTypeDisplay } from "../../common/common";
 import { colorPalette } from "../../styles/styles"
-import { Animated } from 'react-native';
-import { useRef, useEffect } from "react"
 import React from "react"
 import useTypedNavigation from "../../hooks/useTypedNavigation"
 
@@ -69,55 +67,31 @@ const PokeDexNumberInRow = styled.Text`
   opacity: .5;
 `
 
-const ViewFadeInWrapper = styled(Animated.View)`
-`
 
-export const PokeRowInAbility = React.memo(({ pokemon, addToList, toAddIndex }:
-  { pokemon: Pokemon, addToList: (idx: number) => void, toAddIndex: number }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+
+export const PokeRowInAbility = React.memo(({ pokemon }: { pokemon: Pokemon }) => {
 
   const navigation = useTypedNavigation();
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 400,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
-
-  useEffect(() => {
-    // add next component on mount
-    const timeoutid = setTimeout(() => { // this is basically telling it. Please. Wait 1 frame draw, then add the next one. This allows for the smooth spawning of all elements.
-      addToList(toAddIndex)
-    }, 0)
-
-    return () => {
-      clearTimeout(timeoutid);
-    }
-  }, [addToList, toAddIndex])
-
   return (
-    <ViewFadeInWrapper style={{ opacity: fadeAnim }}>
-      <PokemonRow rippleColor="black" foreground={true} onPress={() => { navigation.navigate("MainScreen", { preSelectedPokemonId: pokemon.id }) }}>
-        <PokeRowGradient colors={getPokegradientColorFromTypes(pokemon.type)} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-          <PokemonImageWrapper>
-            <Image source={pokeImages[pokemon.id]} resizeMode="contain" style={{ flex: 1, width: undefined, height: undefined }} />
-          </PokemonImageWrapper>
+    <PokemonRow rippleColor="black" foreground={true} onPress={() => { navigation.navigate("MainScreen", { preSelectedPokemonId: pokemon.id }) }}>
+      <PokeRowGradient colors={getPokegradientColorFromTypes(pokemon.type)} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+        <PokemonImageWrapper>
+          <Image source={pokeImages[pokemon.id]} resizeMode="contain" style={{ flex: 1, width: undefined, height: undefined }} />
+        </PokemonImageWrapper>
 
-          <DoubleRowWrapper>
-            <HorizontalRowcentered>
-              <PokemonNameInRow>{pokemon.displayName}</PokemonNameInRow>
-              <PokeDexNumberInRow>#{pokemon.nationalDexNumber.toString().padStart(3, '0')}</PokeDexNumberInRow>
-            </HorizontalRowcentered>
-            <HorizontalRowcentered>
-              {pokemon.type.map(i =>
-                <TypeDisplay type={i} key={i} style={{ elevation: 15 }}>{i}</TypeDisplay>
-              )}
-            </HorizontalRowcentered>
-          </DoubleRowWrapper>
-        </PokeRowGradient>
-      </PokemonRow>
-    </ViewFadeInWrapper>
+        <DoubleRowWrapper>
+          <HorizontalRowcentered>
+            <PokemonNameInRow>{pokemon.displayName}</PokemonNameInRow>
+            <PokeDexNumberInRow>#{pokemon.nationalDexNumber.toString().padStart(3, '0')}</PokeDexNumberInRow>
+          </HorizontalRowcentered>
+          <HorizontalRowcentered>
+            {pokemon.type.map(i =>
+              <TypeDisplay type={i} key={i} style={{ elevation: 15 }}>{i}</TypeDisplay>
+            )}
+          </HorizontalRowcentered>
+        </DoubleRowWrapper>
+      </PokeRowGradient>
+    </PokemonRow>
   )
 })

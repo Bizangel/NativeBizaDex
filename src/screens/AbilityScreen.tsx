@@ -5,9 +5,10 @@ import { colorPalette } from "../styles/styles";
 import { abilityMap, allPokemon } from "../common/pokeInfo";
 import { StyleSheet } from "react-native"
 import { ScrollView } from "react-native-gesture-handler";
-import { useEffect, useState, useMemo, useCallback } from "react"
+import { useMemo, useCallback } from "react"
 import { PokeRowInAbility } from "../components/abilityComponents/PokeRowInAbility";
 import { Pokemon } from "../types/Pokemon";
+import { ProgressiveRenderer, ProgressiveRendererRenderItem } from "../common/ProgressiveRenderer";
 
 const Body = styled.View`
   width: 100%;
@@ -88,34 +89,14 @@ const PokemonThatHaveTheAbilityScrollableDisplay = styled(ScrollView).attrs({
 `
 
 function AbilityScreen({ route }: NativeStackScreenProps<RootStackParamList, 'AbilityScreen'>) {
-  const [renderedPokes, setRenderedPokes] = useState<Pokemon[]>([]);
-
   const abilityId = route.params.abilityId;
   const pokemonThatHaveTheAbility = useMemo(() => allPokemon.filter(e => e.abilitiesId.some(abi => abi === abilityId) || e.hiddenAbility === abilityId), [abilityId]);
-
-  useEffect(() => {
-    // render first pokes initially, and then trigger chain.
-    if (pokemonThatHaveTheAbility) {
-      setRenderedPokes([pokemonThatHaveTheAbility[0]]);
-    }
-  }, [pokemonThatHaveTheAbility])
-
-  const addTolist = useCallback((idx: number) => {
-    setRenderedPokes(prev => {
-      if (idx < prev.length) { // as failsafe if re-renders happen for some reason. only add non added idx.
-        return prev;
-      }
-
-      if (idx >= pokemonThatHaveTheAbility.length) // finished adding
-        return prev;
-
-      return [...prev, pokemonThatHaveTheAbility[idx]];
-    })
-  }, [setRenderedPokes, pokemonThatHaveTheAbility])
 
   const ability = abilityMap.get(abilityId);
   if (!ability)
     throw new Error(`Unable to find ability with id: ${abilityId}`)
+
+  const renderPokeRow: ProgressiveRendererRenderItem<Pokemon> = useCallback((e) => <PokeRowInAbility pokemon={e} />, [])
 
   return (
     <Body>
@@ -147,9 +128,11 @@ function AbilityScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Ab
 
       <ScrollableWrapper>
         <PokemonThatHaveTheAbilityScrollableDisplay>
-          {renderedPokes.map((e, idx) =>
-            <PokeRowInAbility pokemon={e} key={idx} addToList={addTolist} toAddIndex={idx + 1} />
-          )}
+          <ProgressiveRenderer
+            animatedOpacitySpawnDuration={600}
+            fullData={pokemonThatHaveTheAbility}
+            renderItem={renderPokeRow}
+          />
         </PokemonThatHaveTheAbilityScrollableDisplay>
 
       </ScrollableWrapper>
