@@ -1,8 +1,8 @@
-import { Animated, StyleSheet, Image } from "react-native"
+import { Animated, StyleSheet } from "react-native"
 import { styled } from "styled-components/native"
-import React, { useRef, useEffect, useCallback } from "react"
+import React, { useRef, useEffect } from "react"
 import { colorPalette } from "../styles/styles"
-import { Gesture, GestureDetector, RectButton, TouchableOpacity } from "react-native-gesture-handler"
+import { Gesture, GestureDetector, TouchableOpacity } from "react-native-gesture-handler"
 import { GenFilterSection } from "./filterMenuComponents/GenFilterSection"
 import { PokeFilter } from "../util/filterPokemon"
 import { useBackHandler } from "../hooks/useBackHandler"
@@ -60,12 +60,6 @@ const CloseButtonImage = styled.Image`
   height: 100%;
 `
 
-
-const ToggleableGenFilterButton = styled(RectButton)`
-
-`
-
-
 export const HorizontalBottomRule = styled.View`
   width: 85%;
   border-color: ${colorPalette.textWhite};
@@ -79,7 +73,7 @@ const openingAnimationDurationMs = 250;
 
 export type PokeFilterMenuProps = {
   currentFilter: PokeFilter,
-  setCurrentFilter: (x: PokeFilter) => void,
+  setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
 
   dismissLayout: () => void,
 }
