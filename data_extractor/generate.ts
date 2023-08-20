@@ -40,6 +40,7 @@ type TabInfo = {
   tabId: string,
   dexEntry: string,
   generationalChanges: string[],
+  startingEvo: string | undefined,
   evoTree: Record<string, { evolveReason: string, pokeId: string }[]>
 }
 
@@ -85,7 +86,8 @@ async function getPokevariantsTabs(html: any): Promise<TabInfo[]> {
         displayName: displayName, tabId: id.replace(/^#/, ''),
         dexEntry: pokedexEntry,
         generationalChanges: generationalChanges,
-        evoTree: evoTree,
+        evoTree: evoTree.evoTree,
+        startingEvo: evoTree.startingEvo,
         tabRawName: rawTabName
       });
     }
@@ -192,7 +194,7 @@ function parsePokeTab(html: any,
     generationalChanges: tabInfo.generationalChanges,
 
     evoTree: tabInfo.evoTree,
-
+    firstStartingEvo: tabInfo.startingEvo ?? pokeId, // fallback to himself if no starting evo
     variantName: tabInfo.tabRawName
   }
 

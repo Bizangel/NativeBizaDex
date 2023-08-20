@@ -10,7 +10,7 @@ import { PokeDetails } from '../components/PokeDetails';
 import { colorPalette } from '../styles/styles';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
-import { allPokemon, lastPokegen } from '../common/pokeInfo';
+import { allPokemon, lastPokegen, pokeMapping } from '../common/pokeInfo';
 import { PokeFilterMenu } from '../components/PokeFilterMenu';
 
 const Body = styled.View`
@@ -64,7 +64,10 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
     setSelectedPokemon(null);
 
     const timeout = setTimeout(() => {
-      const foundPoke = allPokemon.find(e => e.id === preSelectedPoke)
+      if (!preSelectedPoke)
+        return;
+
+      const foundPoke = pokeMapping.get(preSelectedPoke)
       if (foundPoke)
         setSelectedPokemon(foundPoke)
     }, debounceDelay);

@@ -42,7 +42,7 @@ const IncludeMegasButton = styled(TouchableWithoutFeedback) <{ megaFilter: MegaF
 
 
 const FilteredCountWrapper = styled.View`
-  width: 30%;
+  width: 25%;
   position: absolute;
 
   top: 0;
@@ -97,7 +97,7 @@ export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout,
 
   return (
     <HorizontalSlidingMenu
-      menuViewportSize={65}
+      menuViewportSize={68}
       slidingOrigin="right"
       dismissLayout={dismissLayout}
       contentContainerWrapperStyle={{ backgroundColor: colorPalette.backgroundBlack, padding: 10 }}

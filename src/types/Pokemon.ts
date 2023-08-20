@@ -48,6 +48,7 @@ export const PokemonSchema = z.object({
   ),
 
   variantName: z.string(),
+  firstStartingEvo: z.string(),
 });
 
 // extract the inferred type
@@ -88,4 +89,5 @@ export type Pokemon = {
   }[]>,
 
   variantName: string,
+  firstStartingEvo: string,
 }

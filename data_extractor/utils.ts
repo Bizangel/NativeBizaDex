@@ -48,6 +48,8 @@ function addToEvoTree(
 export function parseEvolveTree(html: any) {
   const $ = cheerioLoad(html);
 
+  let startingEvo: string | undefined;
+
   const evoTree: Record<string, { evolveReason: string, pokeId: string }[]> = {}
 
   $('.infocard-list-evo .infocard:not(.info-card-arrow) ').each((idx, infocard) => {
@@ -56,6 +58,10 @@ export function parseEvolveTree(html: any) {
       return;
 
     const nodeId = getPokeIdFromImageUrl(hrefAttr)
+
+    if (startingEvo === undefined) {
+      startingEvo = nodeId;
+    }
 
     const nextEle = $(infocard).next()
 
@@ -81,7 +87,10 @@ export function parseEvolveTree(html: any) {
     }
   })
 
-  return evoTree;
+  if (startingEvo === undefined && Object.keys(evoTree).length > 0) // it can be undefined, if pokemon doesn't evolve (evotree is empty.)
+    throw new Error(`Unable to find starting evo for ${JSON.stringify(evoTree)}`)
+
+  return { evoTree: evoTree, startingEvo: startingEvo };
 }
 
 
