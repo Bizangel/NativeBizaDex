@@ -1,11 +1,15 @@
 import { Ability, Pokemon } from "../types/Pokemon";
 
 // Everything needed to update the project SHOULD be here.
+export let allPokemon: Pokemon[] = [];
+export let allAbilities: Ability[] = [];
 
-export const allPokemon = require('../assets/pokemon.json') as Pokemon[];
+if (process.env.npm_lifecycle_event !== "datagen") {
+  allPokemon = require('../assets/pokemon.json') as Pokemon[];
+  allAbilities = require('../assets/abilities.json') as Ability[];
+}
+
 export const pokeMapping = new Map<string, Pokemon>();
-
-const allAbilities = require('../assets/abilities.json') as Ability[];
 export const abilityMap = new Map<string, Ability>();
 
 allAbilities.forEach((abi) => {

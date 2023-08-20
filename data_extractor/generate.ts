@@ -41,10 +41,13 @@ type TabInfo = {
   dexEntry: string,
   generationalChanges: string[],
   startingEvo: string | undefined,
-  evoTree: Record<string, { evolveReason: string, pokeId: string }[]>
+  evoTree: Record<string, { evolveReason: string, pokeId: string }[]>,
+
+  pokeFullURL: string,
+  tabIndex: number,
 }
 
-async function getPokevariantsTabs(html: any): Promise<TabInfo[]> {
+async function getPokevariantsTabs(html: any, originUrl: string): Promise<TabInfo[]> {
   const $ = cheerioLoad(html);
 
   const res = $('.tabset-basics.sv-tabs-wrapper .sv-tabs-tab-list').first()
@@ -88,7 +91,9 @@ async function getPokevariantsTabs(html: any): Promise<TabInfo[]> {
         generationalChanges: generationalChanges,
         evoTree: evoTree.evoTree,
         startingEvo: evoTree.startingEvo,
-        tabRawName: rawTabName
+        tabRawName: rawTabName,
+        pokeFullURL: originUrl,
+        tabIndex: e
       });
     }
   })
@@ -195,9 +200,10 @@ function parsePokeTab(html: any,
 
     evoTree: tabInfo.evoTree,
     firstStartingEvo: tabInfo.startingEvo ?? pokeId, // fallback to himself if no starting evo
-    variantName: tabInfo.tabRawName
+    variantName: tabInfo.tabRawName,
+    scrapedInfoUrl: tabInfo.pokeFullURL,
+    variantIndex: tabInfo.tabIndex,
   }
-
 
   // validate it
   const validated = PokemonSchema.parse(handleIdExceptions(returnPoke));
@@ -213,9 +219,8 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon[]> {
 
     const html = response.data;
 
-    const tabsPoke = await getPokevariantsTabs(html);
+    const tabsPoke = await getPokevariantsTabs(html, url);
     const poke = tabsPoke.map(e => parsePokeTab(html, e))
-
 
     return poke.filter(e => !excludedPokemonId.has(e.id));
   }
@@ -229,13 +234,24 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon[]> {
 async function fetchAllPokes() {
   const dexMapping = await getDexMappingToURL()
 
-  const allhrefs = Array.from(dexMapping.values())
+  let prevPokemon: Pokemon[] = [];
+  if (fs.existsSync("./src/assets/pokemon.json")) {
+    prevPokemon = JSON.parse(fs.readFileSync('./src/assets/pokemon.json').toString())
+  }
 
+  const pokeUrlsAlreadyDownloaded = new Set(prevPokemon.map(e => e.scrapedInfoUrl))
+
+  let allhrefs = Array.from(dexMapping.values())
+
+  allhrefs = allhrefs.filter(e => !pokeUrlsAlreadyDownloaded.has(e)); // avoid redownloads
   const pokeResult = await Promise.all(
     allhrefs.map(e => getPokemonFromUrl(e))
   )
 
-  fs.writeFileSync('./src/assets/pokemon.json', JSON.stringify(pokeResult.flat()))
+  const toWritePokeResult = [...pokeResult.flat(), ...prevPokemon];
+  // sort by dex -> variant
+  toWritePokeResult.sort((a, b) => a.nationalDexNumber === b.nationalDexNumber ? a.variantIndex - b.variantIndex : a.nationalDexNumber - b.nationalDexNumber)
+  fs.writeFileSync('./src/assets/pokemon.json', JSON.stringify(toWritePokeResult))
 }
 
 async function fetchAndParseAbility(abilityId: string): Promise<Ability> {
@@ -269,19 +285,35 @@ async function fetchAndParseAbility(abilityId: string): Promise<Ability> {
 }
 
 async function fetchAllAbilities() {
+  // check if some abilities have been fetched to avoid duplication.
+  let prevAbilities: Ability[] = [];
+  if (fs.existsSync("./src/assets/abilities.json")) {
+    prevAbilities = JSON.parse(fs.readFileSync('./src/assets/abilities.json').toString())
+  }
+
+  const alreadyFetchedAbilities = new Set(prevAbilities.map(e => e.id))
+
   const abilityList = await axios.get(`${baseDatabaseUrl}/ability`) // get all abilities list
   const $ = cheerioLoad(abilityList.data)
 
-  const allAbilities: string[] = []
+  let allAbilities: string[] = []
   $('#abilities tbody tr td a').each((idx, ele) => {
     const href = $(ele).attr('href')
     if (href)
       allAbilities.push(getIdFromHref(href));
   })
 
-  const abilityResult = await Promise.all(
+  // remove already fetched abilities
+  allAbilities = allAbilities.filter(e => !alreadyFetchedAbilities.has(e));
+
+  let abilityResult = await Promise.all(
     allAbilities.map(e => fetchAndParseAbility(e))
   )
+
+  abilityResult = [...abilityResult, ...prevAbilities]; // mix with previous abilities
+
+  // sort alphabetically
+  abilityResult.sort((a, b) => a.displayName.toLowerCase() < b.displayName.toLowerCase() ? -1 : 1)
 
   fs.writeFileSync('./src/assets/abilities.json', JSON.stringify(abilityResult.flat()))
 }
@@ -367,6 +399,16 @@ function verifyDataIntegrity() {
     // })
   })
 
+  // validate that starting evo is part of evotree
+  pokemonJSON.forEach(e => {
+    if (Object.keys(e.evoTree).length === 0) // empty evotree dont check
+      return;
+
+    const allIds = new Set([...Object.keys(e.evoTree), ...Object.values(e.evoTree).flat().map(i => i.pokeId)])
+    if (!allIds.has(e.firstStartingEvo))
+      throw new Error(`Starting evolution ${e.firstStartingEvo} not found in: ${JSON.stringify(e.evoTree)}`)
+  })
+
   // check that ids and displays names are consistent.
   // Some display names might be "Three-Segment Form" which is not truly a display name.
   // thus every segment (word splitted by dash -) should be contained in some way in the display name.
@@ -390,6 +432,7 @@ async function main() {
 
   await Promise.all([fetchAllPokes(), fetchAllAbilities()]);
 
+  // console.log("verifying")
   verifyDataIntegrity();
 }
 
