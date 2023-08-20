@@ -48,7 +48,6 @@ export const PokemonSchema = z.object({
   ),
 
   variantName: z.string(),
-  firstStartingEvo: z.string().nonempty(),
 
   variantIndex: z.number().nonnegative(),
 
@@ -94,8 +93,6 @@ export type Pokemon = {
 
   variantName: string,
   variantIndex: number,
-
-  firstStartingEvo: string,
 
   scrapedInfoUrl: string,
 }

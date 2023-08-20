@@ -40,7 +40,7 @@ type TabInfo = {
   tabId: string,
   dexEntry: string,
   generationalChanges: string[],
-  startingEvo: string | undefined,
+
   evoTree: Record<string, { evolveReason: string, pokeId: string }[]>,
 
   pokeFullURL: string,
@@ -89,8 +89,7 @@ async function getPokevariantsTabs(html: any, originUrl: string): Promise<TabInf
         displayName: displayName, tabId: id.replace(/^#/, ''),
         dexEntry: pokedexEntry,
         generationalChanges: generationalChanges,
-        evoTree: evoTree.evoTree,
-        startingEvo: evoTree.startingEvo,
+        evoTree: evoTree,
         tabRawName: rawTabName,
         pokeFullURL: originUrl,
         tabIndex: e
@@ -199,7 +198,6 @@ function parsePokeTab(html: any,
     generationalChanges: tabInfo.generationalChanges,
 
     evoTree: tabInfo.evoTree,
-    firstStartingEvo: tabInfo.startingEvo ?? pokeId, // fallback to himself if no starting evo
     variantName: tabInfo.tabRawName,
     scrapedInfoUrl: tabInfo.pokeFullURL,
     variantIndex: tabInfo.tabIndex,
@@ -399,16 +397,6 @@ function verifyDataIntegrity() {
     // })
   })
 
-  // validate that starting evo is part of evotree
-  pokemonJSON.forEach(e => {
-    if (Object.keys(e.evoTree).length === 0) // empty evotree dont check
-      return;
-
-    const allIds = new Set([...Object.keys(e.evoTree), ...Object.values(e.evoTree).flat().map(i => i.pokeId)])
-    if (!allIds.has(e.firstStartingEvo))
-      throw new Error(`Starting evolution ${e.firstStartingEvo} not found in: ${JSON.stringify(e.evoTree)}`)
-  })
-
   // check that ids and displays names are consistent.
   // Some display names might be "Three-Segment Form" which is not truly a display name.
   // thus every segment (word splitted by dash -) should be contained in some way in the display name.
@@ -430,9 +418,9 @@ async function main() {
     fs.mkdirSync('./src/assets')
   }
 
+
   await Promise.all([fetchAllPokes(), fetchAllAbilities()]);
 
-  // console.log("verifying")
   verifyDataIntegrity();
 }
 

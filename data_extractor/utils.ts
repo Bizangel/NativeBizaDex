@@ -48,8 +48,6 @@ function addToEvoTree(
 export function parseEvolveTree(html: any) {
   const $ = cheerioLoad(html);
 
-  let startingEvo: string | undefined;
-
   const evoTree: Record<string, { evolveReason: string, pokeId: string }[]> = {}
 
   $('.infocard-list-evo .infocard:not(.info-card-arrow) ').each((idx, infocard) => {
@@ -59,21 +57,22 @@ export function parseEvolveTree(html: any) {
 
     const nodeId = getPokeIdFromImageUrl(hrefAttr)
 
-    if (startingEvo === undefined) {
-      startingEvo = nodeId;
-    }
-
     const nextEle = $(infocard).next()
 
     if (nextEle.hasClass('infocard-evo-split')) {
-      nextEle.find('.infocard-arrow').each((_, arrowEle) => {
+      nextEle.children().each((_, childEle) => {
+        // for each children in evo split, find first arrow
+        const arrowEle = $(childEle).find('.infocard-arrow').first();
+        if (arrowEle.length === 0)
+          return;
+
         const reason = $(arrowEle).text().trim();
         const possibleTarget = $(arrowEle).next().find('.infocard-lg-img img').attr('src');
         if (possibleTarget) {
           addToEvoTree(evoTree, nodeId,
             { evolveReason: reason, pokeId: getPokeIdFromImageUrl(possibleTarget) })
         }
-      }) // find all arrows
+      })
     }
 
     if (nextEle.hasClass('infocard-arrow')) {
@@ -87,10 +86,7 @@ export function parseEvolveTree(html: any) {
     }
   })
 
-  if (startingEvo === undefined && Object.keys(evoTree).length > 0) // it can be undefined, if pokemon doesn't evolve (evotree is empty.)
-    throw new Error(`Unable to find starting evo for ${JSON.stringify(evoTree)}`)
-
-  return { evoTree: evoTree, startingEvo: startingEvo };
+  return evoTree;
 }
 
 
