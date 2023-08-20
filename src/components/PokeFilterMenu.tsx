@@ -6,7 +6,7 @@ import { ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handl
 import { GenFilterSection } from "./filterMenuComponents/GenFilterSection"
 import { MegaFilter, PokeFilter } from "../util/filterPokemon"
 import { TypesFilterSection } from "./filterMenuComponents/TypesFilterSection"
-import HorizontalSlidingMenu from "../common/SlidingMenu"
+import HorizontalSlidingMenu from "../common/HorizontalSlidingMenu"
 
 const FilterHeader = styled.Text`
   font-size: 24px;

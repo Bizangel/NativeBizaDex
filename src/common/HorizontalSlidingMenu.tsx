@@ -110,7 +110,7 @@ function HorizontalSlidingMenu({ dismissLayout, overlayedComponent, children, sl
     hideLayoutAnimated();
   });
 
-  const closeFlingToRightGesture = Gesture.Fling().direction(Directions.RIGHT).onStart(() => hideLayoutAnimated())
+  const closeFlingToRightGesture = Gesture.Fling().direction(slidingOrigin === "left" ? Directions.LEFT : Directions.RIGHT).onStart(() => hideLayoutAnimated())
   const backgroundTapAvoidCaptureEmptyTap = Gesture.Tap();
 
   return (
