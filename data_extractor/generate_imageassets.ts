@@ -122,7 +122,7 @@ import { ImageSourcePropType } from "react-native";
 
 /* =====================================================
  * This file was automatically generated using
- * "npm run datagen"
+ * "npm run imagegen"
  * See ./data_extractor/generate_imageassets.ts and README for more info.
  * =====================================================
  */
