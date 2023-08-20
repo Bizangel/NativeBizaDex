@@ -10,7 +10,6 @@ import { DexNameAndDescription } from "./detailsComponents/DexNameAndDescription
 import { useBackHandler } from "../hooks/useBackHandler";
 import { AbilityDisplayBox } from "./detailsComponents/abilitiesDisplay";
 import useActiveRoutes from "../hooks/useActiveRoutes";
-import { FlashList } from "@shopify/flash-list"
 import { EvoTreeDisplay } from "./detailsComponents/EvoTreeDisplay";
 
 const FullWrapper = styled(Animated.View)`
@@ -101,11 +100,10 @@ const switchVelocityThreshold = 1.5;
 const switchAnimDurationMs = 350;
 
 
-export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx, flatListRef }: {
+export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx }: {
   pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void,
   fullDataRef: Pokemon[],
   dataIdx: number,
-  flatListRef: React.RefObject<FlashList<Pokemon>>,
 }) {
   // used only for anim purposes
   const [pokeSwitchInfo, setPokeSwitchInfo] = useState<{ originPokeColor: string, targetPokeColor: string } | null>(null);
@@ -161,10 +159,12 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx,
   })
 
   // func to Switch Currently Selected pokemon, applying proper animations
-  const switchPoke = (newPoke: Pokemon, newIdx: number) => {
-    if (isSwitchingAnimation.current) {
-      flatListRef.current?.scrollToIndex({ animated: true, index: newIdx, viewPosition: 0 });
+  const switchPoke = (newPoke: Pokemon) => {
+    let newIdx = fullDataRef.map(e => e.id).indexOf(newPoke.id);
+    if (newIdx === -1)
+      newIdx = 0; // if for some reason doesn't exist, just choose first
 
+    if (isSwitchingAnimation.current) {
       // skip anim make it instant if spamming
       setSelectedPokemon(newPoke);
       animatedSwitchProgress.setValue(100);
@@ -172,9 +172,6 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx,
 
       return;
     }
-
-    flatListRef.current?.scrollToIndex({ animated: true, index: newIdx, viewPosition: 0 });
-
 
     isSwitchingAnimation.current = true;
 
@@ -197,8 +194,8 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx,
     });
   }
 
-  const switchToNextPoke = () => { if (fullDataRef[dataIdx + 1]) switchPoke(fullDataRef[dataIdx + 1], dataIdx + 1) }
-  const switchToPreviousPoke = () => { if (fullDataRef[dataIdx - 1]) switchPoke(fullDataRef[dataIdx - 1], dataIdx - 1) }
+  const switchToNextPoke = () => { if (fullDataRef[dataIdx + 1]) switchPoke(fullDataRef[dataIdx + 1]) }
+  const switchToPreviousPoke = () => { if (fullDataRef[dataIdx - 1]) switchPoke(fullDataRef[dataIdx - 1]) }
 
   // Hide layout when flinged downwards or background is tapped
   const backgroundTap = Gesture.Tap().onStart(() => { hideLayout(); })
@@ -269,7 +266,7 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx,
                   <PokeStatsDisplay stats={pokemon.baseStats} />
                   <AbilityDisplayBox abilitiesId={pokemon.abilitiesId}
                     hiddenAbilityId={pokemon.hiddenAbility} />
-                  <EvoTreeDisplay pokemon={pokemon} />
+                  <EvoTreeDisplay pokemon={pokemon} switchPoke={switchPoke} />
 
                 </ScrollableDetails>
               </ScrollableDetailsWrapperContent>

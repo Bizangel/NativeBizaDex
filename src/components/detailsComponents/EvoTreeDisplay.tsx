@@ -6,12 +6,13 @@ import pokeImages from "../../assets/pokeImages"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { pokeMapping } from "../../common/pokeInfo"
 import { ValueOf, findEvotreeStartingNodes } from "../../util/utils"
+import React, { useCallback } from "react"
 
 const FullEvotreeCenteredWrapper = styled.View`
   width: 90%;
 
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 
   justify-content: center;
   align-items: center;
@@ -106,11 +107,12 @@ const EvoSquarePokenameDisplay = styled.Text`
   text-align: center;
 `
 
-function EvoPokeSquareDisplay({ pokeId }: { pokeId: string }) {
-  const pokeName = pokeMapping.get(pokeId)?.displayName
+function EvoPokeSquareDisplay({ pokeId, switchPokeRef }: { pokeId: string, switchPokeRef: (x: Pokemon) => void }) {
+  const poke = pokeMapping.get(pokeId)
+  const pokeName = poke?.displayName;
 
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => { if (poke) switchPokeRef(poke); }}>
       <EvoSquareWrapper>
         <EvoSquarePokeImageWrapper>
           <Image source={pokeImages[pokeId]} resizeMode="contain" style={{ flex: 1, width: undefined, height: undefined }} />
@@ -125,11 +127,12 @@ function EvoPokeSquareDisplay({ pokeId }: { pokeId: string }) {
 
 const evoLengthToArrowIndices = [[], [0], [-1, 1], [-1, 0, 1]] as const;
 
-function EvoRecDisplay({ targetPokeID, fullEvoTreeRef }: { targetPokeID: string, fullEvoTreeRef: Pokemon["evoTree"] }) {
+function EvoRecDisplay({ targetPokeID, fullEvoTreeRef, switchPokeRef }:
+  { targetPokeID: string, fullEvoTreeRef: Pokemon["evoTree"], switchPokeRef: (x: Pokemon) => void }) {
 
   const differentEvos = fullEvoTreeRef[targetPokeID]
   if (differentEvos === undefined) // that one doesn't evolve, return last
-    return <EvoPokeSquareDisplay pokeId={targetPokeID} />
+    return <EvoPokeSquareDisplay pokeId={targetPokeID} switchPokeRef={switchPokeRef} />
 
   const SplittedTrees: (ValueOf<Pokemon["evoTree"]>)[] = [[]];
 
@@ -143,18 +146,18 @@ function EvoRecDisplay({ targetPokeID, fullEvoTreeRef }: { targetPokeID: string,
   // it has evolution, render all evolutions
   return (
     <View style={{ display: "flex", flexDirection: "column" }}>
-      {SplittedTrees.map(split => {
+      {SplittedTrees.map((split, splitTreeIdx) => {
 
         const arrowIndices = evoLengthToArrowIndices[split.length];
 
         return (
-          <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-            <EvoPokeSquareDisplay pokeId={targetPokeID} />
+          <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }} key={splitTreeIdx}>
+            <EvoPokeSquareDisplay pokeId={targetPokeID} switchPokeRef={switchPokeRef} />
             <EvoSplitColumn>
               {split.map((e, i) =>
                 <View style={{ display: "flex", flexDirection: "row", alignItems: displayAlignmentMapping[arrowIndices[i]] }} key={i}>
                   <EvoArrowComponent evoReason={e.evolveReason} displayIndex={arrowIndices[i]} />
-                  <EvoRecDisplay targetPokeID={e.pokeId} fullEvoTreeRef={fullEvoTreeRef} />
+                  <EvoRecDisplay targetPokeID={e.pokeId} fullEvoTreeRef={fullEvoTreeRef} switchPokeRef={switchPokeRef} />
                 </View>
               )}
             </EvoSplitColumn>
@@ -165,20 +168,46 @@ function EvoRecDisplay({ targetPokeID, fullEvoTreeRef }: { targetPokeID: string,
   )
 }
 
-export function EvoTreeDisplay({ pokemon }: { pokemon: Pokemon }) {
+const EvoTreeHeader = styled.Text`
+  font-size: 20px;
+  color: ${colorPalette.textWhite};
+`
 
-  // have to find starting nodes as there may be multiple
-  console.log(findEvotreeStartingNodes(pokemon.evoTree))
+const EvoTreeDoesNotEvolveText = styled.Text`
+  font-size: 14px;
+  color: ${colorPalette.textWhite};
+`
+
+function EvoTreeDisplayNonMemod({ pokemon, switchPoke }: { pokemon: Pokemon, switchPoke: (x: Pokemon) => void }) {
+
+  const switchPokeRef = useCallback((x: Pokemon) => { // hook into it to avoid switching if same poke.
+    if (pokemon.id !== x.id)
+      switchPoke(x)
+  }, [switchPoke, pokemon])
+
+  if (Object.keys(pokemon.evoTree).length === 0)
+    return (
+      <FullEvotreeCenteredWrapper>
+        <EvoTreeHeader> Evolution Tree</EvoTreeHeader>
+        <EvoTreeDoesNotEvolveText> This pokemon does not evolve. </EvoTreeDoesNotEvolveText>
+      </FullEvotreeCenteredWrapper>
+    )
 
   return (
     <FullEvotreeCenteredWrapper>
+      <EvoTreeHeader>
+        Evolution Tree
+      </EvoTreeHeader>
       <EvotreeDisplayWrapper>
         <>
           {findEvotreeStartingNodes(pokemon.evoTree).map(e =>
-            <EvoRecDisplay targetPokeID={e} fullEvoTreeRef={pokemon.evoTree} key={e} />
+            <EvoRecDisplay targetPokeID={e} fullEvoTreeRef={pokemon.evoTree} key={e} switchPokeRef={switchPokeRef} />
           )}
         </>
       </EvotreeDisplayWrapper>
     </FullEvotreeCenteredWrapper>
   )
 }
+
+// memod as it is quite fat.
+export const EvoTreeDisplay = React.memo(EvoTreeDisplayNonMemod) as typeof EvoTreeDisplayNonMemod;

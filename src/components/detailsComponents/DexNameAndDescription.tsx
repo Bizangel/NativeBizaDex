@@ -26,6 +26,8 @@ const PokeNumberAndPokeNameWrapper = styled.View`
   display: flex;
   flex-direction: row;
   align-items: center;
+
+  flex-wrap: wrap;
 `
 
 const PokeDexNumber = styled.Text`

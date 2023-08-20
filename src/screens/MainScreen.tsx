@@ -68,14 +68,27 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
         return;
 
       const foundPoke = pokeMapping.get(preSelectedPoke)
-      if (foundPoke)
-        setSelectedPokemon(foundPoke)
+      if (!foundPoke)
+        return;
+
+      setSelectedPokemon(foundPoke)
     }, debounceDelay);
 
     return () => {
       clearTimeout(timeout);
     }
-  }, [preSelectedPoke])
+  }, [preSelectedPoke, currentData])
+
+  // automatically scroll to selected pokemon, should it be available in the list
+  // if not available, well we don't really care.
+  useEffect(() => {
+    if (!selectedPokemon)
+      return;
+
+    const foundIndex = currentData.map(e => e.id).indexOf(selectedPokemon.id)
+    if (foundIndex !== -1)
+      flatListRef.current?.scrollToIndex({ animated: true, index: foundIndex, viewPosition: 0 });
+  }, [selectedPokemon, currentData])
 
   // debounce filter for efficiency
   useEffect(() => {
@@ -127,7 +140,6 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
 
       {selectedPokemon && <MemodPokedetails pokemon={selectedPokemon} setSelectedPokemon={setSelectedPokemon}
         fullDataRef={currentData}
-        flatListRef={flatListRef}
         dataIdx={currentData.findIndex(e => selectedPokemon.id === e.id) ?? 0}
       />}
 
