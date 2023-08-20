@@ -51,7 +51,7 @@ export function GenFilterSection({ currentFilter, setCurrentFilter }: {
 
   return (
     <GenFilterWrapper
-      initHeight={250}// initial height, before all elements are rendered, an approximation, the better the less "sloppy it will see"
+      initHeight={160}// initial height, before all elements are rendered, an approximation, the better the less "sloppy it will see"
       animatedOpacitySpawnDuration={300}
       fullData={currentFilter.genFilter as boolean[]}
       renderItem={renderItem}

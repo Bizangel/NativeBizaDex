@@ -37,7 +37,7 @@ export function TypesFilterSection({ currentFilter, setCurrentFilter }: {
   return (
     <TypeFilterWrapper
       animatedOpacitySpawnDuration={300}
-      initHeight={330}
+      initHeight={220}
       fullData={PokemonTypes}
       renderItem={(type, i) =>
         <TypeButton key={i} isActive={activeTypes.has(type)}
