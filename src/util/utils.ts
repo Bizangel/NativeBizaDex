@@ -1,6 +1,8 @@
 import { types2color, types2semiEndColor } from "../styles/styles";
 import { PokeType, Pokemon } from "../types/Pokemon";
 
+export type ValueOf<T> = T[keyof T];
+
 export function getPokeimage(poke: Pokemon) {
   const startIndex = poke.imageUrl.lastIndexOf('/') + 1;
   const extractedString = poke.imageUrl.substring(startIndex, poke.imageUrl.length);
@@ -62,4 +64,12 @@ export function getPokegradientColorFromTypes(types: PokeType[]) {
   }
 
   return gradientColor;
+}
+
+/** Finds an evolution tree starting nodes. These are the nodes in which are NOT directed by another node. */
+export function findEvotreeStartingNodes(evoTree: Pokemon["evoTree"]): string[] {
+  const allKeys = Object.keys(evoTree);
+
+  const reached = new Set(Object.values(evoTree).flat().map(e => e.pokeId))
+  return allKeys.filter(e => !reached.has(e))
 }

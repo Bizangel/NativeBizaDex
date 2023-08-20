@@ -5,6 +5,7 @@ import { Image, View } from "react-native"
 import pokeImages from "../../assets/pokeImages"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { pokeMapping } from "../../common/pokeInfo"
+import { ValueOf, findEvotreeStartingNodes } from "../../util/utils"
 
 const FullEvotreeCenteredWrapper = styled.View`
   width: 90%;
@@ -25,8 +26,10 @@ const FullEvotreeCenteredWrapper = styled.View`
 
 const EvotreeDisplayWrapper = styled.View`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
+
+  flex-wrap: wrap;
   /* justify-content: center; */
 `
 
@@ -79,17 +82,6 @@ const displayAlignmentMapping = {
   [1]: "flex-start"
 } as const
 
-function EvoTargetComponent({ evoReason, pokeTargetId, displayIndex }: { evoReason: string, pokeTargetId: string, displayIndex: -1 | 0 | 1 }) {
-
-  return (
-    <View style={{ display: "flex", flexDirection: "row", alignItems: displayAlignmentMapping[displayIndex] }}>
-      <EvoArrowComponent evoReason={evoReason} displayIndex={displayIndex} />
-      <EvoPokeSquareDisplay pokeId={pokeTargetId} />
-    </View>
-  )
-}
-
-
 const EvoSquareWrapper = styled.View`
   margin-top: 10px;
   padding: 2px;
@@ -131,32 +123,61 @@ function EvoPokeSquareDisplay({ pokeId }: { pokeId: string }) {
   )
 }
 
+const evoLengthToArrowIndices = [[], [0], [-1, 1], [-1, 0, 1]] as const;
 
-// function EvoRecDisplay({ targetPokeID }: { targetPokeID: string }) {
-//   return (
+function EvoRecDisplay({ targetPokeID, fullEvoTreeRef }: { targetPokeID: string, fullEvoTreeRef: Pokemon["evoTree"] }) {
 
-//   )
-// }
+  const differentEvos = fullEvoTreeRef[targetPokeID]
+  if (differentEvos === undefined) // that one doesn't evolve, return last
+    return <EvoPokeSquareDisplay pokeId={targetPokeID} />
+
+  const SplittedTrees: (ValueOf<Pokemon["evoTree"]>)[] = [[]];
+
+  differentEvos.forEach((ele) => {
+    if (SplittedTrees.at(-1)?.length === 3)
+      SplittedTrees.push([ele])// add to new
+    else
+      SplittedTrees.at(-1)?.push(ele)
+  })
+
+  // it has evolution, render all evolutions
+  return (
+    <View style={{ display: "flex", flexDirection: "column" }}>
+      {SplittedTrees.map(split => {
+
+        const arrowIndices = evoLengthToArrowIndices[split.length];
+
+        return (
+          <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+            <EvoPokeSquareDisplay pokeId={targetPokeID} />
+            <EvoSplitColumn>
+              {split.map((e, i) =>
+                <View style={{ display: "flex", flexDirection: "row", alignItems: displayAlignmentMapping[arrowIndices[i]] }} key={i}>
+                  <EvoArrowComponent evoReason={e.evolveReason} displayIndex={arrowIndices[i]} />
+                  <EvoRecDisplay targetPokeID={e.pokeId} fullEvoTreeRef={fullEvoTreeRef} />
+                </View>
+              )}
+            </EvoSplitColumn>
+          </View>
+        )
+      })}
+    </View>
+  )
+}
 
 export function EvoTreeDisplay({ pokemon }: { pokemon: Pokemon }) {
 
+  // have to find starting nodes as there may be multiple
+  console.log(findEvotreeStartingNodes(pokemon.evoTree))
 
   return (
     <FullEvotreeCenteredWrapper>
       <EvotreeDisplayWrapper>
-
-        <EvoPokeSquareDisplay pokeId="ralts" />
-        <EvoTargetComponent evoReason="Lvl 20" pokeTargetId="kirlia" displayIndex={0} />
-        {/* <EvoArrowComponent evoReason="(Evolve at lvl 34)" /> */}
-
-
-        <EvoSplitColumn>
-          <EvoTargetComponent evoReason="(Level 30)" pokeTargetId="gardevoir" displayIndex={-1} />
-          <EvoTargetComponent evoReason="(use Dawn Stone, Male)" pokeTargetId="gallade" displayIndex={1} />
-          {/* <EvoArrowComponent evoReason="Evolve at lvl 34" />
-        <EvoArrowComponent evoReason="Evolve at lvl 34" /> */}
-        </EvoSplitColumn>
-
+        <>
+          {findEvotreeStartingNodes(pokemon.evoTree).map(e =>
+            <EvoRecDisplay targetPokeID={e} fullEvoTreeRef={pokemon.evoTree} key={e} />
+          )}
+        </>
       </EvotreeDisplayWrapper>
     </FullEvotreeCenteredWrapper>
   )
