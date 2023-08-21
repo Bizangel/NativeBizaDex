@@ -1,12 +1,14 @@
 import { StyleSheet } from "react-native"
 import { styled } from "styled-components/native"
-import React from "react"
+import React, { useRef } from "react"
 import { colorPalette } from "../styles/styles"
-import { ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler"
+import { ScrollView, TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler"
 import { GenFilterSection } from "./filterMenuComponents/GenFilterSection"
 import { MegaFilter, PokeFilter } from "../util/filterPokemon"
 import { TypesFilterSection } from "./filterMenuComponents/TypesFilterSection"
 import HorizontalSlidingMenu from "../common/HorizontalSlidingMenu"
+import { produce } from "immer"
+import { useOnKeyboardShow } from "../hooks/useKeyboardHooks"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
@@ -76,12 +78,61 @@ const HorizontalBottomRule = styled.View`
   border-bottom-width: ${StyleSheet.hairlineWidth}px;
 `
 
+const BaseStatThresholdWrapper = styled.View`
+  width: 90%;
 
-const BaseStatThresholdInput = styled.TextInput`
-  font-size: 16px;
-  padding-left: 15px;
+  display: flex;
+  flex-direction: row;
+
+  align-items: center;
+
+  margin-top: 10px;
+`
+
+const BaseStatTextDisplay = styled.Text`
+  color: ${colorPalette.textWhite};
+
+  font-size: 14px;
+  margin-right: 5px;
+
+  max-width: 40%;
+`
+
+const BaseStatThresholdOperatorDisplayWrapper = styled.View`
+  width: 50px;
+  height: 40px;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+  background-color: ${colorPalette.foregroundButtonBlackActive};
+
+  border-radius: 10px;
+`
+
+const BaseStatThresholdOperatorDisplayText = styled.Text`
+  color: ${colorPalette.textWhite};
+
+  font-size: 35px;
+  line-height: 35px;
+`
+
+const BaseStatThresholdInput = styled(TextInput)`
+  /* padding-left: 15px; */
 
   color: white;
+  background-color: ${colorPalette.foregroundButtonBlackInactive};
+
+  border-radius: 15px;
+
+  background-color: black;
+
+  font-size: 20px;
+  width: 80px;
+  text-align: center;
 `
 
 
@@ -94,6 +145,13 @@ export type PokeFilterMenuProps = {
 }
 
 export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout, amountFiltered }: PokeFilterMenuProps) {
+  const scrollRef = useRef<ScrollView>(null);
+
+  useOnKeyboardShow(() => {
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({ animated: false })
+    }, 50)
+  })
 
   return (
     <HorizontalSlidingMenu
@@ -112,7 +170,10 @@ export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout,
         </FilteredCountWrapper>
       }
     >
-      <ScrollView contentContainerStyle={{ alignItems: "center" }} fadingEdgeLength={25}>
+
+      <ScrollView contentContainerStyle={{ alignItems: "center" }} fadingEdgeLength={25}
+        ref={scrollRef}
+      >
         <FilterHeader>
           Filter Pokemon
         </FilterHeader>
@@ -161,14 +222,59 @@ export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout,
           <IncludeMegaText>{currentFilter.displayMegas}</IncludeMegaText>
         </IncludeMegasButton>
 
-        <BaseStatThresholdInput
-          keyboardType="numeric"
-          placeholder="Threshold"
-          placeholderTextColor="#dddddd"
-          onChangeText={(x: string) => { console.log("x") }}
-          value={"Threshold"}
-          defaultValue={""}
-        />
+        <BaseStatThresholdWrapper>
+          <BaseStatTextDisplay>
+            Base Stat Threshold:
+          </BaseStatTextDisplay>
+          <BaseStatThresholdInput
+            keyboardType="numeric"
+            placeholder="0"
+            caretHidden={false}
+            onChangeText={(x: string) => {
+              if (x.length > 3)
+                return;
+
+              if (x === "") {
+                setCurrentFilter(prev => produce(prev, draft => { draft.baseStatThreshold = undefined }))
+                return;
+              }
+
+              const parsed = parseInt(x, 10)
+              if (Number.isNaN(parsed))
+                return;
+
+              setCurrentFilter(prev => produce(prev, draft => {
+                draft.baseStatThreshold = parsed;
+              }))
+            }}
+            value={`${currentFilter.baseStatThreshold ?? ""}`}
+            defaultValue={""}
+          />
+
+          {
+            currentFilter.baseStatThreshold &&
+            <TouchableWithoutFeedback onPress={() => {
+              setCurrentFilter(prev => produce(prev, draft => {
+                if (prev.baseStatThresholdOperator === "ge") {
+                  draft.baseStatThresholdOperator = "le"
+                } else {
+                  draft.baseStatThresholdOperator = "ge"
+                }
+              }))
+            }}>
+              <BaseStatThresholdOperatorDisplayWrapper>
+                <BaseStatThresholdOperatorDisplayText>
+                  {currentFilter.baseStatThresholdOperator === "ge" ? "≥" : "≤"}
+                </BaseStatThresholdOperatorDisplayText>
+              </BaseStatThresholdOperatorDisplayWrapper>
+            </TouchableWithoutFeedback>
+
+          }
+
+
+        </BaseStatThresholdWrapper>
+
+
 
       </ScrollView>
     </HorizontalSlidingMenu>

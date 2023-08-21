@@ -35,25 +35,42 @@ export function TypesFilterSection({ currentFilter, setCurrentFilter }: {
   const activeTypes = new Set(currentFilter.typesFilter);
 
   return (
-    <TypeFilterWrapper
-      animatedOpacitySpawnDuration={300}
-      initHeight={220}
-      fullData={PokemonTypes}
-      renderItem={(type, i) =>
-        <TypeButton key={i} isActive={activeTypes.has(type)}
-          onPress={() => {
-            setCurrentFilter(prev => produce(prev, (draft) => {
-              const foundIndex = prev.typesFilter.findIndex(ele => ele === type)
-              if (foundIndex !== -1) { // toggle, exists so delete
-                draft.typesFilter.splice(foundIndex, 1); // delete
-              } else {
-                draft.typesFilter.push(type)// add
-              }
-            }));
-          }}>
-          <TypeDisplay type={type} style={{ elevation: 15 }}>{type}</TypeDisplay>
-        </TypeButton>
-      }
-    />
+    <>
+      <TypeFilterWrapper
+        animatedOpacitySpawnDuration={300}
+        initHeight={220}
+        fullData={PokemonTypes}
+        renderItem={(type, i) =>
+          <TypeButton key={i} isActive={activeTypes.has(type)}
+            onPress={() => {
+              setCurrentFilter(prev => produce(prev, (draft) => {
+                const foundIndex = prev.typesFilter.findIndex(ele => ele === type)
+                if (foundIndex !== -1) { // toggle, exists so delete
+                  draft.typesFilter.splice(foundIndex, 1); // delete
+                } else {
+                  draft.typesFilter.push(type)// add
+                }
+              }));
+            }}>
+            <TypeDisplay type={type} style={{ elevation: 15 }}>{type}</TypeDisplay>
+          </TypeButton>
+        }
+      />
+
+      <TypeButton onPress={() => {
+        setCurrentFilter((prev) => {
+          if (prev.typesFilter.length === 0) { // if one disabled, enable all
+            return produce(prev, draft => { draft.typesFilter = [...PokemonTypes] })
+          } else { // disableall
+            return produce(prev, draft => { draft.typesFilter = [] })
+          }
+        })
+      }} style={{ borderRadius: 10 }} isActive={true}>
+        <TypeDisplay type="Fire" style={{ backgroundColor: colorPalette.backgroundBlack }}>
+          Toggle All
+        </TypeDisplay>
+      </TypeButton >
+    </>
+
   )
 }

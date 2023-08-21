@@ -45,7 +45,11 @@ const AllTypes = [
   "Rock", "Ghost", "Dragon", "Dark",
   "Steel", "Fairy"] as PokeType[];
 
-const initialFilter: PokeFilter = { searchString: "", typesFilter: AllTypes, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas }
+const initialFilter: PokeFilter = {
+  searchString: "", typesFilter: AllTypes, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
+  baseStatThreshold: undefined, baseStatThresholdOperator: "ge",
+}
+
 const debounceDelay = 200;
 
 function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
@@ -77,7 +81,7 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
     return () => {
       clearTimeout(timeout);
     }
-  }, [preSelectedPoke, currentData])
+  }, [preSelectedPoke])
 
   // automatically scroll to selected pokemon, should it be available in the list
   // if not available, well we don't really care.

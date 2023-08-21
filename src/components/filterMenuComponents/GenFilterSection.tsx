@@ -50,11 +50,30 @@ export function GenFilterSection({ currentFilter, setCurrentFilter }: {
     , [setCurrentFilter])
 
   return (
-    <GenFilterWrapper
-      initHeight={160}// initial height, before all elements are rendered, an approximation, the better the less "sloppy it will see"
-      animatedOpacitySpawnDuration={300}
-      fullData={currentFilter.genFilter as boolean[]}
-      renderItem={renderItem}
-    />
+    <>
+
+      <GenFilterWrapper
+        initHeight={160}// initial height, before all elements are rendered, an approximation, the better the less "sloppy it will see"
+        animatedOpacitySpawnDuration={300}
+        fullData={currentFilter.genFilter as boolean[]}
+        renderItem={renderItem}
+      />
+
+      {/* Toggle All Button */}
+      <GenButton onPress={() => {
+        setCurrentFilter((prev) => {
+          if (prev.genFilter.some(e => e)) { // if one is enabled, disable all
+            return produce(prev, draft => { draft.genFilter = draft.genFilter.map(_ => false) })
+          } else { // disableall
+            return produce(prev, draft => { draft.genFilter = draft.genFilter.map(_ => true) })
+          }
+        })
+      }} style={{ borderRadius: 10 }} isActive={true}>
+        <GenButtonText>
+          Toggle All
+        </GenButtonText>
+
+      </GenButton>
+    </>
   )
 }

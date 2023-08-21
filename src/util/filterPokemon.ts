@@ -31,7 +31,22 @@ export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter): Pokem
     filteredMegas = filteredMegas.filter(e => e.isMega);
   }
 
-  return filteredMegas;
+  let filteredByThreshold = filteredMegas;
+  if (filters.baseStatThreshold !== undefined) {
+    console.log("executed inside")
+    console.log(filters.baseStatThreshold)
+    if (filters.baseStatThresholdOperator === "ge") {
+      console.log("executed filtering")
+      filteredByThreshold.filter(e => e.baseStatTotal >= (filters.baseStatThreshold ?? 0))
+    } else {
+      filteredByThreshold.filter(e => e.baseStatTotal <= (filters.baseStatThreshold ?? 0))
+    }
+  }
+
+  console.log("filtered")
+  console.log(filters.baseStatThreshold)
+  console.log(filteredByThreshold[0].baseStatTotal > 400)
+  return filteredByThreshold.filter(e => e.baseStatTotal > 200);
 }
 
 export enum MegaFilter {
@@ -45,4 +60,7 @@ export type PokeFilter = {
   typesFilter: PokeType[],
   genFilter: boolean[],
   displayMegas: MegaFilter,
+
+  baseStatThreshold: number | undefined,
+  baseStatThresholdOperator: "le" | "ge",
 }
