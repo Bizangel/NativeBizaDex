@@ -27,6 +27,34 @@ export const PokemonTypes = [
   "Rock", "Ghost", "Dragon", "Dark",
   "Steel", "Fairy"] as const;
 
+
+const TypeChartRaw = `
+          NOR FIR WAT ELE GRA ICE FIG POI GRO FLY PSY BUG ROC GHO DRA DAR STE FAI
+  Normal   1   1   1   1   1   1   1   1   1   1   1   1   h   0   1   1   1   1
+  Fire     1   h   h   1   2   2   1   1   1   1   1   2   h   1   h   1   2   1
+  Water    1   2   h   1   h   1   1   1   2   1   1   1   2   1   h   1   1   1
+  Electric 1   1   2   h   h   1   1   1   0   2   1   1   1   1   h   1   1   1
+  Grass    1   h   2   1   h   1   1   h   2   h   1   h   2   1   h   1   h   1
+  Ice      1   h   h   1   2   h   1   1   h   2   1   1   1   1   2   1   h   1
+  Fighting 2   1   1   1   1   2   1   h   1   h   h   h   2   0   1   2   2   h
+  Poison   1   1   1   1   2   1   1   h   h   1   1   1   h   h   1   1   0   2
+  Ground   1   2   1   2   h   1   1   2   1   0   1   h   2   1   1   1   2   1
+  Flying   1   1   1   h   2   1   2   1   1   1   1   2   h   1   1   1   h   1
+  Psychic  1   1   1   1   1   1   2   2   1   1   h   1   1   1   1   0   h   1
+  Bug      1   h   1   1   2   1   h   h   1   h   2   1   1   h   1   2   h   h
+  Rock     1   2   1   1   1   2   h   1   h   2   1   2   1   1   1   1   h   1
+  Ghost    0   1   1   1   1   1   1   1   1   1   2   1   1   2   1   h   1   1
+  Dragon   1   1   1   1   1   1   1   1   1   1   1   1   1   1   2   1   h   0
+  Dark     1   1   1   1   1   1   h   1   1   1   2   1   1   2   1   h   1   h
+  Steel    1   h   h   h   1   2   1   1   1   1   1   1   2   1   1   1   h   2
+  Fairy    1   h   1   1   1   1   2   h   1   1   1   1   1   1   2   2   h   1
+`
+
+const TypeChartLines = TypeChartRaw.split('\n').filter(e => e.length > 0).slice(1)
+export const TypeChart = TypeChartLines.map(e => e.split(" ").filter(i => i.length > 0).slice(1))
+
+export type TypeEffectiveness = "1/2" | "1" | "2" | "0"
+
 export enum MegaFilter {
   NoMega = "No Mega Evolutions",
   IncludeMegas = "Include Mega Evolutions",
@@ -53,3 +81,4 @@ export const initialPokefilter: PokeFilter = {
   searchString: "", typesFilter: initialTypeFilter, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
   baseStatThreshold: undefined, baseStatThresholdOperator: "ge",
 }
+
