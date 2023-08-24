@@ -10,6 +10,7 @@ import { produce } from "immer"
 import { useOnKeyboardShow } from "../hooks/useKeyboardHooks"
 import { isEqual as deepEqual } from "lodash"
 import { MegaFilter, PokeFilter, initialPokefilter } from "../common/pokeInfo"
+import { OpacitySpawn } from "../common/common"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
@@ -134,7 +135,7 @@ const BaseStatThresholdInput = styled(TextInput)`
 `
 
 
-const ClearFilterButtonWrapper = styled.View`
+const ClearFilterButtonWrapper = styled(OpacitySpawn)`
   position: absolute;
 
   left: 0;
@@ -322,7 +323,7 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
       </ScrollView>
 
       {hasFilterChanged &&
-        <ClearFilterButtonWrapper>
+        <ClearFilterButtonWrapper spawnDuration={200}>
           <TouchableOpacity style={{ backgroundColor: undefined }} onPress={clearFilter}>
             <ClearFilterButtonText>
               Clear Filters

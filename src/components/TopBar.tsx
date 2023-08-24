@@ -1,6 +1,7 @@
 import { Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { styled } from "styled-components/native";
+import { colorPalette } from "../styles/styles";
 
 
 const TopbarWrapper = styled.View`
@@ -33,17 +34,44 @@ const SearchInput = styled.TextInput`
   padding-left: 15px;
 
   /* color: rgb(200,200,200); */
-  color: white;
+  color: ${colorPalette.textWhite};
 `
 
+
+const EnabledFilterIndicatorWrapper = styled.View`
+  color: ${colorPalette.textWhite};
+
+  width: 20px;
+  height: 20px;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: ${colorPalette.notSoBrightRed};
+  position: absolute;
+
+  right: 0;
+  top: 0;
+`
+
+const EnabledFilterIndicatorText = styled.Text`
+  font-size: 10px;
+
+  color: ${colorPalette.textWhite};
+`
 
 export type TopBarProps = {
   currentSearch: string,
   setCurrentSearch: (x: string) => void,
   onFilterClick: () => void,
+
+  displayFilterIndicator: boolean,
 }
 
-function TopBar({ currentSearch, setCurrentSearch, onFilterClick }: TopBarProps) {
+function TopBar({ currentSearch, setCurrentSearch, onFilterClick, displayFilterIndicator }: TopBarProps) {
 
   return (
     <TopbarWrapper>
@@ -60,7 +88,15 @@ function TopBar({ currentSearch, setCurrentSearch, onFilterClick }: TopBarProps)
 
       <TouchableOpacity onPress={onFilterClick}>
         <Image source={require('../icons/filter.png')} style={{ width: 40, height: 40 }} />
+
+        {displayFilterIndicator && <EnabledFilterIndicatorWrapper>
+          <EnabledFilterIndicatorText>
+            ON
+          </EnabledFilterIndicatorText>
+        </EnabledFilterIndicatorWrapper>}
       </TouchableOpacity>
+
+
     </TopbarWrapper>
   )
 }

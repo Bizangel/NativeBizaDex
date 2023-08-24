@@ -12,6 +12,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import { PokeFilter, allPokemon, initialPokefilter, pokeMapping } from '../common/pokeInfo';
 import { PokeFilterMenu } from '../components/PokeFilterMenu';
+import { isEqual as deepEqual } from "lodash"
 
 const Body = styled.View`
   background-color: ${colorPalette.backgroundBlack};
@@ -108,10 +109,12 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
     setShowFilterMenu(false);
   }, [])
 
+  const hasFilterChanged = !deepEqual(currentFilter, initialPokefilter);
+
   return (
     <Body>
       <FlatListWrapper>
-        <TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter} onFilterClick={onTopFilterClick} />
+        <TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter} onFilterClick={onTopFilterClick} displayFilterIndicator={hasFilterChanged} />
         <FlashList
           ref={flatListRef}
           numColumns={2}
