@@ -40,8 +40,11 @@ export const ProgressiveElementAnimated = <T,>({ Component, item, onRender, anim
   )
 }
 
-export const ProgressiveElementMemod = React.memo(ProgressiveElement) as typeof ProgressiveElement;
-export const ProgressiveElementAnimatedMemod = React.memo(ProgressiveElementAnimated) as typeof ProgressiveElementAnimated;
+// Note how on memo we ignore onRender prop.
+export const ProgressiveElementMemod = React.memo(ProgressiveElement,
+  (prev, newProps) => prev.idx === newProps.idx && prev.item === newProps.item && prev.Component === newProps.Component) as typeof ProgressiveElement;
+export const ProgressiveElementAnimatedMemod = React.memo(ProgressiveElementAnimated,
+  (prev, newProps) => prev.idx === newProps.idx && prev.item === newProps.item && prev.Component === newProps.Component) as typeof ProgressiveElementAnimated;
 
 export type ProgressiveRendererRenderItem<T> = (x: T, idx: number) => React.ReactNode
 export function ProgressiveRenderer<T>({ style, fullData, renderItem, animatedOpacitySpawnDuration, initHeight }: {
