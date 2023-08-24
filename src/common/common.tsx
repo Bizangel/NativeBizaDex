@@ -1,6 +1,8 @@
 import { styled } from "styled-components/native";
 import { colorPalette, types2color } from "../styles/styles";
 import { PokeType } from "../types/Pokemon";
+import { useEffect, useRef } from "react";
+import { Animated } from "react-native"
 
 export const TypeDisplay = styled.Text<{ type: PokeType }>`
   min-width: 80px;
@@ -25,3 +27,19 @@ export const TypeDisplay = styled.Text<{ type: PokeType }>`
 
   margin-right: 5px;
 `
+
+export const OpacitySpawn = ({ children, duration }: { children: React.ReactNode, duration: number }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: duration,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim, duration]);
+
+  return (<Animated.View>
+    {children}
+  </Animated.View>)
+}

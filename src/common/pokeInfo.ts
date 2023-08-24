@@ -35,7 +35,7 @@ export enum MegaFilter {
 
 export type PokeFilter = {
   searchString: string,
-  typesFilter: PokeType[],
+  typesFilter: Record<PokeType, boolean>,
   genFilter: boolean[],
   displayMegas: MegaFilter,
 
@@ -47,7 +47,9 @@ export const lastPokegen = 9;
 // mew, celebi, deoxys, arceus, genesect, volcanion, melmetal, enamorus, iron leaves
 export const GenerationalDexSteps = [151, 251, 386, 493, 649, 721, 809, 905, 1010]; // includes last poke
 
+const initialTypeFilter = Object.fromEntries(PokemonTypes.map(e => [e, true])) as Record<PokeType, boolean>
+
 export const initialPokefilter: PokeFilter = {
-  searchString: "", typesFilter: [...PokemonTypes], genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
+  searchString: "", typesFilter: initialTypeFilter, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
   baseStatThreshold: undefined, baseStatThresholdOperator: "ge",
 }

@@ -21,7 +21,8 @@ function isPokeGenIncluded(dexNumber: number, genFilter: boolean[]) {
 export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter): Pokemon[] {
   const genFiltered = allPokemon.filter(poke => isPokeGenIncluded(poke.nationalDexNumber, filters.genFilter))
   const filteredByString = genFiltered.filter(e => stringSearchMatchSimilar(filters.searchString, e.displayName))
-  const filteredByType = filteredByString.filter(e => e.type.some(type => filters.typesFilter.includes(type)));
+  const filteredByType = filteredByString.filter(e => e.type.some(type => filters.typesFilter[type]));
+
   // filter megas
   let filteredMegas = filteredByType;
   if (filters.displayMegas === MegaFilter.NoMega) {

@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native"
 import { styled } from "styled-components/native"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { colorPalette } from "../styles/styles"
 import { ScrollView, TextInput, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler"
 import { GenFilterSection } from "./filterMenuComponents/GenFilterSection"
@@ -134,6 +134,26 @@ const BaseStatThresholdInput = styled(TextInput)`
 `
 
 
+const ClearFilterButtonWrapper = styled.View`
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+
+  border-radius: 10px;
+  background-color: ${colorPalette.foregroundButtonBlackFull};
+
+  margin: 5px;
+`
+
+const ClearFilterButtonText = styled.Text`
+  color: ${colorPalette.textWhite};
+  font-size: 15px;
+
+  padding: 5px;
+`
+
 export type PokeFilterMenuProps = {
   currentFilter: PokeFilter,
   setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
@@ -161,7 +181,11 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
     }, 50)
   })
 
-  const haveFilterChanged = !deepEqual(initialPokefilter, currentFilter);
+  const clearFilter = useCallback(() => {
+    setCurrentFilter(initialPokefilter)
+  }, [setCurrentFilter])
+
+  const hasFilterChanged = !deepEqual(initialPokefilter, currentFilter);
 
   return (
     <HorizontalSlidingMenu
@@ -170,14 +194,16 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
       dismissLayout={dismissLayout}
       contentContainerWrapperStyle={{ backgroundColor: colorPalette.backgroundBlack, padding: 10 }}
       overlayedComponent={
-        <FilteredCountWrapper>
-          <FilteredCountLiteralDisplay>
-            Pokemon matching your search and filters
-          </FilteredCountLiteralDisplay>
-          <FilteredCountNumericalDisplay>
-            {amountFiltered}
-          </FilteredCountNumericalDisplay>
-        </FilteredCountWrapper>
+        <>
+          <FilteredCountWrapper>
+            <FilteredCountLiteralDisplay>
+              Pokemon matching your search and filters
+            </FilteredCountLiteralDisplay>
+            <FilteredCountNumericalDisplay>
+              {amountFiltered}
+            </FilteredCountNumericalDisplay>
+          </FilteredCountWrapper>
+        </>
       }
     >
 
@@ -196,6 +222,8 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
         <HorizontalBottomRule />
 
         <GenFilterSection {...{ currentFilter, setCurrentFilter }} />
+        {/* <GenFilterSection {...{ currentFilter, setCurrentFilter }} /> */}
+
 
         <FilterSectionHeader>
           Types
@@ -290,7 +318,18 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
 
         </BaseStatThresholdWrapper>
 
+
       </ScrollView>
+
+      {hasFilterChanged &&
+        <ClearFilterButtonWrapper>
+          <TouchableOpacity style={{ backgroundColor: undefined }} onPress={clearFilter}>
+            <ClearFilterButtonText>
+              Clear Filters
+            </ClearFilterButtonText>
+          </TouchableOpacity>
+        </ClearFilterButtonWrapper>}
+
     </HorizontalSlidingMenu>
   )
 }

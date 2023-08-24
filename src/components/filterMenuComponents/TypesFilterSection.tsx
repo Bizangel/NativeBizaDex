@@ -37,23 +37,17 @@ export function TypesFilterSection({ currentFilter, setCurrentFilter }: {
   currentFilter: PokeFilter,
   setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
 }) {
-  const activeTypesSet = new Set(currentFilter.typesFilter);
 
-  const activeTypes = PokemonTypes.map(e => activeTypesSet.has(e));
+  const activeTypes = PokemonTypes.map(e => { return { selected: currentFilter.typesFilter[e], type: e } });
 
-  const renderItem: ProgressiveRendererRenderItem<boolean> = useCallback((isActive, idx) => {
-    return (<TypeButton isActive={isActive}
+
+  const renderItem: ProgressiveRendererRenderItem<{ type: PokeType, selected: boolean }> = useCallback(({ selected, type }) => {
+    return (<TypeButton
+      isActive={selected}
       onPress={() => {
-        setCurrentFilter(prev => produce(prev, (draft) => {
-          const foundIndex = prev.typesFilter.findIndex(ele => ele === PokemonTypes[idx])
-          if (foundIndex !== -1) { // toggle, exists so delete
-            draft.typesFilter.splice(foundIndex, 1); // delete
-          } else {
-            draft.typesFilter.push(PokemonTypes[idx])// add
-          }
-        }));
+        setCurrentFilter(prev => produce(prev, (draft) => { draft.typesFilter[type] = !prev.typesFilter[type] }));
       }}>
-      <TypeDisplay type={PokemonTypes[idx]} style={{ elevation: 15 }} isActive={isActive}>{PokemonTypes[idx]}</TypeDisplay>
+      <TypeDisplay type={type} style={{ elevation: 15 }} isActive={selected}>{type}</TypeDisplay>
     </TypeButton>)
   }, [setCurrentFilter])
 
@@ -68,10 +62,10 @@ export function TypesFilterSection({ currentFilter, setCurrentFilter }: {
 
       <TypeButton onPress={() => {
         setCurrentFilter((prev) => {
-          if (prev.typesFilter.length === 0) { // if one disabled, enable all
-            return produce(prev, draft => { draft.typesFilter = [...PokemonTypes] })
+          if (Object.values(prev.typesFilter).every(e => !e)) { // if one disabled, enable all
+            return produce(prev, draft => { PokemonTypes.forEach(e => { draft.typesFilter[e] = true }) })
           } else { // disableall
-            return produce(prev, draft => { draft.typesFilter = [] })
+            return produce(prev, draft => { PokemonTypes.forEach(e => { draft.typesFilter[e] = false }) })
           }
         })
       }} style={{ borderRadius: 10 }} isActive={true}>
