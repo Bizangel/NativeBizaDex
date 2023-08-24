@@ -1,5 +1,5 @@
-import { GenerationalDexSteps } from "../common/pokeInfo";
-import { PokeType, Pokemon } from "../types/Pokemon";
+import { GenerationalDexSteps, MegaFilter, PokeFilter } from "../common/pokeInfo";
+import { Pokemon } from "../types/Pokemon";
 import { lowercaseAZNormalizeMobile } from "./utils";
 
 function stringSearchMatchSimilar(query: string, pokeName: string) {
@@ -33,34 +33,14 @@ export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter): Pokem
 
   let filteredByThreshold = filteredMegas;
   if (filters.baseStatThreshold !== undefined) {
-    console.log("executed inside")
-    console.log(filters.baseStatThreshold)
     if (filters.baseStatThresholdOperator === "ge") {
-      console.log("executed filtering")
-      filteredByThreshold.filter(e => e.baseStatTotal >= (filters.baseStatThreshold ?? 0))
+      filteredByThreshold = filteredByThreshold.filter(e => e.baseStatTotal >= (filters.baseStatThreshold ?? 0))
     } else {
-      filteredByThreshold.filter(e => e.baseStatTotal <= (filters.baseStatThreshold ?? 0))
+      filteredByThreshold = filteredByThreshold.filter(e => e.baseStatTotal <= (filters.baseStatThreshold ?? 0))
     }
   }
 
-  console.log("filtered")
-  console.log(filters.baseStatThreshold)
-  console.log(filteredByThreshold[0].baseStatTotal > 400)
-  return filteredByThreshold.filter(e => e.baseStatTotal > 200);
+
+  return filteredByThreshold
 }
 
-export enum MegaFilter {
-  NoMega = "No Mega Evolutions",
-  IncludeMegas = "Include Mega Evolutions",
-  OnlyMega = "Only Mega Evolutions",
-}
-
-export type PokeFilter = {
-  searchString: string,
-  typesFilter: PokeType[],
-  genFilter: boolean[],
-  displayMegas: MegaFilter,
-
-  baseStatThreshold: number | undefined,
-  baseStatThresholdOperator: "le" | "ge",
-}

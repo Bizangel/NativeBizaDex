@@ -13,6 +13,26 @@ export function lowercaseAZNormalizeMobile(str: string) {
   return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z ]/g, '')
 }
 
+/**
+ * Adds an opacity value to a css string and returns a css compatible string
+ * @param colorstr A color string of the form of a hexstring or rgb triplet (css compatible)
+ * @param opacity Must be between 0 and 1
+ * @returns  A css compatible string including the opacity.
+ */
+export function AddOpacityToColorString(colorstr: string, opacity: number) {
+  if (colorstr.startsWith("#")) {
+    // hex color
+    let opacityInt = Math.ceil(opacity * 255);
+    return colorstr + opacityInt.toString(16).padStart(2, '0') // append it
+  } else if (colorstr.startsWith("rgb(")) {
+    // rgb color
+    const tripletNoParenthesis = colorstr.split('(')[1].replace(")", "").trim()
+    return `rgba(${tripletNoParenthesis},${opacity})`
+  } else {
+    throw new Error(`Received:  ${colorstr} in AddOpacityToColorString (rgba values not allowed!, else why are you adding alpha?)`)
+  }
+}
+
 
 export const clamp = (val: number, min: number, max: number) => Math.min(Math.max(val, min), max);
 

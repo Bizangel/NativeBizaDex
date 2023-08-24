@@ -1,4 +1,4 @@
-import { Ability, Pokemon } from "../types/Pokemon";
+import { Ability, PokeType, Pokemon } from "../types/Pokemon";
 
 // Everything needed to update the project SHOULD be here.
 export let allPokemon: Pokemon[] = [];
@@ -27,7 +27,27 @@ export const PokemonTypes = [
   "Rock", "Ghost", "Dragon", "Dark",
   "Steel", "Fairy"] as const;
 
+export enum MegaFilter {
+  NoMega = "No Mega Evolutions",
+  IncludeMegas = "Include Mega Evolutions",
+  OnlyMega = "Only Mega Evolutions",
+}
+
+export type PokeFilter = {
+  searchString: string,
+  typesFilter: PokeType[],
+  genFilter: boolean[],
+  displayMegas: MegaFilter,
+
+  baseStatThreshold: number | undefined,
+  baseStatThresholdOperator: "le" | "ge",
+}
+
 export const lastPokegen = 9;
 // mew, celebi, deoxys, arceus, genesect, volcanion, melmetal, enamorus, iron leaves
 export const GenerationalDexSteps = [151, 251, 386, 493, 649, 721, 809, 905, 1010]; // includes last poke
 
+export const initialPokefilter: PokeFilter = {
+  searchString: "", typesFilter: [...PokemonTypes], genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
+  baseStatThreshold: undefined, baseStatThresholdOperator: "ge",
+}

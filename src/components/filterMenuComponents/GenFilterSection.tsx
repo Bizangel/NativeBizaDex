@@ -1,11 +1,10 @@
 import { styled } from "styled-components/native"
-import { PokeFilter } from "../../util/filterPokemon"
-import { TouchableWithoutFeedback } from "react-native-gesture-handler"
+import { TouchableOpacity } from "react-native-gesture-handler"
 import { colorPalette } from "../../styles/styles"
 import { ProgressiveRenderer, ProgressiveRendererRenderItem } from "../../common/ProgressiveRenderer"
 import { produce } from "immer"
 import { useCallback } from "react"
-
+import { PokeFilter } from "../../common/pokeInfo"
 
 const GenFilterWrapper = styled(ProgressiveRenderer)`
   width: 100%;
@@ -17,13 +16,13 @@ const GenFilterWrapper = styled(ProgressiveRenderer)`
   justify-content: space-evenly;
 ` as typeof ProgressiveRenderer // work around cuz idk why doesn't work
 
-const GenButton = styled(TouchableWithoutFeedback) <{ isActive: boolean }>`
+const GenButton = styled(TouchableOpacity) <{ isActive: boolean }>`
   width: 80px;
   height: 40px;
 
-  background-color: ${colorPalette.foregroundButtonBlackActive};
+  background-color: ${p => p.isActive ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
 
-  opacity: ${p => p.isActive ? 1 : 0.3};
+  /* opacity: ${p => p.isActive ? 1 : 0.3}; */
 
   display: flex;
   justify-content: center;
@@ -41,12 +40,13 @@ export function GenFilterSection({ currentFilter, setCurrentFilter }: {
   setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
 }) {
 
-  const renderItem: ProgressiveRendererRenderItem<boolean> = useCallback((e, idx) =>
-    <GenButton style={{ borderRadius: 10 }} isActive={e} onPress={() => {
+  const renderItem: ProgressiveRendererRenderItem<boolean> = useCallback((e, idx) => {
+    return <GenButton style={{ borderRadius: 10 }} isActive={e} onPress={() => {
       setCurrentFilter(prev => produce(prev, (draft) => { draft.genFilter[idx] = !draft.genFilter[idx]; }));
     }}>
       <GenButtonText>Gen {idx + 1}</GenButtonText>
     </GenButton>
+  }
     , [setCurrentFilter])
 
   return (
@@ -68,7 +68,7 @@ export function GenFilterSection({ currentFilter, setCurrentFilter }: {
             return produce(prev, draft => { draft.genFilter = draft.genFilter.map(_ => true) })
           }
         })
-      }} style={{ borderRadius: 10 }} isActive={true}>
+      }} style={{ borderRadius: 10 }} isActive={currentFilter.genFilter.every(e => e)}>
         <GenButtonText>
           Toggle All
         </GenButtonText>

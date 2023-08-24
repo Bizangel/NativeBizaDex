@@ -1,16 +1,16 @@
 import { Dimensions, StatusBar } from 'react-native';
 import TopBar from '../components/TopBar';
 import PokeCard from '../components/PokeCard';
-import { PokeType, Pokemon } from '../types/Pokemon';
+import { Pokemon } from '../types/Pokemon';
 import styled from 'styled-components/native'
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { MegaFilter, PokeFilter, filterPokemon } from '../util/filterPokemon';
+import { filterPokemon } from '../util/filterPokemon';
 import { FlashList, ListRenderItem } from "@shopify/flash-list"
 import { PokeDetails } from '../components/PokeDetails';
 import { colorPalette } from '../styles/styles';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
-import { allPokemon, lastPokegen, pokeMapping } from '../common/pokeInfo';
+import { PokeFilter, allPokemon, initialPokefilter, pokeMapping } from '../common/pokeInfo';
 import { PokeFilterMenu } from '../components/PokeFilterMenu';
 
 const Body = styled.View`
@@ -37,24 +37,11 @@ const EmptyDisplay = styled.Text`
 const MemoPokeFilterMenu = React.memo(PokeFilterMenu)
 const MemodPokedetails = React.memo(PokeDetails)
 
-
-const AllTypes = [
-  "Normal", "Fire", "Water", "Electric",
-  "Grass", "Ice", "Fighting", "Poison",
-  "Ground", "Flying", "Psychic", "Bug",
-  "Rock", "Ghost", "Dragon", "Dark",
-  "Steel", "Fairy"] as PokeType[];
-
-const initialFilter: PokeFilter = {
-  searchString: "", typesFilter: AllTypes, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
-  baseStatThreshold: undefined, baseStatThresholdOperator: "ge",
-}
-
 const debounceDelay = 200;
 
 function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
   const preSelectedPoke = props.route.params.preSelectedPokemonId
-  const [currentFilter, setCurrentFilter] = useState<PokeFilter>(initialFilter)
+  const [currentFilter, setCurrentFilter] = useState<PokeFilter>(initialPokefilter)
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
   const [currentData, setCurrentData] = useState<Pokemon[]>(allPokemon);
   const flatListRef = useRef<FlashList<Pokemon>>(null);

@@ -1,14 +1,15 @@
 import { StyleSheet } from "react-native"
 import { styled } from "styled-components/native"
-import React, { useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { colorPalette } from "../styles/styles"
-import { ScrollView, TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler"
+import { ScrollView, TextInput, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler"
 import { GenFilterSection } from "./filterMenuComponents/GenFilterSection"
-import { MegaFilter, PokeFilter } from "../util/filterPokemon"
 import { TypesFilterSection } from "./filterMenuComponents/TypesFilterSection"
 import HorizontalSlidingMenu from "../common/HorizontalSlidingMenu"
 import { produce } from "immer"
 import { useOnKeyboardShow } from "../hooks/useKeyboardHooks"
+import { isEqual as deepEqual } from "lodash"
+import { MegaFilter, PokeFilter, initialPokefilter } from "../common/pokeInfo"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
@@ -31,14 +32,12 @@ const IncludeMegaText = styled.Text`
   padding: 4px;
 `
 
-const IncludeMegasButton = styled(TouchableWithoutFeedback) <{ megaFilter: MegaFilter }>`
+const IncludeMegasButton = styled(TouchableOpacity) <{ megaFilter: MegaFilter }>`
   margin-top: 5px;
 
   width: 120px;
   border-radius: 10px;
-  background-color: ${p => p.megaFilter === MegaFilter.OnlyMega ? "#e8578e" : colorPalette.foregroundButtonBlackActive};
-
-  opacity: ${p => p.megaFilter === MegaFilter.NoMega ? 0.3 : 1};
+  background-color: ${p => p.megaFilter === MegaFilter.OnlyMega ? "#e8578e" : p.megaFilter === MegaFilter.IncludeMegas ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
 `
 
 
@@ -68,7 +67,6 @@ const FilteredCountNumericalDisplay = styled.Text`
   color: ${colorPalette.textWhite};
   font-size: 24px;
 `
-
 
 const HorizontalBottomRule = styled.View`
   width: 85%;
@@ -144,14 +142,26 @@ export type PokeFilterMenuProps = {
   amountFiltered: number,
 }
 
-export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout, amountFiltered }: PokeFilterMenuProps) {
+export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setCurrentFilter: setCurrentGlobalAppliedFilter, dismissLayout, amountFiltered }: PokeFilterMenuProps) {
   const scrollRef = useRef<ScrollView>(null);
+
+  const [currentFilter, setCurrentFilter] = useState<PokeFilter>(currentGlobalAppliedFilter);
+
+  // const applyFilter = useCallback(() => {
+  //   setCurrentGlobalAppliedFilter(currentFilter)
+  // }, [currentFilter, setCurrentGlobalAppliedFilter])
+
+  useEffect(() => {
+    setCurrentGlobalAppliedFilter(currentFilter)
+  }, [currentFilter, setCurrentGlobalAppliedFilter])
 
   useOnKeyboardShow(() => {
     setTimeout(() => {
       scrollRef.current?.scrollToEnd({ animated: false })
     }, 50)
   })
+
+  const haveFilterChanged = !deepEqual(initialPokefilter, currentFilter);
 
   return (
     <HorizontalSlidingMenu
@@ -177,6 +187,7 @@ export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout,
         <FilterHeader>
           Filter Pokemon
         </FilterHeader>
+
         <HorizontalBottomRule />
 
         <FilterSectionHeader>
@@ -243,6 +254,11 @@ export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout,
               if (Number.isNaN(parsed))
                 return;
 
+              if (parsed === 0) {
+                setCurrentFilter(prev => produce(prev, draft => { draft.baseStatThreshold = undefined }))
+                return;
+              }
+
               setCurrentFilter(prev => produce(prev, draft => {
                 draft.baseStatThreshold = parsed;
               }))
@@ -252,29 +268,27 @@ export function PokeFilterMenu({ currentFilter, setCurrentFilter, dismissLayout,
           />
 
           {
-            currentFilter.baseStatThreshold &&
-            <TouchableWithoutFeedback onPress={() => {
-              setCurrentFilter(prev => produce(prev, draft => {
-                if (prev.baseStatThresholdOperator === "ge") {
-                  draft.baseStatThresholdOperator = "le"
-                } else {
-                  draft.baseStatThresholdOperator = "ge"
-                }
-              }))
-            }}>
+            currentFilter.baseStatThreshold !== undefined &&
+            <TouchableWithoutFeedback
+              style={{ marginLeft: 10 }}
+              onPress={() => {
+                setCurrentFilter(prev => produce(prev, draft => {
+                  if (prev.baseStatThresholdOperator === "ge") {
+                    draft.baseStatThresholdOperator = "le"
+                  } else {
+                    draft.baseStatThresholdOperator = "ge"
+                  }
+                }))
+              }}>
               <BaseStatThresholdOperatorDisplayWrapper>
                 <BaseStatThresholdOperatorDisplayText>
                   {currentFilter.baseStatThresholdOperator === "ge" ? "≥" : "≤"}
                 </BaseStatThresholdOperatorDisplayText>
               </BaseStatThresholdOperatorDisplayWrapper>
             </TouchableWithoutFeedback>
-
           }
 
-
         </BaseStatThresholdWrapper>
-
-
 
       </ScrollView>
     </HorizontalSlidingMenu>
