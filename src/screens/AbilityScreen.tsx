@@ -3,12 +3,12 @@ import { RootStackParamList } from "../App";
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colorPalette } from "../styles/styles";
 import { abilityMap, allPokemon } from "../common/pokeInfo";
-import { StyleSheet } from "react-native"
 import { ScrollView } from "react-native-gesture-handler";
 import { useMemo, useCallback } from "react"
 import { PokeRowInAbility } from "../components/abilityComponents/PokeRowInAbility";
 import { Pokemon } from "../types/Pokemon";
 import { ProgressiveRenderer, ProgressiveRendererRenderItem } from "../common/ProgressiveRenderer";
+import { HorizontalBottomRule } from "../common/common";
 
 const Body = styled.View`
   width: 100%;
@@ -38,14 +38,6 @@ export const AbilityInGameDescription = styled.Text`
   text-align: justify;
 
   font-size: 15px;
-`
-
-export const HorizontalBottomRule = styled.View`
-  width: 85%;
-  border-color: ${colorPalette.textWhite};
-
-  margin: 5px 0px;
-  border-bottom-width: ${StyleSheet.hairlineWidth}px;
 `
 
 export const EffectLiteralHeader = styled.Text`

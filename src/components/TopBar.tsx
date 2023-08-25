@@ -2,6 +2,7 @@ import { Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { styled } from "styled-components/native";
 import { colorPalette } from "../styles/styles";
+import { TextInputWithBlurOnHide } from "../common/common";
 
 
 const TopbarWrapper = styled.View`
@@ -26,15 +27,17 @@ const SearchBarWrapper = styled.View`
   background-color: rgba(33, 46, 51, .7);
 
   border-radius: 20px;
-  margin: 5px 0px;
 `
 
-const SearchInput = styled.TextInput`
+const SearchInput = styled(TextInputWithBlurOnHide)`
   font-size: 16px;
-  padding-left: 15px;
 
-  /* color: rgb(200,200,200); */
+
   color: ${colorPalette.textWhite};
+
+  padding: 5px;
+  padding-left: 10px;
+  border-radius: 10px;
 `
 
 
@@ -66,15 +69,20 @@ const EnabledFilterIndicatorText = styled.Text`
 export type TopBarProps = {
   currentSearch: string,
   setCurrentSearch: (x: string) => void,
-  onFilterClick: () => void,
-
+  onFilterPress: () => void,
+  onBurgerBarPress: () => void,
   displayFilterIndicator: boolean,
 }
 
-function TopBar({ currentSearch, setCurrentSearch, onFilterClick, displayFilterIndicator }: TopBarProps) {
+function TopBar({ currentSearch, setCurrentSearch, onFilterPress, onBurgerBarPress, displayFilterIndicator }: TopBarProps) {
 
   return (
     <TopbarWrapper>
+
+      <TouchableOpacity onPress={onBurgerBarPress}>
+        <Image source={require('../icons/burgerbar.png')} style={{ width: 30, height: 30 }} resizeMode="contain" />
+      </TouchableOpacity>
+
       <SearchBarWrapper>
         <SearchInput
           placeholder="Search"
@@ -86,7 +94,7 @@ function TopBar({ currentSearch, setCurrentSearch, onFilterClick, displayFilterI
       </SearchBarWrapper>
 
 
-      <TouchableOpacity onPress={onFilterClick}>
+      <TouchableOpacity onPress={onFilterPress}>
         <Image source={require('../icons/filter.png')} style={{ width: 40, height: 40 }} />
 
         {displayFilterIndicator && <EnabledFilterIndicatorWrapper>

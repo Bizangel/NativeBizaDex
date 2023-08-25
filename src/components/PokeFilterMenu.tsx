@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native"
 import { styled } from "styled-components/native"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { colorPalette } from "../styles/styles"
-import { ScrollView, TextInput, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler"
+import { ScrollView, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler"
 import { GenFilterSection } from "./filterMenuComponents/GenFilterSection"
 import { TypesFilterSection } from "./filterMenuComponents/TypesFilterSection"
 import HorizontalSlidingMenu from "../common/HorizontalSlidingMenu"
@@ -10,7 +10,7 @@ import { produce } from "immer"
 import { useOnKeyboardShow } from "../hooks/useKeyboardHooks"
 import { isEqual as deepEqual } from "lodash"
 import { MegaFilter, PokeFilter, initialPokefilter } from "../common/pokeInfo"
-import { OpacitySpawn } from "../common/common"
+import { OpacitySpawn, TextInputWithBlurOnHide } from "../common/common"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
@@ -119,7 +119,7 @@ const BaseStatThresholdOperatorDisplayText = styled.Text`
   line-height: 35px;
 `
 
-const BaseStatThresholdInput = styled(TextInput)`
+const BaseStatThresholdInput = styled(TextInputWithBlurOnHide)`
   /* padding-left: 15px; */
 
   color: white;

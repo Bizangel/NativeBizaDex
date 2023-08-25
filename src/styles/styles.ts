@@ -19,6 +19,8 @@ export const colorPalette = {
   foregroundButtonBlackActive: "rgba(202, 220, 226, 0.7)",
   foregroundButtonBlackFull: "rgba(202, 220, 226, 1)",
 
+  buttonBorderColor: "#43d9df",
+
   notSoBrightRed: "#d12626",
 } as const
 

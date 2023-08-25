@@ -13,6 +13,7 @@ import { RootStackParamList } from '../App';
 import { PokeFilter, allPokemon, initialPokefilter, pokeMapping } from '../common/pokeInfo';
 import { PokeFilterMenu } from '../components/PokeFilterMenu';
 import { isEqual as deepEqual } from "lodash"
+import MainSidebar from '../components/MainSidebar';
 
 const Body = styled.View`
   background-color: ${colorPalette.backgroundBlack};
@@ -47,10 +48,15 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   const [currentData, setCurrentData] = useState<Pokemon[]>(allPokemon);
   const flatListRef = useRef<FlashList<Pokemon>>(null);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showMainSidebar, setShowMainSidebar] = useState(false);
 
   const onTopFilterClick = useCallback(() => {
     setShowFilterMenu(true);
   }, [setShowFilterMenu])
+
+  const onBurgerBarPress = useCallback(() => {
+    setShowMainSidebar(true);
+  }, [setShowMainSidebar])
 
   useEffect(() => {
     setSelectedPokemon(null);
@@ -105,16 +111,24 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
     return <PokeCard pokemon={item} setSelectedPokemon={setSelectedPokemon} />;
   }, [setSelectedPokemon])
 
-  const dismissLayout = useCallback(() => {
+  const dissmissPokeFilterMenu = useCallback(() => {
     setShowFilterMenu(false);
   }, [])
 
-  const hasFilterChanged = !deepEqual(currentFilter, initialPokefilter);
+  const dismissMainSidebar = useCallback(() => {
+    setShowMainSidebar(false);
+  }, [])
+
+  // this makes that if search is performed then it doesn't count as a filter changed.
+  const hasFilterChangedExceptSearch = !deepEqual(currentFilter, { ...initialPokefilter, searchString: currentFilter.searchString });
 
   return (
     <Body>
       <FlatListWrapper>
-        <TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter} onFilterClick={onTopFilterClick} displayFilterIndicator={hasFilterChanged} />
+        <TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter}
+          onFilterPress={onTopFilterClick}
+          onBurgerBarPress={onBurgerBarPress}
+          displayFilterIndicator={hasFilterChangedExceptSearch} />
         <FlashList
           ref={flatListRef}
           numColumns={2}
@@ -138,7 +152,11 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
       />}
 
       {
-        showFilterMenu && <MemoPokeFilterMenu currentFilter={currentFilter} setCurrentFilter={setCurrentFilter} dismissLayout={dismissLayout} amountFiltered={currentData.length} />
+        showFilterMenu && <MemoPokeFilterMenu currentFilter={currentFilter} setCurrentFilter={setCurrentFilter} dismissLayout={dissmissPokeFilterMenu} amountFiltered={currentData.length} />
+      }
+
+      {
+        showMainSidebar && <MainSidebar dissmissMenu={dismissMainSidebar} />
       }
 
       {/* Status bar is atop network etc  */}
