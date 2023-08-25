@@ -6,10 +6,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AbilityScreen from './screens/AbilityScreen';
+import AllAbilitiesScreen from './screens/AllAbilitiesScreen';
 
 export type RootStackParamList = {
   MainScreen: { preSelectedPokemonId: string | null },
   AbilityScreen: { abilityId: string },
+  AllAbilitiesScreen: {},
 }
 
 export type ScreenNameType = keyof RootStackParamList;
@@ -40,6 +42,13 @@ function App() {
             // presentation: 'transparentModal',
           }}
           initialParams={{ abilityId: 'blaze' }}
+        />
+        <Stack.Screen
+          name="AllAbilitiesScreen"
+          component={withGestureHandler(AllAbilitiesScreen)}
+          options={{
+            // presentation: 'transparentModal',
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

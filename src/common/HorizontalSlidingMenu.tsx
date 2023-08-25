@@ -1,6 +1,6 @@
 import { Animated, ViewStyle } from "react-native"
 import { styled } from "styled-components/native"
-import React, { useRef, useEffect } from "react"
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, useCallback } from "react"
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useBackHandler } from "../hooks/useBackHandler"
 
@@ -60,9 +60,14 @@ export type SlidingMenuProps = {
   contentContainerWrapperStyle?: ViewStyle
 }
 
+export interface HorizontalSlidingMenuRef {
+  closeOverlay(): void,
+}
+
 // could be very easily generalized for verticality, but for now let's keep it horizontal
 
-function HorizontalSlidingMenu({ dismissLayout, overlayedComponent, children, slidingOrigin, menuViewportSize, onBackCloseTap, contentContainerWrapperStyle }: SlidingMenuProps) {
+const HorizontalSlidingMenu = forwardRef<HorizontalSlidingMenuRef, SlidingMenuProps>(function HorizontalSlidingMenu(
+  { dismissLayout, overlayedComponent, children, slidingOrigin, menuViewportSize, onBackCloseTap, contentContainerWrapperStyle }, ref) {
   // animation regarding opening progress
   const animOpeningProgress = useRef(new Animated.Value(0)).current;
   const animatedOriginProp = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [`-${menuViewportSize}%`, "0%"] });
@@ -90,7 +95,7 @@ function HorizontalSlidingMenu({ dismissLayout, overlayedComponent, children, sl
     });
   })
 
-  const hideLayoutAnimated = () => {
+  const hideLayoutAnimated = useCallback(() => {
     if (onBackCloseTap) {
       const handled = onBackCloseTap();
       if (handled)
@@ -104,7 +109,13 @@ function HorizontalSlidingMenu({ dismissLayout, overlayedComponent, children, sl
     }).start(() => {
       dismissLayout(); // fully close
     });
-  }
+  }, [animOpeningProgress, dismissLayout, onBackCloseTap])
+
+  useImperativeHandle(ref, () => ({
+    closeOverlay() {
+      hideLayoutAnimated();
+    },
+  }), [hideLayoutAnimated])
 
   const backgroundTapCloseGesture = Gesture.Tap().onStart(() => {
     hideLayoutAnimated();
@@ -128,6 +139,6 @@ function HorizontalSlidingMenu({ dismissLayout, overlayedComponent, children, sl
       </FullFilterOverlayWrapper>
     </GestureDetector>
   )
-}
+})
 
 export default HorizontalSlidingMenu
