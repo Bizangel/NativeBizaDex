@@ -6,7 +6,7 @@ import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { useCallback } from "react"
 import { Image } from "react-native"
 import useTypedNavigation from "../hooks/useTypedNavigation";
-import { PokemonTypes } from "../common/pokeInfo";
+import { PokemonTypes, TypeChart, TypeEffectiveness } from "../common/pokeInfo";
 import { ProgressiveRenderer, ProgressiveRendererRenderItem } from "../common/ProgressiveRenderer";
 import { PokeType } from "../types/Pokemon";
 
@@ -97,6 +97,17 @@ const TableEntry = styled.View`
 
   border-width: 1px;
   border-color: black;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const TableEntryText = styled.Text`
+  font-size: 16px;
+  color: ${colorPalette.textWhite};
+
+  font-weight: bold;
 `
 
 const TableTypeHeader = styled.View`
@@ -114,6 +125,12 @@ const TableTypeLeftColumn = styled.View`
   flex-direction: column;
 `
 
+const effectiveness2color: Record<TypeEffectiveness, string> = {
+  "0": "black",
+  "1/2": "red",
+  "2": "green",
+  "1": colorPalette.backgroundBlack,
+}
 
 function TypeChartScreen(_: NativeStackScreenProps<RootStackParamList, 'TypeChartScreen'>) {
 
@@ -122,12 +139,16 @@ function TypeChartScreen(_: NativeStackScreenProps<RootStackParamList, 'TypeChar
     navigation.pop();
   }, [navigation])
 
-  const renderCol: ProgressiveRendererRenderItem<PokeType> = useCallback((type) => {
+  const renderCol: ProgressiveRendererRenderItem<number> = useCallback((idx) => {
     return (
       <TableColWrapper>
         {
           PokemonTypes.map((_2, idx2) =>
-            <TableEntry key={idx2} />
+            <TableEntry key={idx2} style={{ backgroundColor: effectiveness2color[TypeChart[idx][idx2]] }}>
+              <TableEntryText>
+                {TypeChart[idx][idx2] !== "1" && `x${TypeChart[idx][idx2]}`}
+              </TableEntryText>
+            </TableEntry>
           )
         }
       </TableColWrapper>
@@ -162,7 +183,7 @@ function TypeChartScreen(_: NativeStackScreenProps<RootStackParamList, 'TypeChar
           <TypeTableScrollableWrapper horizontal>
             <ProgressiveRenderer
               style={{ display: "flex", flexDirection: "row" }}
-              fullData={PokemonTypes}
+              fullData={PokemonTypes.map((e, idx) => idx)}
               renderItem={renderCol}
               animatedOpacitySpawnDuration={200}
             />
