@@ -89,6 +89,10 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
     navigation.push("AllAbilitiesScreen", {})
   }, [navigation])
 
+  const navigateToTypechartTable = useCallback(() => {
+    navigation.push("TypeChartScreen", {})
+  }, [navigation])
+
   return (
     <HorizontalSlidingMenu
       dismissLayout={dissmissMenu}
@@ -111,7 +115,7 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
 
         <SectionButtonLink text="Team Builder" iconSource={require('../icons/teambuilder_icon.png')} />
 
-        <SectionButtonLink text="Type Chart Table" iconSource={require('../icons/typetable_icon.png')} />
+        <SectionButtonLink text="Type Chart Table" iconSource={require('../icons/typetable_icon.png')} onPress={navigateToTypechartTable} />
 
         <SectionButtonLink text="Caught Pokemon" iconSource={require('../icons/caught_indicator.png')} />
 

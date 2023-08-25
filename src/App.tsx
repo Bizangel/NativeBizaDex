@@ -7,11 +7,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AbilityScreen from './screens/AbilityScreen';
 import AllAbilitiesScreen from './screens/AllAbilitiesScreen';
+import TypeChartScreen from './screens/TypeChartScreen';
 
 export type RootStackParamList = {
   MainScreen: { preSelectedPokemonId: string | null },
   AbilityScreen: { abilityId: string },
   AllAbilitiesScreen: {},
+  TypeChartScreen: {},
 }
 
 export type ScreenNameType = keyof RootStackParamList;
@@ -46,6 +48,13 @@ function App() {
         <Stack.Screen
           name="AllAbilitiesScreen"
           component={withGestureHandler(AllAbilitiesScreen)}
+          options={{
+            // presentation: 'transparentModal',
+          }}
+        />
+        <Stack.Screen
+          name="TypeChartScreen"
+          component={withGestureHandler(TypeChartScreen)}
           options={{
             // presentation: 'transparentModal',
           }}
