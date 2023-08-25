@@ -3,6 +3,7 @@ import { styled } from "styled-components/native"
 import React, { useRef, useEffect, forwardRef, useImperativeHandle, useCallback } from "react"
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useBackHandler } from "../hooks/useBackHandler"
+import useActiveRoutes from "../hooks/useActiveRoutes"
 
 const FullFilterOverlayWrapper = styled(Animated.View)`
   position: absolute;
@@ -74,7 +75,12 @@ const HorizontalSlidingMenu = forwardRef<HorizontalSlidingMenuRef, SlidingMenuPr
   const animatedBackgroundOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,.8)'] });
   const animDissapearOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [0, 0.7] });
 
+  const renderedScreens = useActiveRoutes().length;
+
   useBackHandler(() => {
+    if (renderedScreens > 1)
+      return false; // if more screen, ignore until just this one is available
+
     if (onBackCloseTap) {
       const handled = onBackCloseTap();
       if (handled)

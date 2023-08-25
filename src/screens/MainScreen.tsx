@@ -69,6 +69,9 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
       if (!foundPoke)
         return;
 
+      // if displaying new poke remove any oevrlays that might be present
+      setShowFilterMenu(false);
+      setShowMainSidebar(false);
       setSelectedPokemon(foundPoke)
     }, debounceDelay);
 
@@ -76,6 +79,11 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
       clearTimeout(timeout);
     }
   }, [preSelectedPoke])
+
+  // every time filter changes, scroll to top
+  useEffect(() => {
+    flatListRef.current?.scrollToIndex({ animated: true, index: 0 })
+  }, [currentFilter])
 
   // automatically scroll to selected pokemon, should it be available in the list
   // if not available, well we don't really care.

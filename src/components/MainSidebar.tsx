@@ -86,7 +86,7 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
   }, [slidingRef])
 
   const navigateToAllAbilitiesScreen = useCallback(() => {
-    navigation.navigate("AllAbilitiesScreen", {})
+    navigation.push("AllAbilitiesScreen", {})
   }, [navigation])
 
   return (
