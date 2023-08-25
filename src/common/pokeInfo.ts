@@ -30,12 +30,12 @@ export const PokemonTypes = [
 
 const TypeChartRaw = `
           NOR FIR WAT ELE GRA ICE FIG POI GRO FLY PSY BUG ROC GHO DRA DAR STE FAI
-  Normal   1   1   1   1   1   1   1   1   1   1   1   1   h   0   1   1   1   1
+  Normal   1   1   1   1   1   1   1   1   1   1   1   1   h   0   1   1   h   1
   Fire     1   h   h   1   2   2   1   1   1   1   1   2   h   1   h   1   2   1
   Water    1   2   h   1   h   1   1   1   2   1   1   1   2   1   h   1   1   1
   Electric 1   1   2   h   h   1   1   1   0   2   1   1   1   1   h   1   1   1
   Grass    1   h   2   1   h   1   1   h   2   h   1   h   2   1   h   1   h   1
-  Ice      1   h   h   1   2   h   1   1   h   2   1   1   1   1   2   1   h   1
+  Ice      1   h   h   1   2   h   1   1   2   2   1   1   1   1   2   1   h   1
   Fighting 2   1   1   1   1   2   1   h   1   h   h   h   2   0   1   2   2   h
   Poison   1   1   1   1   2   1   1   h   h   1   1   1   h   h   1   1   0   2
   Ground   1   2   1   2   h   1   1   2   1   0   1   h   2   1   1   1   2   1
@@ -51,7 +51,7 @@ const TypeChartRaw = `
 `
 
 const TypeChartLines = TypeChartRaw.split('\n').filter(e => e.length > 0).slice(1)
-export const TypeChart = TypeChartLines.map(e => e.split(" ").filter(i => i.length > 0).slice(1).map(e => e === "h" ? "1/2" : e)) as TypeEffectiveness[][]
+export const TypeChart = TypeChartLines.map(e => e.split(" ").filter(i => i.length > 0).slice(1).map(k => k === "h" ? "1/2" : k)) as TypeEffectiveness[][]
 
 export type TypeEffectiveness = "1/2" | "1" | "2" | "0"
 

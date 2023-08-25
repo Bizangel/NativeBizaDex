@@ -22,6 +22,10 @@ export const colorPalette = {
   buttonBorderColor: "#43d9df",
 
   notSoBrightRed: "#d12626",
+
+
+  notVeryEffectiveRed: "#cc1313",
+  superEffectiveGreen: "#25680a"
 } as const
 
 import { PokeType } from "../types/Pokemon";
