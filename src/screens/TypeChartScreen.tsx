@@ -40,7 +40,7 @@ const TypeTableWrapper = styled.View`
   height: 90%;
 `
 
-const TypeTableScrollHorizontal = styled(ScrollView)`
+const TypeTableScrollVertical = styled(ScrollView)`
   position: relative;
 
   width: 100%;
@@ -48,17 +48,18 @@ const TypeTableScrollHorizontal = styled(ScrollView)`
 `
 
 const TypeTableScrollableWrapper = styled(ScrollView)`
-  display: flex;
-  flex-direction: column;
-
-  margin-top: ${tableRowHeight};
-`
-
-const TableRowWrapper = styled.View`
-  background-color: green;
+  width: 100%;
+  height: 100%;
 
   display: flex;
   flex-direction: row;
+
+  margin-left: ${tableRowWidth};
+`
+
+const TableColWrapper = styled.View`
+  display: flex;
+  flex-direction: column;
 `
 
 const TypeDisplayEntryInternalText = styled.Text`
@@ -90,8 +91,6 @@ function TypeDisplayEntry({ type }: { type: PokeType }) {
   )
 }
 
-
-
 const TableEntry = styled.View`
   height: ${tableRowHeight};
   width: ${tableRowWidth};
@@ -101,17 +100,16 @@ const TableEntry = styled.View`
 `
 
 const TableTypeHeader = styled.View`
-  position: absolute;
-  top: 0;
-  left: ${tableRowWidth};
-
   display: flex;
   flex-direction: row;
-  z-index: 1;
+  margin-left: ${tableRowWidth};
 `
 
 const TableTypeLeftColumn = styled.View`
-  margin-top: ${tableRowHeight};
+  position: absolute;
+  top: ${tableRowHeight};
+  left: 0;
+
   display: flex;
   flex-direction: column;
 `
@@ -124,16 +122,15 @@ function TypeChartScreen(_: NativeStackScreenProps<RootStackParamList, 'TypeChar
     navigation.pop();
   }, [navigation])
 
-  const renderRow: ProgressiveRendererRenderItem<PokeType> = useCallback((type) => {
+  const renderCol: ProgressiveRendererRenderItem<PokeType> = useCallback((type) => {
     return (
-      <TableRowWrapper>
-        {/* <TypeDisplayEntry type={type} /> */}
+      <TableColWrapper>
         {
           PokemonTypes.map((_2, idx2) =>
             <TableEntry key={idx2} />
           )
         }
-      </TableRowWrapper>
+      </TableColWrapper>
     )
   }, [])
 
@@ -144,29 +141,34 @@ function TypeChartScreen(_: NativeStackScreenProps<RootStackParamList, 'TypeChar
       </CloseButtonWrapper>
 
       <TypeTableWrapper>
-        <TypeTableScrollHorizontal horizontal>
-          <TableTypeLeftColumn>
-            {PokemonTypes.map((e, idx) =>
-              <TypeDisplayEntry type={e} key={idx} />
-            )}
-          </TableTypeLeftColumn>
+        <TypeTableScrollVertical stickyHeaderIndices={[0]}>
+          {/* Atop column type display, part of layout, and is instead stickied by sticky index*/}
 
-          {/* Atop column type display */}
           <TableTypeHeader>
             {PokemonTypes.map((e, idx) =>
               <TypeDisplayEntry type={e} key={idx} />
             )}
           </TableTypeHeader>
 
-          <TypeTableScrollableWrapper>
+          {/* Atop left column type display, NOT part of layout. stickied by absolute. */}
+          <TableTypeLeftColumn>
+            {PokemonTypes.map((e, idx) =>
+              <TypeDisplayEntry type={e} key={idx} />
+            )}
+          </TableTypeLeftColumn>
+
+
+
+          <TypeTableScrollableWrapper horizontal>
             <ProgressiveRenderer
+              style={{ display: "flex", flexDirection: "row" }}
               fullData={PokemonTypes}
-              renderItem={renderRow}
+              renderItem={renderCol}
               animatedOpacitySpawnDuration={200}
             />
-
           </TypeTableScrollableWrapper>
-        </TypeTableScrollHorizontal>
+
+        </TypeTableScrollVertical>
       </TypeTableWrapper>
 
     </Body>
