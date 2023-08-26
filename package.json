@@ -14,6 +14,7 @@
     "imagegen": "ts-node data_extractor/generate_imageassets.ts"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.19.3",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
     "@shopify/flash-list": "^1.5.0",

@@ -8,12 +8,14 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AbilityScreen from './screens/AbilityScreen';
 import AllAbilitiesScreen from './screens/AllAbilitiesScreen';
 import TypeChartScreen from './screens/TypeChartScreen';
+import TeamBuilderScreen from './screens/TeamBuilderScreen';
 
 export type RootStackParamList = {
   MainScreen: { preSelectedPokemonId: string | null },
   AbilityScreen: { abilityId: string },
   AllAbilitiesScreen: {},
   TypeChartScreen: {},
+  TeamBuilderScreen: {},
 }
 
 export type ScreenNameType = keyof RootStackParamList;
@@ -55,6 +57,13 @@ function App() {
         <Stack.Screen
           name="TypeChartScreen"
           component={withGestureHandler(TypeChartScreen)}
+          options={{
+            // presentation: 'transparentModal',
+          }}
+        />
+        <Stack.Screen
+          name="TeamBuilderScreen"
+          component={withGestureHandler(TeamBuilderScreen)}
           options={{
             // presentation: 'transparentModal',
           }}
