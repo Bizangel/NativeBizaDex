@@ -93,8 +93,12 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
     navigation.push("TypeChartScreen", {})
   }, [navigation])
 
-  const navigateToTeamBuilder = useCallback(() => {
-    navigation.push("TeamBuilderScreen", {})
+  // const navigateToTeamBuilder = useCallback(() => {
+  //   navigation.push("TeamBuilderScreen", {})
+  // }, [navigation])
+
+  const navigateToSelectPokedex = useCallback(() => {
+    navigation.push("SelectPokedexScreen", {})
   }, [navigation])
 
   return (
@@ -109,7 +113,7 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
           Biza's Native Dex
         </MainSideMenuHeader>
         <MainSideMenuSubHeader>
-          Thanks for checking out the app!
+          Active Dex: National Dex
         </MainSideMenuSubHeader>
         <HorizontalBottomRule />
 
@@ -117,12 +121,13 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
 
         <SectionButtonLink text="Pokemon Abilities" iconSource={require('../icons/ability_icon.png')} onPress={navigateToAllAbilitiesScreen} />
 
-        <SectionButtonLink text="Team Builder" iconSource={require('../icons/teambuilder_icon.png')} onPress={navigateToTeamBuilder} />
+        {/* Not planning to implement for now. */}
+        {/* <SectionButtonLink text="Team Builder" iconSource={require('../icons/teambuilder_icon.png')} onPress={navigateToTeamBuilder} /> */}
 
         <SectionButtonLink text="Type Chart Table" iconSource={require('../icons/typetable_icon.png')} onPress={navigateToTypechartTable} />
 
         {/* Not planning to implement for now. */}
-        {/* <SectionButtonLink text="Caught Pokemon" iconSource={require('../icons/caught_indicator.png')} /> */}
+        <SectionButtonLink text="Switch Pokedex" iconSource={require('../icons/caught_indicator.png')} onPress={navigateToSelectPokedex} />
 
       </SidebarWrapper>
     </HorizontalSlidingMenu>
