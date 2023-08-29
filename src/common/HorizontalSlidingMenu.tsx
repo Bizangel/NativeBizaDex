@@ -1,6 +1,6 @@
 import { Animated, ViewStyle } from "react-native"
 import { styled } from "styled-components/native"
-import React, { useRef, useEffect, forwardRef, useImperativeHandle, useCallback } from "react"
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, useCallback, useState } from "react"
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useBackHandler } from "../hooks/useBackHandler"
 import useActiveRoutes from "../hooks/useActiveRoutes"
@@ -75,11 +75,15 @@ const HorizontalSlidingMenu = forwardRef<HorizontalSlidingMenuRef, SlidingMenuPr
   const animatedBackgroundOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,.8)'] });
   const animDissapearOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [0, 0.7] });
 
+  const renderedScreenDepth = useRef<null | number>(null);
   const renderedScreens = useActiveRoutes().length;
+  if (renderedScreenDepth.current === null) {
+    renderedScreenDepth.current = renderedScreens; // set depth
+  }
 
   useBackHandler(() => {
-    if (renderedScreens > 1)
-      return false; // if more screen, ignore until just this one is available
+    if (renderedScreens !== renderedScreenDepth.current)
+      return false; // if more screen, ignore until it's the screen depth that invoked it.
 
     if (onBackCloseTap) {
       const handled = onBackCloseTap();
