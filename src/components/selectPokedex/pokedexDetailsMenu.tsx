@@ -1,5 +1,5 @@
 import { styled } from "styled-components/native"
-import HorizontalSlidingMenu from "../../common/HorizontalSlidingMenu"
+import DirectionalSlidingMenu from "../../common/DirectionalSlidingMenu"
 
 
 const DetailsWrapper = styled.View`
@@ -16,11 +16,11 @@ export type PokedexDetailsMenuProps = {
 
 export function PokedexDetailsMenu({ dissmiss }: PokedexDetailsMenuProps) {
 
-  return <HorizontalSlidingMenu
+  return <DirectionalSlidingMenu
     dismissLayout={dissmiss}
     menuViewportSize={60}
-    slidingOrigin="left"
+    slidingOrigin="bottom"
   >
     <DetailsWrapper />
-  </HorizontalSlidingMenu>
+  </DirectionalSlidingMenu>
 }

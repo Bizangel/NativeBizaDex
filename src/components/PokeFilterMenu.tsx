@@ -5,7 +5,7 @@ import { colorPalette } from "../styles/styles"
 import { ScrollView, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler"
 import { GenFilterSection } from "./filterMenuComponents/GenFilterSection"
 import { TypesFilterSection } from "./filterMenuComponents/TypesFilterSection"
-import HorizontalSlidingMenu from "../common/HorizontalSlidingMenu"
+import DirectionalSlidingMenu from "../common/DirectionalSlidingMenu"
 import { produce } from "immer"
 import { useOnKeyboardShow } from "../hooks/useKeyboardHooks"
 import { isEqual as deepEqual } from "lodash"
@@ -189,7 +189,7 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
   const hasFilterChanged = !deepEqual(initialPokefilter, currentFilter);
 
   return (
-    <HorizontalSlidingMenu
+    <DirectionalSlidingMenu
       menuViewportSize={68}
       slidingOrigin="right"
       dismissLayout={dismissLayout}
@@ -331,6 +331,6 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
           </TouchableOpacity>
         </ClearFilterButtonWrapper>}
 
-    </HorizontalSlidingMenu>
+    </DirectionalSlidingMenu>
   )
 }

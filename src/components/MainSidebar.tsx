@@ -1,4 +1,4 @@
-import HorizontalSlidingMenu, { HorizontalSlidingMenuRef } from "../common/HorizontalSlidingMenu";
+import DirectionalSlidingMenu, { DirectionalSlidingMenuRef } from "../common/DirectionalSlidingMenu";
 import styled from "styled-components/native";
 import { colorPalette } from "../styles/styles";
 import { HorizontalBottomRule } from "../common/common";
@@ -76,7 +76,7 @@ export type MainSidebarProps = {
 }
 
 function MainSidebar({ dissmissMenu }: MainSidebarProps) {
-  const slidingRef = useRef<HorizontalSlidingMenuRef>(null);
+  const slidingRef = useRef<DirectionalSlidingMenuRef>(null);
 
   const navigation = useTypedNavigation();
 
@@ -102,7 +102,7 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
   }, [navigation])
 
   return (
-    <HorizontalSlidingMenu
+    <DirectionalSlidingMenu
       dismissLayout={dissmissMenu}
       slidingOrigin="left"
       menuViewportSize={60}
@@ -130,7 +130,7 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
         <SectionButtonLink text="Switch Pokedex" iconSource={require('../icons/caught_indicator.png')} onPress={navigateToSelectPokedex} />
 
       </SidebarWrapper>
-    </HorizontalSlidingMenu>
+    </DirectionalSlidingMenu>
   )
 }
 

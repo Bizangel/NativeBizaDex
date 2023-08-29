@@ -1,6 +1,6 @@
 import { Animated, ViewStyle } from "react-native"
 import { styled } from "styled-components/native"
-import React, { useRef, useEffect, forwardRef, useImperativeHandle, useCallback, useState } from "react"
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, useCallback } from "react"
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useBackHandler } from "../hooks/useBackHandler"
 import useActiveRoutes from "../hooks/useActiveRoutes"
@@ -16,7 +16,6 @@ const FullFilterOverlayWrapper = styled(Animated.View)`
 
 const SlidingComponentWrapper = styled(Animated.View)`
   position: absolute;
-  top: 0px;
 `
 
 const OverlayWrapper = styled(Animated.View)`
@@ -39,7 +38,7 @@ export type SlidingMenuProps = {
   children: React.ReactNode,
 
   /** Where the sliding comes from in each direction. */
-  slidingOrigin: "left" | "right",
+  slidingOrigin: "left" | "right" | "top" | "bottom",
 
   /** The outside range of the sliding window. It should be a number that represents in viewport width percentage, how big the sliding window is.
    * This will be used to effectively "slide" the window outside of view, so if an invalid number is given,
@@ -61,19 +60,26 @@ export type SlidingMenuProps = {
   contentContainerWrapperStyle?: ViewStyle
 }
 
-export interface HorizontalSlidingMenuRef {
+export interface DirectionalSlidingMenuRef {
   closeOverlay(): void,
 }
 
-// could be very easily generalized for verticality, but for now let's keep it horizontal
+const originToDirections: Record<"top" | "bottom" | "left" | "right", number> = {
+  top: Directions.UP,
+  bottom: Directions.DOWN,
+  left: Directions.LEFT,
+  right: Directions.RIGHT,
+} as const
 
-const HorizontalSlidingMenu = forwardRef<HorizontalSlidingMenuRef, SlidingMenuProps>(function HorizontalSlidingMenu(
+const DirectionalSlidingMenu = forwardRef<DirectionalSlidingMenuRef, SlidingMenuProps>(function DirectionalSlidingMenu(
   { dismissLayout, overlayedComponent, children, slidingOrigin, menuViewportSize, onBackCloseTap, contentContainerWrapperStyle }, ref) {
   // animation regarding opening progress
   const animOpeningProgress = useRef(new Animated.Value(0)).current;
   const animatedOriginProp = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [`-${menuViewportSize}%`, "0%"] });
   const animatedBackgroundOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,.8)'] });
   const animDissapearOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [0, 0.7] });
+
+  const isHorizontal = slidingOrigin === "left" || slidingOrigin === "right";
 
   const renderedScreenDepth = useRef<null | number>(null);
   const renderedScreens = useActiveRoutes().length;
@@ -131,14 +137,20 @@ const HorizontalSlidingMenu = forwardRef<HorizontalSlidingMenuRef, SlidingMenuPr
     hideLayoutAnimated();
   });
 
-  const closeFlingToRightGesture = Gesture.Fling().direction(slidingOrigin === "left" ? Directions.LEFT : Directions.RIGHT).onStart(() => hideLayoutAnimated())
+  const closeFlingToRightGesture = Gesture.Fling().direction(originToDirections[slidingOrigin]).onStart(() => hideLayoutAnimated())
   const backgroundTapAvoidCaptureEmptyTap = Gesture.Tap();
 
   return (
     <GestureDetector gesture={backgroundTapCloseGesture}>
       <FullFilterOverlayWrapper style={{ backgroundColor: animatedBackgroundOpacity }}>
         <GestureDetector gesture={Gesture.Race(backgroundTapAvoidCaptureEmptyTap, closeFlingToRightGesture)}>
-          <SlidingComponentWrapper style={{ [slidingOrigin]: animatedOriginProp, width: `${menuViewportSize}%`, height: "100%", ...contentContainerWrapperStyle }}>
+          <SlidingComponentWrapper style={{
+            [slidingOrigin]: animatedOriginProp,
+            [isHorizontal ? "width" : "height"]: `${menuViewportSize}%`,
+            [isHorizontal ? "height" : "width"]: "100%",
+            [isHorizontal ? "top" : "left"]: "0px",
+            ...contentContainerWrapperStyle
+          }}>
             {children}
           </SlidingComponentWrapper>
         </GestureDetector>
@@ -151,4 +163,4 @@ const HorizontalSlidingMenu = forwardRef<HorizontalSlidingMenuRef, SlidingMenuPr
   )
 })
 
-export default HorizontalSlidingMenu
+export default DirectionalSlidingMenu
