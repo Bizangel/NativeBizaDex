@@ -17,19 +17,21 @@ const FlatListWrapper = styled.View`
   background-color: ${colorPalette.backgroundBlack};
 `
 
-const draggableScrollbarHeight = 20;
+const draggableScrollbarHeight = 70;
 
 /** Idea is that there's an empty draggable div across the right side of the screen. And it is transformed every time the thing changes. */
 const DraggableScrollbar = styled(Animated.View) <{ isBeingDragged: boolean }>`
   position: absolute;
 
-  /* background-color: ${p => p.isBeingDragged ? "green" : "rgba(255,255,255,0.3)"}; */
-  background-color: rgba(255,255,255,0.3);
+  background-color: ${p => p.isBeingDragged ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0)"};
+  /* background-color: rgba(255,255,255,0.3); */
+
   right: 0;
 
   height: ${draggableScrollbarHeight}px;
 
-  width: 200px;
+  width: ${p => p.isBeingDragged ? "20px" : "20px"};
+  border-radius: 10px;
 `
 
 const EmptyDisplay = styled.Text`
@@ -68,8 +70,7 @@ function ScrollPokeDisplay({
 
   const flashListRef = useRef<FlashList<Pokemon>>(null);
   const [isDraggingFastScroll, setIsDraggingFastScroll] = useState(false);
-  const scrollTopValue = useRef(new Animated.Value(topBarHeightPx)).current; // Initial value for opacity: 0
-  // const fastScrollablePositionPercent = fastScrollablePositionValue.interpolate({ inputRange: [0, 1], outputRange: ["0%", "100%"] })
+  const scrollTopValue = useRef(new Animated.Value(topBarHeightPx)).current;
 
   const renderPokecard: ListRenderItem<Pokemon> = useCallback(({ item }) => {
     // @ts-ignore // this is too complex for some reason?
@@ -92,12 +93,11 @@ function ScrollPokeDisplay({
     if (isDraggingFastScroll) // no need to sync
       return;
 
-    // TODO properly sync. need to verify both normal scrolling and dragging scrolling. (Test with small list like 100 pokes fire pokes)
 
-    // // ev.nativeEvent.contentOffset.
-    const scrollProgress = ev.nativeEvent.contentOffset.y / ev.nativeEvent.contentSize.height;
-    scrollTopValue.setValue(scrollProgress * (ev.nativeEvent.layoutMeasurement.height + topBarHeightPx))
-  }, [isDraggingFastScroll])
+    const scrollProgress = ev.nativeEvent.contentOffset.y / (ev.nativeEvent.contentSize.height - ev.nativeEvent.layoutMeasurement.height);
+
+    scrollTopValue.setValue(scrollProgress * (ev.nativeEvent.layoutMeasurement.height - draggableScrollbarHeight) + topBarHeightPx);
+  }, [isDraggingFastScroll, scrollTopValue])
 
 
   // automatically scroll to selected pokemon, should it be available in the list
@@ -115,12 +115,13 @@ function ScrollPokeDisplay({
     setIsDraggingFastScroll(true);
   }).onUpdate((e) => {
     const scrollVal = clamp(e.absoluteY, topBarHeightPx, screenHeight - draggableScrollbarHeight) - topBarHeightPx; // from 0 - scrollview height
-    const scrollProgress = scrollVal / (screenHeight - draggableScrollbarHeight);
+
+    const scrollProgress = scrollVal / (screenHeight - draggableScrollbarHeight - topBarHeightPx);
+
     const scrollToIndex = Math.round(scrollProgress * (currentData.length - 1));
 
     scrollTopValue.setValue(scrollVal + topBarHeightPx);
 
-    // scroll properly
     flashListRef.current?.scrollToIndex({ animated: false, index: scrollToIndex })
   }).onEnd(() => {
     setIsDraggingFastScroll(false);
@@ -134,6 +135,7 @@ function ScrollPokeDisplay({
         onBurgerBarPress={onBurgerBarPress}
         displayFilterIndicator={hasFilterChangedExceptSearch} />
       <FlashList
+        showsVerticalScrollIndicator={!isDraggingFastScroll}
         ref={flashListRef}
         onScroll={onNormalFlashListScroll}
         numColumns={2}
@@ -151,7 +153,9 @@ function ScrollPokeDisplay({
       }
 
       <GestureDetector gesture={draggableScrollbarGesture}>
-        <DraggableScrollbar style={{ top: scrollTopValue }} isBeingDragged={isDraggingFastScroll} />
+        <DraggableScrollbar style={{ top: scrollTopValue }}
+          isBeingDragged={isDraggingFastScroll}
+        />
       </GestureDetector>
 
     </FlatListWrapper>
