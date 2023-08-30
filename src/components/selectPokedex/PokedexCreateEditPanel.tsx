@@ -69,7 +69,7 @@ const SubHeader = styled.Text`
 `
 
 
-const CreatePokedexButton = styled(TouchableOpacity).attrs({
+const BottomBigActionButton = styled(TouchableOpacity).attrs({
   containerStyle: { marginTop: 20, marginBottom: 20, }
 })`
   background-color: ${colorPalette.foregroundButtonBlackFull};
@@ -77,7 +77,7 @@ const CreatePokedexButton = styled(TouchableOpacity).attrs({
   padding: 7px;
 `
 
-const CreatePokedexButtonText = styled.Text`
+const BottomBigActionButtonText = styled.Text`
   font-size: 18px;
   color: ${colorPalette.textWhite};
 `
@@ -99,6 +99,24 @@ const DeleteButtonWrapper = styled(TouchableOpacity).attrs({
   height: 100%;
 `
 
+function verifyPokedexName(name: string) {
+  if (name.length === 0) {
+    Alert.alert('Empty Pokedex Name', "Pokedex Name cannot be empty!")
+    return false;
+  }
+
+  if (name.length < 3) {
+    Alert.alert('Invalid Pokedex Name', "Name is too short, must be at least three characters long!")
+    return false;
+  }
+
+  if (name.length > 20) {
+    Alert.alert('Invalid Pokedex Name', "Name is too long, must be at most 20 characters long!")
+    return false;
+  }
+
+  return true;
+}
 
 export type PokedexDetailsMenuProps = {
   dissmiss: () => void,
@@ -113,22 +131,24 @@ export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDeta
   const slidingMenuRef = useRef<DirectionalSlidingMenuRef>(null);
   const storeNewPokedex = useModifyPersistentStorage(e => e.storeNewPokedex);
   const removePokedexByID = useModifyPersistentStorage(e => e.removeStoredPokedexByID);
+  const renameStoredDex = useModifyPersistentStorage(e => e.renameStoredPokedex);
 
   const [genFilter, setGenFilter] = useState<PokeFilter["genFilter"]>(editingPokedex ? editingPokedex.genFilter : initialPokefilter.genFilter);
-  const [pokedexNameField, setPokedexNameField] = useState("");
+  const [pokedexNameField, setPokedexNameField] = useState(editingPokedex?.pokedexName ?? "");
 
-  // const storeNewPokedex = useCallback((newPokedex: StoredPokedex) => {
-  //   storeNewPokedexStore(newPokedex)
-  // }, [storeNewPokedexStore])
+  const onRenamePress = useCallback(() => {
+    if (editingPokedex) {
+      if (!verifyPokedexName(pokedexNameField)) {
+        return;
+      }
+
+      renameStoredDex(editingPokedex.pokedexId, pokedexNameField)
+      slidingMenuRef.current?.closeOverlay();
+    }
+  }, [renameStoredDex, editingPokedex, pokedexNameField, slidingMenuRef])
 
   const createPokedex = useCallback(() => {
-    if (pokedexNameField.length < 3) {
-      Alert.alert('Invalid Pokedex Name', "Name is too short, must be at least three characters long!")
-      return;
-    }
-
-    if (pokedexNameField.length > 20) {
-      Alert.alert('Invalid Pokedex Name', "Name is too long, must be at most 20 characters long!")
+    if (!verifyPokedexName(pokedexNameField)) {
       return;
     }
 
@@ -208,11 +228,19 @@ export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDeta
       </GenFilterWrapper>
 
       {!isEditing &&
-        <CreatePokedexButton onPress={createPokedex}>
-          <CreatePokedexButtonText>
+        <BottomBigActionButton onPress={createPokedex}>
+          <BottomBigActionButtonText>
             Create Pokedex
-          </CreatePokedexButtonText>
-        </CreatePokedexButton>
+          </BottomBigActionButtonText>
+        </BottomBigActionButton>
+      }
+
+      {isEditing &&
+        <BottomBigActionButton onPress={onRenamePress}>
+          <BottomBigActionButtonText>
+            Rename Pokedex
+          </BottomBigActionButtonText>
+        </BottomBigActionButton>
       }
 
     </DetailsWrapper>

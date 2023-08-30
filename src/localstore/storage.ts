@@ -20,6 +20,7 @@ export interface LocalStorageFunctions {
 
   storeNewPokedex: (x: StoredPokedex) => void,
   removeStoredPokedexByID: (id: string) => void,
+  renameStoredPokedex: (pokedexId: string, newName: string) => void,
 }
 
 export const useZustandStorage = create<LocalStorageState & LocalStorageFunctions>()((set, get) => ({
@@ -36,7 +37,16 @@ export const useZustandStorage = create<LocalStorageState & LocalStorageFunction
 
   removeStoredPokedexByID: (id: string) => {
     set({ allStoredPokedexes: get().allStoredPokedexes.filter(e => e.pokedexId !== id) })
-  }
+  },
+
+  renameStoredPokedex: (pokedexId: string, newName: string) => {
+    set(prev => produce(prev, draft => {
+      const found = draft.allStoredPokedexes.find(e => e.pokedexId === pokedexId);
+      if (found)
+        found.pokedexName = newName;
+
+    }))
+  },
 }))
 
 

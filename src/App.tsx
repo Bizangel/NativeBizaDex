@@ -10,6 +10,7 @@ import AllAbilitiesScreen from './screens/AllAbilitiesScreen';
 import TypeChartScreen from './screens/TypeChartScreen';
 import TeamBuilderScreen from './screens/TeamBuilderScreen';
 import { SelectPokedexScreen } from './screens/SelectPokedexScreen';
+import { usePersistentStorageSynchronization } from './localstore/storageHooks';
 // import { usePersistentStorageSynchronization } from './localstore/storageHooks';
 
 export type RootStackParamList = {
@@ -34,7 +35,7 @@ function App() {
   if (process.env.NODE_ENV === "development")
     setIdleTimerDisabled(true);
 
-  // usePersistentStorageSynchronization();
+  usePersistentStorageSynchronization();
 
   return (
     <NavigationContainer>
