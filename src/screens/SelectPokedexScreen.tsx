@@ -9,7 +9,8 @@ import { colorPalette } from "../styles/styles";
 import { PokedexCreateEditPanel } from "../components/selectPokedex/PokedexCreateEditPanel";
 import { StoredPokedex } from "../common/pokeInfo";
 import { generateRangesWithPrefix } from "../util/utils";
-import { usePersistentStorage } from "../localstore/storageHooks";
+import { useModifyPersistentStorage, usePersistentStorage } from "../localstore/storageHooks";
+import useTypedNavigation from "../hooks/useTypedNavigation";
 
 const Body = styled.View`
   width: 100%;
@@ -45,10 +46,10 @@ const AddPokeButton = styled(TouchableOpacity).attrs({
   align-items: center;
 `
 
-const PokedexCard = styled(TouchableOpacity)`
+const PokedexCard = styled(TouchableOpacity) <{ isActive: boolean }>`
   aspect-ratio: 0.8;
 
-  background-color: ${colorPalette.foregroundButtonBlackInactive};
+  background-color: ${p => p.isActive ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
   margin: 10px;
   border-radius: 10px;
 
@@ -94,6 +95,16 @@ const ScrollableDexView = styled(ScrollView).attrs({
 
 export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList, 'SelectPokedexScreen'>) {
   const storedPokedexes = usePersistentStorage("allStoredPokedexes");
+  const currentlyActiveDex = usePersistentStorage("selectedPokedex");
+
+  const selectActiveDexStorage = useModifyPersistentStorage(e => e.changeSelectedPokedex);
+  const navigation = useTypedNavigation();
+
+  const selectActiveDex = useCallback((val: StoredPokedex | null) => {
+    selectActiveDexStorage(val);
+    navigation.pop();
+  }, [selectActiveDexStorage, navigation])
+
   const [pokedexDetails, setCurrentPokedexDetails] = useState<StoredPokedex | null | undefined>(undefined);
 
   const showCreateNewPokedexPanel = useCallback(() => {
@@ -123,7 +134,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
         <ScrollableDexView >
 
           {/* Base Pokedex containing all mons */}
-          <PokedexCard style={{ width: screenWidth / 3 }}>
+          <PokedexCard style={{ width: screenWidth / 3 }} onPress={() => { selectActiveDex(null) }} isActive={currentlyActiveDex === null}>
             <Image source={require('../icons/globe-icon.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
 
             <PokedexGenIncludeText> All Generations </PokedexGenIncludeText>
@@ -134,7 +145,10 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
 
           {
             storedPokedexes.map(e =>
-              <PokedexCard style={{ width: screenWidth / 3 }} key={e.pokedexId} onPress={() => { showEditPokedexPanel(e) }}>
+              <PokedexCard style={{ width: screenWidth / 3 }} key={e.pokedexId}
+                isActive={currentlyActiveDex?.pokedexId === e.pokedexId}
+                onPress={() => { selectActiveDex(e) }}
+                onLongPress={() => { showEditPokedexPanel(e) }}>
                 <Image source={require('../icons/caught_indicator.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
 
                 <PokedexGenIncludeText> {generateRangesWithPrefix(e.genFilter, "Gen")} </PokedexGenIncludeText>

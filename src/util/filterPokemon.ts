@@ -1,4 +1,4 @@
-import { GenerationalDexSteps, MegaFilter, PokeFilter } from "../common/pokeInfo";
+import { GenerationalDexSteps, MegaFilter, PokeFilter, StoredPokedex } from "../common/pokeInfo";
 import { Pokemon } from "../types/Pokemon";
 import { lowercaseAZNormalizeMobile } from "./utils";
 
@@ -18,8 +18,11 @@ function isPokeGenIncluded(dexNumber: number, genFilter: boolean[]) {
 }
 
 
-export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter): Pokemon[] {
-  const genFiltered = allPokemon.filter(poke => isPokeGenIncluded(poke.nationalDexNumber, filters.genFilter))
+export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter, activePokedex: StoredPokedex | null): Pokemon[] {
+
+  const genFilter = activePokedex ? activePokedex.genFilter : filters.genFilter; // use gen filter from pokedex if it is specified
+
+  const genFiltered = allPokemon.filter(poke => isPokeGenIncluded(poke.nationalDexNumber, genFilter))
   const filteredByString = genFiltered.filter(e => stringSearchMatchSimilar(filters.searchString, e.displayName))
   const filteredByType = filteredByString.filter(e => e.type.some(type => filters.typesFilter[type]));
 

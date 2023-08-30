@@ -11,6 +11,7 @@ import { useOnKeyboardShow } from "../hooks/useKeyboardHooks"
 import { isEqual as deepEqual } from "lodash"
 import { MegaFilter, PokeFilter, initialPokefilter } from "../common/pokeInfo"
 import { OpacitySpawn, TextInputWithBlurOnHide } from "../common/common"
+import { usePersistentStorage } from "../localstore/storageHooks"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
@@ -97,6 +98,16 @@ const BaseStatTextDisplay = styled.Text`
   max-width: 40%;
 `
 
+
+const GenerationTextDisplayControlledByPokedex = styled.Text`
+  font-size: 16px;
+  color: ${colorPalette.textWhite};
+
+  text-align: center;
+  padding: 5px;
+  opacity: 0.5;
+`
+
 const BaseStatThresholdOperatorDisplayWrapper = styled.View`
   width: 50px;
   height: 40px;
@@ -166,6 +177,8 @@ export type PokeFilterMenuProps = {
 export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setCurrentFilter: setCurrentGlobalAppliedFilter, dismissLayout, amountFiltered }: PokeFilterMenuProps) {
   const scrollRef = useRef<ScrollView>(null);
 
+  const activeDex = usePersistentStorage("selectedPokedex");
+
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(currentGlobalAppliedFilter);
 
   // const applyFilter = useCallback(() => {
@@ -231,7 +244,17 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
         </FilterSectionHeader>
         <HorizontalBottomRule />
 
-        <GenFilterSection {...{ currentFilter: currentFilter.genFilter, setCurrentFilter: setCurrentGenFilter }} />
+        {activeDex === null &&
+          <GenFilterSection {...{ currentFilter: currentFilter.genFilter, setCurrentFilter: setCurrentGenFilter }} />
+        }
+
+        {activeDex !== null &&
+          <GenerationTextDisplayControlledByPokedex>
+            Gen filters are currently controlled by the active pokedex.
+          </GenerationTextDisplayControlledByPokedex>
+        }
+
+
         {/* <GenFilterSection {...{ currentFilter, setCurrentFilter }} /> */}
 
 

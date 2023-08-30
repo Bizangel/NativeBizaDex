@@ -12,6 +12,7 @@ import { PokeFilterMenu } from '../components/PokeFilterMenu';
 
 import MainSidebar from '../components/MainSidebar';
 import ScrollPokeDisplay from '../components/mainScreen/scrollPokeDisplay';
+import { usePersistentStorage } from '../localstore/storageHooks';
 
 const Body = styled.View`
   background-color: ${colorPalette.backgroundBlack};
@@ -26,6 +27,9 @@ const debounceDelay = 200;
 
 function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
   const preSelectedPoke = props.route.params.preSelectedPokemonId
+
+  const activePokedex = usePersistentStorage("selectedPokedex");
+
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(initialPokefilter)
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
   const [currentData, setCurrentData] = useState<Pokemon[]>(allPokemon);
@@ -66,14 +70,14 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   // debounce filter for efficiency
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const filteredPoke = filterPokemon(allPokemon, currentFilter);
+      const filteredPoke = filterPokemon(allPokemon, currentFilter, activePokedex);
       setCurrentData(filteredPoke)
     }, debounceDelay);
 
     return () => {
       clearTimeout(timeout)
     }
-  }, [currentFilter])
+  }, [currentFilter, activePokedex])
 
   const dissmissPokeFilterMenu = useCallback(() => {
     setShowFilterMenu(false);

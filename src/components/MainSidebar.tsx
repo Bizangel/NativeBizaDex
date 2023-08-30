@@ -6,6 +6,7 @@ import { Image, ImageSourcePropType } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useCallback, useRef } from "react";
 import useTypedNavigation from "../hooks/useTypedNavigation";
+import { usePersistentStorage } from "../localstore/storageHooks";
 
 const MainSideMenuHeader = styled.Text`
   color: ${colorPalette.textWhite};
@@ -16,7 +17,7 @@ const MainSideMenuHeader = styled.Text`
 
 const MainSideMenuSubHeader = styled.Text`
   color: ${colorPalette.textWhite};
-  font-size: 12px;
+  font-size: 14px;
 
   text-align: center;
 `
@@ -76,6 +77,9 @@ export type MainSidebarProps = {
 }
 
 function MainSidebar({ dissmissMenu }: MainSidebarProps) {
+
+  const activeDex = usePersistentStorage("selectedPokedex");
+
   const slidingRef = useRef<DirectionalSlidingMenuRef>(null);
 
   const navigation = useTypedNavigation();
@@ -112,8 +116,8 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
         <MainSideMenuHeader>
           Biza's Native Dex
         </MainSideMenuHeader>
-        <MainSideMenuSubHeader>
-          Active Dex: National Dex
+        <MainSideMenuSubHeader style={{ fontWeight: activeDex === null ? "bold" : undefined }}>
+          Active Dex: {activeDex === null ? "National Pokedex" : activeDex.pokedexName}
         </MainSideMenuSubHeader>
         <HorizontalBottomRule />
 
