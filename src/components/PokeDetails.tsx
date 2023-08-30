@@ -11,6 +11,7 @@ import { useBackHandler } from "../hooks/useBackHandler";
 import { AbilityDisplayBox } from "./detailsComponents/abilitiesDisplay";
 import useActiveRoutes from "../hooks/useActiveRoutes";
 import { EvoTreeDisplay } from "./detailsComponents/EvoTreeDisplay";
+import PokeWeaknessDisplay from "./detailsComponents/PokeWeaknessDisplay";
 
 const FullWrapper = styled(Animated.View)`
   position: absolute;
@@ -267,6 +268,8 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx 
                   <AbilityDisplayBox abilitiesId={pokemon.abilitiesId}
                     hiddenAbilityId={pokemon.hiddenAbility} />
                   <EvoTreeDisplay pokemon={pokemon} switchPoke={switchPoke} />
+
+                  <PokeWeaknessDisplay pokeTypes={pokemon.type} />
 
                 </ScrollableDetails>
               </ScrollableDetailsWrapperContent>

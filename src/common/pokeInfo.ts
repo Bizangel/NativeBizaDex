@@ -53,7 +53,7 @@ const TypeChartRaw = `
 const TypeChartLines = TypeChartRaw.split('\n').filter(e => e.length > 0).slice(1)
 export const TypeChart = TypeChartLines.map(e => e.split(" ").filter(i => i.length > 0).slice(1).map(k => k === "h" ? "1/2" : k)) as TypeEffectiveness[][]
 
-export type TypeEffectiveness = "1/2" | "1" | "2" | "0"
+export type TypeEffectiveness = "1/2" | "1" | "2" | "0" | "1/4" | "4"
 
 export enum MegaFilter {
   NoMega = "No Mega Evolutions",
