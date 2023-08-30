@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { StoredPokedex } from "../common/pokeInfo";
+import { produce } from "immer";
 
 /**
  * Idea is to use a zustand global store.
@@ -12,17 +13,16 @@ export interface LocalStorageState {
   selectedPokedex: StoredPokedex | null, // null means global pokedex
 
   allStoredPokedexes: StoredPokedex[],
-
-  sampleState: number | null,
 }
 
 export interface LocalStorageFunctions {
   changeSelectedPokedex: (x: StoredPokedex | null) => void,
 
-  changeState: (x: number) => void,
+  storeNewPokedex: (x: StoredPokedex) => void,
+  removeStoredPokedexByID: (id: string) => void,
 }
 
-export const useZustandStorage = create<LocalStorageState & LocalStorageFunctions>()((set) => ({
+export const useZustandStorage = create<LocalStorageState & LocalStorageFunctions>()((set, get) => ({
   selectedPokedex: null,
   allStoredPokedexes: [],
 
@@ -30,7 +30,13 @@ export const useZustandStorage = create<LocalStorageState & LocalStorageFunction
 
   changeSelectedPokedex: (x: StoredPokedex | null) => { set({ selectedPokedex: x }) },
 
-  changeState: (x: number) => { set({ sampleState: x }); }
+  storeNewPokedex: (x: StoredPokedex) => {
+    set(prev => produce(prev, draft => { draft.allStoredPokedexes.push(x) }))
+  },
+
+  removeStoredPokedexByID: (id: string) => {
+    set({ allStoredPokedexes: get().allStoredPokedexes.filter(e => e.pokedexId !== id) })
+  }
 }))
 
 

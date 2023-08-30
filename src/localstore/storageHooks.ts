@@ -1,6 +1,6 @@
+import { ensureZustandSubscriptionChangesAreSynchronized, requestZustandStoreValueInitialization, writeToLocalAsyncStorage, zustandRequestedSubscriptionKeys } from "./StorageUtils";
 import { LocalStorageFunctions, LocalStorageState, useZustandStorage } from "./storage";
 import { useEffect } from "react"
-import StorageUtils from "./storageUtils";
 
 type ValueOf<T> = T[keyof T];
 
@@ -14,8 +14,8 @@ export function usePersistentStorage<T extends keyof LocalStorageState, V>(
   const state = useZustandStorage(e => getter ? getter(e[key]) : e[key]);
 
   useEffect(() => {
-    StorageUtils.requestValueInitialization(key); // read stored value
-    StorageUtils.ensureSubscriptionChangesAreSynchronized(key); // ensure that key updates are being sent
+    requestZustandStoreValueInitialization(key); // read stored value
+    ensureZustandSubscriptionChangesAreSynchronized(key); // ensure that key updates are being sent
   }, [key])
 
 
@@ -28,14 +28,17 @@ export function useModifyPersistentStorage<T extends ValueOf<LocalStorageFunctio
   return useZustandStorage(getter);
 }
 
+
 /** Intented to only be called once. Ensures that the persistent storage is syncrhonized with in memory zustand storage.  */
 export function usePersistentStorageSynchronization() {
   useEffect(() => {
     const unsub = useZustandStorage.subscribe((state) => {
-      Array.from(StorageUtils.subsRequest2key.keys()).forEach(key => {
-        StorageUtils.writeChangesToStorage(key, JSON.stringify(state[key]))
+      Array.from(zustandRequestedSubscriptionKeys.keys()).forEach(key => {
+        writeToLocalAsyncStorage(key, JSON.stringify(state[key]))
       })
     })
-    return unsub;
+    return () => {
+      unsub();
+    };
   }, [])
 }

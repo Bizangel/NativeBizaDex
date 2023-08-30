@@ -9,6 +9,7 @@ import { colorPalette } from "../../styles/styles"
 import { Image } from "react-native"
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
 import uuid from 'react-native-uuid';
+import { useModifyPersistentStorage } from "../../localstore/storageHooks"
 
 const DetailsWrapper = styled(ScrollView).attrs({
   contentContainerStyle: {
@@ -102,22 +103,23 @@ const DeleteButtonWrapper = styled(TouchableOpacity).attrs({
 export type PokedexDetailsMenuProps = {
   dissmiss: () => void,
 
-  setStoredPokedex: React.Dispatch<React.SetStateAction<StoredPokedex[]>>,
-
   /** Whether or not to be editing, set empty to create new pokedex. */
   editingPokedex: StoredPokedex | null,
 }
 
-export function PokedexCreateEditPanel({ dissmiss, setStoredPokedex, editingPokedex }: PokedexDetailsMenuProps) {
+export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDetailsMenuProps) {
   const isEditing = editingPokedex !== null;
 
   const slidingMenuRef = useRef<DirectionalSlidingMenuRef>(null);
+  const storeNewPokedex = useModifyPersistentStorage(e => e.storeNewPokedex);
+  const removePokedexByID = useModifyPersistentStorage(e => e.removeStoredPokedexByID);
+
   const [genFilter, setGenFilter] = useState<PokeFilter["genFilter"]>(editingPokedex ? editingPokedex.genFilter : initialPokefilter.genFilter);
   const [pokedexNameField, setPokedexNameField] = useState("");
 
-  const storeNewPokedex = useCallback((newPokedex: StoredPokedex) => {
-    setStoredPokedex(prev => [...prev, newPokedex])
-  }, [setStoredPokedex])
+  // const storeNewPokedex = useCallback((newPokedex: StoredPokedex) => {
+  //   storeNewPokedexStore(newPokedex)
+  // }, [storeNewPokedexStore])
 
   const createPokedex = useCallback(() => {
     if (pokedexNameField.length < 3) {
@@ -155,11 +157,11 @@ export function PokedexCreateEditPanel({ dissmiss, setStoredPokedex, editingPoke
       {
         text: 'Delete',
         style: 'cancel',
-        onPress: () => { setStoredPokedex(prev => prev.filter(e => e.pokedexId !== editingPokedex?.pokedexId)); slidingMenuRef.current?.closeOverlay(); }
+        onPress: () => { removePokedexByID(editingPokedex?.pokedexId ?? ""); slidingMenuRef.current?.closeOverlay(); }
       },
     ], { cancelable: true })
     return;
-  }, [editingPokedex, setStoredPokedex, slidingMenuRef])
+  }, [editingPokedex, removePokedexByID, slidingMenuRef])
 
 
   return <DirectionalSlidingMenu

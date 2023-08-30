@@ -9,7 +9,7 @@ import { colorPalette } from "../styles/styles";
 import { PokedexCreateEditPanel } from "../components/selectPokedex/PokedexCreateEditPanel";
 import { StoredPokedex } from "../common/pokeInfo";
 import { generateRangesWithPrefix } from "../util/utils";
-import { useModifyPersistentStorage, usePersistentStorage } from "../localstore/storageHooks";
+import { usePersistentStorage } from "../localstore/storageHooks";
 
 const Body = styled.View`
   width: 100%;
@@ -93,9 +93,7 @@ const ScrollableDexView = styled(ScrollView).attrs({
 `
 
 export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList, 'SelectPokedexScreen'>) {
-  // const storedPokedexes = useGlobalStorage(e => e.selectedPokedex);
-
-  // undefined is no menu shown. null is create new pokedex, specify one and it's edit
+  const storedPokedexes = usePersistentStorage("allStoredPokedexes");
   const [pokedexDetails, setCurrentPokedexDetails] = useState<StoredPokedex | null | undefined>(undefined);
 
   const showCreateNewPokedexPanel = useCallback(() => {
@@ -134,7 +132,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
 
           {/*  Custom Pokedex */}
 
-          {/* {
+          {
             storedPokedexes.map(e =>
               <PokedexCard style={{ width: screenWidth / 3 }} key={e.pokedexId} onPress={() => { showEditPokedexPanel(e) }}>
                 <Image source={require('../icons/caught_indicator.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
@@ -143,7 +141,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
                 <PokedexNameDisplay> {e.pokedexName} </PokedexNameDisplay>
               </PokedexCard>
             )
-          } */}
+          }
 
         </ScrollableDexView>
 
@@ -156,7 +154,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
 
       </Body>
 
-      {pokedexDetails !== undefined && <PokedexCreateEditPanel dissmiss={dissmissDetails} setStoredPokedex={() => { }} editingPokedex={pokedexDetails} />}
+      {pokedexDetails !== undefined && <PokedexCreateEditPanel dissmiss={dissmissDetails} editingPokedex={pokedexDetails} />}
     </>
 
   )
