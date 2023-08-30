@@ -6,6 +6,12 @@ import { Animated, ViewStyle, StyleSheet, TextInputProps } from "react-native"
 import { useOnKeyboardHide } from "../hooks/useKeyboardHooks";
 import { TextInput } from "react-native-gesture-handler";
 
+
+export enum LocalStorageKeys {
+  STORED_POKEDEX = "storedPokedex",
+}
+
+
 export const TypeDisplay = styled.Text<{ type: PokeType }>`
   min-width: 80px;
 

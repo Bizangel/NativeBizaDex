@@ -1,13 +1,15 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
-import { useLocalStorage } from "../hooks/useLocalStorage";
-import { HorizontalBottomRule } from "../common/common";
-import { useState, useEffect, useCallback } from "react"
+import { HorizontalBottomRule, LocalStorageKeys } from "../common/common";
+import { useState, useCallback } from "react"
 import { Image, useWindowDimensions } from "react-native"
 import { styled } from "styled-components/native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { colorPalette } from "../styles/styles";
-import { PokedexDetailsMenu } from "../components/selectPokedex/pokedexDetailsMenu";
+import { PokedexCreateEditPanel } from "../components/selectPokedex/PokedexCreateEditPanel";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { StoredPokedex } from "../common/pokeInfo";
+import { generateRangesWithPrefix } from "../util/utils";
 
 const Body = styled.View`
   width: 100%;
@@ -91,17 +93,21 @@ const ScrollableDexView = styled(ScrollView).attrs({
 `
 
 export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList, 'SelectPokedexScreen'>) {
-  // const [pokeTeams, setPokeTeams] = useLocalStorage<Pokemon[]>("poketeam", []);
+  const [storedPokedexes, setStoredPokedex] = useLocalStorage<StoredPokedex[]>(LocalStorageKeys.STORED_POKEDEX, []);
+  // undefined is no menu shown. null is create new pokedex, specify one and it's edit
+  const [pokedexDetails, setCurrentPokedexDetails] = useState<StoredPokedex | null | undefined>(undefined);
 
-  // const addNewPoketoTeam = useCallback(() => {
-  //   setPokeTeams(prev => [...prev, allPokemon[0]])
-  // }, [setPokeTeams]);
+  const showCreateNewPokedexPanel = useCallback(() => {
+    setCurrentPokedexDetails(null)
+  }, [setCurrentPokedexDetails])
 
-  const [isDetailsShown, setIsDetailsShown] = useState(false);
+  const showEditPokedexPanel = useCallback((val: StoredPokedex) => {
+    setCurrentPokedexDetails(val)
+  }, [setCurrentPokedexDetails])
 
   const dissmissDetails = useCallback(() => {
-    setIsDetailsShown(false);
-  }, [setIsDetailsShown])
+    setCurrentPokedexDetails(undefined);
+  }, [setCurrentPokedexDetails])
 
   const screenWidth = useWindowDimensions().width;
 
@@ -116,33 +122,39 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
         <HorizontalBottomRule />
 
         <ScrollableDexView >
-          <PokedexCard style={{ width: screenWidth / 3 }} onPress={() => { setIsDetailsShown(true) }}>
+          {/* Base Pokedex containing all mons */}
+          <PokedexCard style={{ width: screenWidth / 3 }}>
             <Image source={require('../icons/globe-icon.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
 
             <PokedexGenIncludeText> All Generations </PokedexGenIncludeText>
             <PokedexNameDisplay> National Dex </PokedexNameDisplay>
           </PokedexCard>
 
-          <PokedexCard style={{ width: screenWidth / 3 }} >
-            <Image source={require('../icons/caught_indicator.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
+          {/*  Custom Pokedex */}
 
-            <PokedexGenIncludeText> Gen 1-5, Gen 2-7 </PokedexGenIncludeText>
-            <PokedexNameDisplay> Unbound Dex </PokedexNameDisplay>
-          </PokedexCard>
-          <PokedexCard style={{ width: screenWidth / 3 }} />
-          <PokedexCard style={{ width: screenWidth / 3 }} />
+          {
+            storedPokedexes.map(e =>
+              <PokedexCard style={{ width: screenWidth / 3 }} key={e.pokedexId} onPress={() => { showEditPokedexPanel(e) }}>
+                <Image source={require('../icons/caught_indicator.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
+
+                <PokedexGenIncludeText> {generateRangesWithPrefix(e.genFilter, "Gen")} </PokedexGenIncludeText>
+                <PokedexNameDisplay> {e.pokedexName} </PokedexNameDisplay>
+              </PokedexCard>
+            )
+          }
+
         </ScrollableDexView>
 
 
 
 
-        <AddPokeButton onPress={() => { console.log("add rpess") }}>
+        <AddPokeButton onPress={showCreateNewPokedexPanel}>
           <Image source={require('../icons/cross.png')} style={{ height: "50%", width: "50%", transform: [{ rotateZ: "45deg" }] }} />
         </AddPokeButton>
 
       </Body>
 
-      {isDetailsShown && <PokedexDetailsMenu dissmiss={dissmissDetails} />}
+      {pokedexDetails !== undefined && <PokedexCreateEditPanel dissmiss={dissmissDetails} setStoredPokedex={setStoredPokedex} editingPokedex={pokedexDetails} />}
     </>
 
   )

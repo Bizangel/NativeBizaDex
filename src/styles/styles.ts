@@ -12,12 +12,14 @@ export const colorPalette = {
   backgroundBlack70: "rgba(33, 46, 51, .7)",
 
   textWhite: "#ffffff",
+  textGray: "#dddddd",
+
   white70: "rgba(0,0,0,7)",
 
-  foregroundButtonBlackInactive: "rgba(202, 220, 226, 0.2)",
+  foregroundButtonBlackInactive: "rgba(155, 175, 182, 0.2)",
   // foregroundButtonBlackInactive: "rgba(34, 136, 170, 0.7)",
-  foregroundButtonBlackActive: "rgba(202, 220, 226, 0.7)",
-  foregroundButtonBlackFull: "rgba(202, 220, 226, 1)",
+  foregroundButtonBlackActive: "rgba(155, 175, 182, 0.7)",
+  foregroundButtonBlackFull: "rgb(155, 175, 182)",
 
   buttonBorderColor: "#43d9df",
 

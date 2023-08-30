@@ -93,3 +93,34 @@ export function findEvotreeStartingNodes(evoTree: Pokemon["evoTree"]): string[] 
   const reached = new Set(Object.values(evoTree).flat().map(e => e.pokeId))
   return allKeys.filter(e => !reached.has(e))
 }
+
+export function generateRangesWithPrefix(arr: boolean[], prefix: string) {
+  const ranges = [];
+  let start = null;
+
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i]) {
+      if (start === null) {
+        start = i;
+      }
+    } else if (start !== null) {
+      ranges.push([start, i - 1]);
+      start = null;
+    }
+  }
+
+  if (start !== null) {
+    ranges.push([start, arr.length - 1]);
+  }
+
+  const result = [];
+  for (const [st, end] of ranges) {
+    if (st === end) {
+      result.push(`${prefix} ${st + 1}`);
+    } else {
+      result.push(`${prefix} ${st + 1}-${end + 1}`);
+    }
+  }
+
+  return result.join(", ");
+}

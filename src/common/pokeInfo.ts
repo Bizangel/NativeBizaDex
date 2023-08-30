@@ -71,6 +71,14 @@ export type PokeFilter = {
   baseStatThresholdOperator: "le" | "ge",
 }
 
+export type StoredPokedex = {
+  pokedexId: string,
+  pokedexName: string,
+  genFilter: PokeFilter["genFilter"],
+  caughtPokemon: Record<number, true>,
+}
+
+
 export const lastPokegen = 9;
 // mew, celebi, deoxys, arceus, genesect, volcanion, melmetal, enamorus, iron leaves
 export const GenerationalDexSteps = [151, 251, 386, 493, 649, 721, 809, 905, 1010]; // includes last poke

@@ -109,7 +109,7 @@ const DirectionalSlidingMenu = forwardRef<DirectionalSlidingMenuRef, SlidingMenu
     }).start(() => {
 
     });
-  })
+  }, [animOpeningProgress])
 
   const hideLayoutAnimated = useCallback(() => {
     if (onBackCloseTap) {

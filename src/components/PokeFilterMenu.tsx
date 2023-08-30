@@ -186,6 +186,15 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
     setCurrentFilter(initialPokefilter)
   }, [setCurrentFilter])
 
+  // this actually works, and not as complex as I though before.
+  const setCurrentGenFilter: React.Dispatch<React.SetStateAction<PokeFilter["genFilter"]>> = useCallback((newVal) => {
+    setCurrentFilter(prevPokeFilter => ({
+      ...prevPokeFilter,
+      genFilter: typeof newVal === "function" ? newVal(prevPokeFilter.genFilter) : newVal,
+    }));
+  }, [setCurrentFilter])
+
+
   const hasFilterChanged = !deepEqual(initialPokefilter, currentFilter);
 
   return (
@@ -222,7 +231,7 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
         </FilterSectionHeader>
         <HorizontalBottomRule />
 
-        <GenFilterSection {...{ currentFilter, setCurrentFilter }} />
+        <GenFilterSection {...{ currentFilter: currentFilter.genFilter, setCurrentFilter: setCurrentGenFilter }} />
         {/* <GenFilterSection {...{ currentFilter, setCurrentFilter }} /> */}
 
 

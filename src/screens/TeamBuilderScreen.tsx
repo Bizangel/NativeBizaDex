@@ -5,11 +5,11 @@ import { RootStackParamList } from "../App"
 import { HorizontalBottomRule } from "../common/common"
 import { Image } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
-import PokeTeamRowDisplay from "../components/TeamBuilder/PokeTeamRowDisplay"
-import { useLocalStorage } from "../hooks/useLocalStorage"
-import { Pokemon } from "../types/Pokemon"
-import { useCallback } from "react"
-import { allPokemon } from "../common/pokeInfo"
+// import PokeTeamRowDisplay from "../components/TeamBuilder/PokeTeamRowDisplay"
+// import { useLocalStorage } from "../hooks/useLocalStorage"
+// import { Pokemon } from "../types/Pokemon"
+// import { useCallback } from "react"
+// import { allPokemon } from "../common/pokeInfo"
 
 
 
@@ -54,11 +54,11 @@ const AddPokeButton = styled(TouchableOpacity).attrs({
 `
 
 function TeamBuilderScreen(_: NativeStackScreenProps<RootStackParamList, 'TeamBuilderScreen'>) {
-  const [pokeTeams, setPokeTeams] = useLocalStorage<Pokemon[]>("poketeam", []);
+  // const [pokeTeams, setPokeTeams] = useLocalStorage<Pokemon[]>("poketeam", []);
 
-  const addNewPoketoTeam = useCallback(() => {
-    setPokeTeams(prev => [...prev, allPokemon[0]])
-  }, [setPokeTeams]);
+  // const addNewPoketoTeam = useCallback(() => {
+  //   setPokeTeams(prev => [...prev, allPokemon[0]])
+  // }, [setPokeTeams]);
 
   return (
     <Body>
@@ -69,11 +69,13 @@ function TeamBuilderScreen(_: NativeStackScreenProps<RootStackParamList, 'TeamBu
       <HorizontalBottomRule />
 
       <PokeRowTeamWrapper>
-        <PokeTeamRowDisplay team={pokeTeams} />
+        {/* <PokeTeamRowDisplay team={pokeTeams} /> */}
       </PokeRowTeamWrapper>
 
 
-      <AddPokeButton onPress={addNewPoketoTeam}>
+      <AddPokeButton
+      // onPress={addNewPoketoTeam}
+      >
         <Image source={require('../icons/cross.png')} style={{ height: "50%", width: "50%", transform: [{ rotateZ: "45deg" }] }} />
       </AddPokeButton>
     </Body>

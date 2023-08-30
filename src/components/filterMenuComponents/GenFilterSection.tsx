@@ -36,13 +36,13 @@ const GenButtonText = styled.Text`
 `
 
 export function GenFilterSection({ currentFilter, setCurrentFilter }: {
-  currentFilter: PokeFilter,
-  setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
+  currentFilter: PokeFilter["genFilter"],
+  setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter["genFilter"]>>,
 }) {
 
   const renderItem: ProgressiveRendererRenderItem<boolean> = useCallback((e, idx) => {
     return <GenButton style={{ borderRadius: 10 }} isActive={e} onPress={() => {
-      setCurrentFilter(prev => produce(prev, (draft) => { draft.genFilter[idx] = !draft.genFilter[idx]; }));
+      setCurrentFilter(prev => produce(prev, (draft) => { draft[idx] = !draft[idx]; }));
     }}>
       <GenButtonText>Gen {idx + 1}</GenButtonText>
     </GenButton>
@@ -55,20 +55,20 @@ export function GenFilterSection({ currentFilter, setCurrentFilter }: {
       <GenFilterWrapper
         initHeight={160}// initial height, before all elements are rendered, an approximation, the better the less "sloppy it will see"
         animatedOpacitySpawnDuration={300}
-        fullData={currentFilter.genFilter as boolean[]}
+        fullData={currentFilter as boolean[]}
         renderItem={renderItem}
       />
 
       {/* Toggle All Button */}
       <GenButton onPress={() => {
         setCurrentFilter((prev) => {
-          if (prev.genFilter.some(e => e)) { // if one is enabled, disable all
-            return produce(prev, draft => { draft.genFilter = draft.genFilter.map(_ => false) })
+          if (prev.some(e => e)) { // if one is enabled, disable all
+            return prev.map(_ => false);
           } else { // disableall
-            return produce(prev, draft => { draft.genFilter = draft.genFilter.map(_ => true) })
+            return prev.map(_ => true);
           }
         })
-      }} style={{ borderRadius: 10 }} isActive={currentFilter.genFilter.every(e => e)}>
+      }} style={{ borderRadius: 10 }} isActive={currentFilter.every(e => e)}>
         <GenButtonText>
           Toggle All
         </GenButtonText>
