@@ -50,6 +50,14 @@ const DetailsPokedexHeader = styled.Text`
   color: ${colorPalette.textWhite};
 `
 
+const DetailsSubHeader = styled.Text`
+  text-align: center;
+  font-size: 12px;
+  color: ${colorPalette.textWhite};
+
+  width: 80%;
+`
+
 const SubHeader = styled.Text`
   width: 80%;
   text-align: left;
@@ -104,7 +112,7 @@ export function PokedexCreateEditPanel({ dissmiss, setStoredPokedex, editingPoke
   const isEditing = editingPokedex !== null;
 
   const slidingMenuRef = useRef<DirectionalSlidingMenuRef>(null);
-  const [genFilter, setGenFilter] = useState<PokeFilter["genFilter"]>(initialPokefilter.genFilter);
+  const [genFilter, setGenFilter] = useState<PokeFilter["genFilter"]>(editingPokedex ? editingPokedex.genFilter : initialPokefilter.genFilter);
   const [pokedexNameField, setPokedexNameField] = useState("");
 
   const storeNewPokedex = useCallback((newPokedex: StoredPokedex) => {
@@ -170,8 +178,12 @@ export function PokedexCreateEditPanel({ dissmiss, setStoredPokedex, editingPoke
 
 
       <DetailsPokedexHeader>
-        {isEditing ? "Edit Pokedex" : "Create New Pokedex"}
+        {isEditing ? `${editingPokedex.pokedexName}` : "Create New Pokedex"}
       </DetailsPokedexHeader>
+
+      <DetailsSubHeader>
+        Only the name field is modifiable. Please create another pokedex to change the generational filters.
+      </DetailsSubHeader>
 
       <SubHeader>
         Name
@@ -190,14 +202,17 @@ export function PokedexCreateEditPanel({ dissmiss, setStoredPokedex, editingPoke
       <HorizontalBottomRule />
 
       <GenFilterWrapper>
-        <GenFilterSection currentFilter={genFilter} setCurrentFilter={setGenFilter} />
+        <GenFilterSection currentFilter={genFilter} setCurrentFilter={isEditing ? () => { } : setGenFilter} hideToggleAll={isEditing} disableTouchableFeedback={isEditing} />
       </GenFilterWrapper>
 
-      <CreatePokedexButton onPress={createPokedex}>
-        <CreatePokedexButtonText>
-          Create Pokedex
-        </CreatePokedexButtonText>
-      </CreatePokedexButton>
+      {!isEditing &&
+        <CreatePokedexButton onPress={createPokedex}>
+          <CreatePokedexButtonText>
+            Create Pokedex
+          </CreatePokedexButtonText>
+        </CreatePokedexButton>
+      }
+
     </DetailsWrapper>
   </DirectionalSlidingMenu>
 }

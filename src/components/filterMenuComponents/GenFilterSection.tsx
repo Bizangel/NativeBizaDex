@@ -35,19 +35,21 @@ const GenButtonText = styled.Text`
   color: ${colorPalette.textWhite};
 `
 
-export function GenFilterSection({ currentFilter, setCurrentFilter }: {
+export function GenFilterSection({ currentFilter, setCurrentFilter, hideToggleAll, disableTouchableFeedback }: {
   currentFilter: PokeFilter["genFilter"],
   setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter["genFilter"]>>,
+  hideToggleAll?: boolean,
+  disableTouchableFeedback?: boolean,
 }) {
 
   const renderItem: ProgressiveRendererRenderItem<boolean> = useCallback((e, idx) => {
     return <GenButton style={{ borderRadius: 10 }} isActive={e} onPress={() => {
       setCurrentFilter(prev => produce(prev, (draft) => { draft[idx] = !draft[idx]; }));
-    }}>
+    }} activeOpacity={disableTouchableFeedback ? 1 : 0.2} >
       <GenButtonText>Gen {idx + 1}</GenButtonText>
     </GenButton>
   }
-    , [setCurrentFilter])
+    , [setCurrentFilter, disableTouchableFeedback])
 
   return (
     <>
@@ -60,20 +62,23 @@ export function GenFilterSection({ currentFilter, setCurrentFilter }: {
       />
 
       {/* Toggle All Button */}
-      <GenButton onPress={() => {
-        setCurrentFilter((prev) => {
-          if (prev.some(e => e)) { // if one is enabled, disable all
-            return prev.map(_ => false);
-          } else { // disableall
-            return prev.map(_ => true);
-          }
-        })
-      }} style={{ borderRadius: 10 }} isActive={currentFilter.every(e => e)}>
-        <GenButtonText>
-          Toggle All
-        </GenButtonText>
 
-      </GenButton>
+      {!hideToggleAll &&
+        <GenButton onPress={() => {
+          setCurrentFilter((prev) => {
+            if (prev.some(e => e)) { // if one is enabled, disable all
+              return prev.map(_ => false);
+            } else { // disableall
+              return prev.map(_ => true);
+            }
+          })
+        }} style={{ borderRadius: 10 }} isActive={currentFilter.every(e => e)}>
+          <GenButtonText>
+            Toggle All
+          </GenButtonText>
+
+        </GenButton>
+      }
     </>
   )
 }

@@ -1,15 +1,15 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
-import { HorizontalBottomRule, LocalStorageKeys } from "../common/common";
+import { HorizontalBottomRule } from "../common/common";
 import { useState, useCallback } from "react"
 import { Image, useWindowDimensions } from "react-native"
 import { styled } from "styled-components/native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { colorPalette } from "../styles/styles";
 import { PokedexCreateEditPanel } from "../components/selectPokedex/PokedexCreateEditPanel";
-import { useLocalStorage } from "../hooks/useLocalStorage";
 import { StoredPokedex } from "../common/pokeInfo";
 import { generateRangesWithPrefix } from "../util/utils";
+import { useModifyPersistentStorage, usePersistentStorage } from "../localstore/storageHooks";
 
 const Body = styled.View`
   width: 100%;
@@ -93,7 +93,8 @@ const ScrollableDexView = styled(ScrollView).attrs({
 `
 
 export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList, 'SelectPokedexScreen'>) {
-  const [storedPokedexes, setStoredPokedex] = useLocalStorage<StoredPokedex[]>(LocalStorageKeys.STORED_POKEDEX, []);
+  // const storedPokedexes = useGlobalStorage(e => e.selectedPokedex);
+
   // undefined is no menu shown. null is create new pokedex, specify one and it's edit
   const [pokedexDetails, setCurrentPokedexDetails] = useState<StoredPokedex | null | undefined>(undefined);
 
@@ -122,6 +123,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
         <HorizontalBottomRule />
 
         <ScrollableDexView >
+
           {/* Base Pokedex containing all mons */}
           <PokedexCard style={{ width: screenWidth / 3 }}>
             <Image source={require('../icons/globe-icon.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
@@ -132,7 +134,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
 
           {/*  Custom Pokedex */}
 
-          {
+          {/* {
             storedPokedexes.map(e =>
               <PokedexCard style={{ width: screenWidth / 3 }} key={e.pokedexId} onPress={() => { showEditPokedexPanel(e) }}>
                 <Image source={require('../icons/caught_indicator.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
@@ -141,7 +143,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
                 <PokedexNameDisplay> {e.pokedexName} </PokedexNameDisplay>
               </PokedexCard>
             )
-          }
+          } */}
 
         </ScrollableDexView>
 
@@ -154,7 +156,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
 
       </Body>
 
-      {pokedexDetails !== undefined && <PokedexCreateEditPanel dissmiss={dissmissDetails} setStoredPokedex={setStoredPokedex} editingPokedex={pokedexDetails} />}
+      {pokedexDetails !== undefined && <PokedexCreateEditPanel dissmiss={dissmissDetails} setStoredPokedex={() => { }} editingPokedex={pokedexDetails} />}
     </>
 
   )
