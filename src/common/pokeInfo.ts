@@ -71,6 +71,18 @@ export type PokeFilter = {
   baseStatThresholdOperator: "le" | "ge",
 }
 
+
+export enum SortKey {
+  DEX = "Dex Number",
+  ALPHABETICALLY = "Alphabetically",
+  STAT_TOTAL = "Stat Total",
+}
+
+export type PokeSorting = {
+  ascending: boolean,
+  sortKey: "Dex Number" | "Alphabetically" | ""
+}
+
 export type StoredPokedex = {
   pokedexId: string,
   pokedexName: string,

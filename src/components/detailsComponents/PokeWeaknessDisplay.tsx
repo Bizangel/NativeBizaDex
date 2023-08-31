@@ -99,7 +99,6 @@ const findValueToEnum = (x: number) => {
   for (const pair of entries) {
     const [possVal, effectiveness] = pair;
 
-    // console.log(parseFloat(possVal))
     if (Math.abs(parseFloat(possVal) - x) < 0.001) {
       return effectiveness as TypeEffectiveness;
     }
