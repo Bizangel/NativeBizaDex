@@ -132,8 +132,10 @@ const TableTypeLeftColumn = styled.View`
 
 const effectiveness2color: Record<TypeEffectiveness, string> = {
   "0": "black",
+  "1/4": colorPalette.notVeryEffectiveRed,
   "1/2": colorPalette.notVeryEffectiveRed,
   "2": colorPalette.superEffectiveGreen,
+  "4": colorPalette.superEffectiveGreen,
   "1": colorPalette.backgroundBlack,
 }
 

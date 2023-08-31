@@ -6,7 +6,7 @@ import { Image, ImageSourcePropType } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useCallback, useRef } from "react";
 import useTypedNavigation from "../hooks/useTypedNavigation";
-import { usePersistentStorage } from "../localstore/storageHooks";
+import { usePersistentStorage } from "../localstore/storage";
 
 const MainSideMenuHeader = styled.Text`
   color: ${colorPalette.textWhite};
@@ -78,7 +78,9 @@ export type MainSidebarProps = {
 
 function MainSidebar({ dissmissMenu }: MainSidebarProps) {
 
-  const activeDex = usePersistentStorage("selectedPokedex");
+  const activeDex = usePersistentStorage(e => e.selectedPokedex);
+
+
 
   const slidingRef = useRef<DirectionalSlidingMenuRef>(null);
 

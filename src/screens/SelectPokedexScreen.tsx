@@ -9,8 +9,8 @@ import { colorPalette } from "../styles/styles";
 import { PokedexCreateEditPanel } from "../components/selectPokedex/PokedexCreateEditPanel";
 import { StoredPokedex } from "../common/pokeInfo";
 import { generateRangesWithPrefix } from "../util/utils";
-import { useModifyPersistentStorage, usePersistentStorage } from "../localstore/storageHooks";
 import useTypedNavigation from "../hooks/useTypedNavigation";
+import { usePersistentStorage } from "../localstore/storage";
 
 const Body = styled.View`
   width: 100%;
@@ -94,10 +94,11 @@ const ScrollableDexView = styled(ScrollView).attrs({
 `
 
 export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList, 'SelectPokedexScreen'>) {
-  const storedPokedexes = usePersistentStorage("allStoredPokedexes");
-  const currentlyActiveDex = usePersistentStorage("selectedPokedex");
 
-  const selectActiveDexStorage = useModifyPersistentStorage(e => e.changeSelectedPokedex);
+  const storedPokedexes = usePersistentStorage(e => e.allStoredPokedexes);
+  const currentlyActiveDex = usePersistentStorage(e => e.selectedPokedex);
+
+  const selectActiveDexStorage = usePersistentStorage(e => e.changeSelectedPokedex);
   const navigation = useTypedNavigation();
 
   const selectActiveDex = useCallback((val: StoredPokedex | null) => {

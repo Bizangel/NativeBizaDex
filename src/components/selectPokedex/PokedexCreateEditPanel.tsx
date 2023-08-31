@@ -9,7 +9,7 @@ import { colorPalette } from "../../styles/styles"
 import { Image } from "react-native"
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
 import uuid from 'react-native-uuid';
-import { useModifyPersistentStorage } from "../../localstore/storageHooks"
+import { usePersistentStorage } from "../../localstore/storage"
 
 const DetailsWrapper = styled(ScrollView).attrs({
   contentContainerStyle: {
@@ -129,9 +129,9 @@ export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDeta
   const isEditing = editingPokedex !== null;
 
   const slidingMenuRef = useRef<DirectionalSlidingMenuRef>(null);
-  const storeNewPokedex = useModifyPersistentStorage(e => e.storeNewPokedex);
-  const removePokedexByID = useModifyPersistentStorage(e => e.removeStoredPokedexByID);
-  const renameStoredDex = useModifyPersistentStorage(e => e.renameStoredPokedex);
+  const storeNewPokedex = usePersistentStorage(e => e.storeNewPokedex);
+  const removePokedexByID = usePersistentStorage(e => e.removeStoredPokedexByID);
+  const renameStoredDex = usePersistentStorage(e => e.renameStoredPokedex);
 
   const [genFilter, setGenFilter] = useState<PokeFilter["genFilter"]>(editingPokedex ? editingPokedex.genFilter : initialPokefilter.genFilter);
   const [pokedexNameField, setPokedexNameField] = useState(editingPokedex?.pokedexName ?? "");
