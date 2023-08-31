@@ -31,6 +31,7 @@ export const colorPalette = {
 } as const
 
 import { PokeType } from "../types/Pokemon";
+import { TypeEffectiveness } from "../common/pokeInfo";
 
 export const types2color: Record<PokeType, string> = {
   Normal: "rgb(170,170,153)",
@@ -73,3 +74,12 @@ export const types2semiEndColor: Record<PokeType, string> = {
   Steel: "rgb(203, 203, 223)",
   Fairy: "rgb(238, 177, 238)"
 } as const
+
+export const effectiveness2color: Record<TypeEffectiveness, string> = {
+  "0": "black",
+  "1/4": colorPalette.notVeryEffectiveRed,
+  "1/2": colorPalette.notVeryEffectiveRed,
+  "2": colorPalette.superEffectiveGreen,
+  "4": colorPalette.superEffectiveGreen,
+  "1": colorPalette.backgroundBlack,
+}

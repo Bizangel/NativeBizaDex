@@ -1,12 +1,12 @@
 import { styled } from "styled-components/native";
 import { RootStackParamList } from "../App";
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colorPalette, types2color } from "../styles/styles";
+import { colorPalette, effectiveness2color, types2color } from "../styles/styles";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { useCallback, useRef } from "react"
 import { Image, NativeSyntheticEvent, NativeScrollEvent } from "react-native"
 import useTypedNavigation from "../hooks/useTypedNavigation";
-import { PokemonTypes, TypeChart, TypeEffectiveness } from "../common/pokeInfo";
+import { PokemonTypes, TypeChart } from "../common/pokeInfo";
 import { ProgressiveRenderer, ProgressiveRendererRenderItem } from "../common/ProgressiveRenderer";
 import { PokeType } from "../types/Pokemon";
 
@@ -129,15 +129,6 @@ const TableTypeLeftColumn = styled.View`
   display: flex;
   flex-direction: column;
 `
-
-const effectiveness2color: Record<TypeEffectiveness, string> = {
-  "0": "black",
-  "1/4": colorPalette.notVeryEffectiveRed,
-  "1/2": colorPalette.notVeryEffectiveRed,
-  "2": colorPalette.superEffectiveGreen,
-  "4": colorPalette.superEffectiveGreen,
-  "1": colorPalette.backgroundBlack,
-}
 
 function TypeChartScreen(_: NativeStackScreenProps<RootStackParamList, 'TypeChartScreen'>) {
 

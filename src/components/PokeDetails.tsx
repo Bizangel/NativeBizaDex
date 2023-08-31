@@ -265,11 +265,14 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx 
 
                   <DexNameAndDescription pokemon={pokemon} />
                   <PokeStatsDisplay stats={pokemon.baseStats} />
+
+                  <PokeWeaknessDisplay pokeTypes={pokemon.type} />
+
                   <AbilityDisplayBox abilitiesId={pokemon.abilitiesId}
                     hiddenAbilityId={pokemon.hiddenAbility} />
                   <EvoTreeDisplay pokemon={pokemon} switchPoke={switchPoke} />
 
-                  <PokeWeaknessDisplay pokeTypes={pokemon.type} />
+
 
                 </ScrollableDetails>
               </ScrollableDetailsWrapperContent>
