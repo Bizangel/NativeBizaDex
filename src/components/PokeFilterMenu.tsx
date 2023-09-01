@@ -12,6 +12,7 @@ import { isEqual as deepEqual } from "lodash"
 import { MegaFilter, PokeFilter, initialPokefilter } from "../common/pokeInfo"
 import { OpacitySpawn, TextInputWithBlurOnHide } from "../common/common"
 import { usePersistentStorage } from "../localstore/storage"
+import { usePokedataStore } from "../actions/pokedata"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
@@ -167,22 +168,18 @@ const ClearFilterButtonText = styled.Text`
 `
 
 export type PokeFilterMenuProps = {
-  currentFilter: PokeFilter,
-  setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
-
   dismissLayout: () => void,
-  amountFiltered: number,
 }
 
-export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setCurrentFilter: setCurrentGlobalAppliedFilter, dismissLayout, amountFiltered }: PokeFilterMenuProps) {
+function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
   const scrollRef = useRef<ScrollView>(null);
-  const activeDex = usePersistentStorage(e => e.selectedPokedex);
+  const activeDex = usePersistentStorage(e => e.activePokedex);
+
+  const currentGlobalAppliedFilter = usePokedataStore(e => e.currentPokeFilter);
+  const setCurrentGlobalAppliedFilter = usePokedataStore(e => e.setCurrentPokefilter)
+  const amountFiltered = usePokedataStore(e => e.currentFilteredPokemon.length)
 
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(currentGlobalAppliedFilter);
-
-  // const applyFilter = useCallback(() => {
-  //   setCurrentGlobalAppliedFilter(currentFilter)
-  // }, [currentFilter, setCurrentGlobalAppliedFilter])
 
   useEffect(() => {
     setCurrentGlobalAppliedFilter(currentFilter)
@@ -365,3 +362,5 @@ export function PokeFilterMenu({ currentFilter: currentGlobalAppliedFilter, setC
     </DirectionalSlidingMenu>
   )
 }
+
+export default React.memo(PokeFilterMenu) as typeof PokeFilterMenu;

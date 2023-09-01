@@ -75,14 +75,13 @@ const PokenameDisplay = styled.Text`
   text-shadow: 1px 1px 2px rgba(0,0,0,.7);
 `
 
-const PokeCard = memo(({ pokemon, setSelectedPokemon }: { pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void }) => {
+const PokeCard = memo(({ pokemon, onPress }: { pokemon: Pokemon, onPress: (cardPoke: Pokemon) => void }) => {
   const dimension = useWindowDimensions();
 
   return (
     <CardWrapper style={[{ width: dimension.width / 2 }]}>
-
       <RectButton
-        onPress={() => { setSelectedPokemon(pokemon); }}
+        onPress={() => { onPress(pokemon); }}
         underlayColor="black" foreground={true} style={{ backgroundColor: "black" }} rippleColor="black">
         <ActualCard colors={getPokegradientColorFromTypes(pokemon.type)} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
           <DexNumber>#{pokemon.nationalDexNumber}</DexNumber>

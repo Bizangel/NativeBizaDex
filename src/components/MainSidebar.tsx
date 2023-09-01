@@ -78,7 +78,7 @@ export type MainSidebarProps = {
 
 function MainSidebar({ dissmissMenu }: MainSidebarProps) {
 
-  const activeDex = usePersistentStorage(e => e.selectedPokedex);
+  const activeDex = usePersistentStorage(e => e.activePokedex);
 
 
 

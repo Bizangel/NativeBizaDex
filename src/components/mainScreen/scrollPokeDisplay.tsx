@@ -7,9 +7,10 @@ import { FlashList, ListRenderItem } from "@shopify/flash-list"
 import { Pokemon } from "../../types/Pokemon"
 import PokeCard from "../PokeCard"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
-import { PokeFilter, initialPokefilter } from "../../common/pokeInfo"
+import { initialPokefilter } from "../../common/pokeInfo"
 import { isEqual as deepEqual } from "lodash"
 import { clamp } from "../../util/utils"
+import { usePokedataStore } from "../../actions/pokedata"
 
 const FlatListWrapper = styled.View`
   justify-content: center;
@@ -44,16 +45,8 @@ const EmptyDisplay = styled.Text`
 `
 
 export type ScrollPokeDisplayProps = {
-  currentFilter: PokeFilter,
-  setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
-
-  selectedPokemon: Pokemon | null,
-  setSelectedPokemon: React.Dispatch<React.SetStateAction<Pokemon | null>>,
-
   onBurgerBarPress: () => void,
   onTopFilterPress: () => void,
-
-  currentData: Pokemon[],
 }
 
 
@@ -61,33 +54,34 @@ const topBarHeightPx = 50;
 
 
 // this will be re-rendering due to scroll so keep that in mind due to performance reasons
-function ScrollPokeDisplay({
-  currentFilter, setCurrentFilter, currentData,
-  selectedPokemon, setSelectedPokemon,
-  onBurgerBarPress, onTopFilterPress
-}: ScrollPokeDisplayProps) {
+function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDisplayProps) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+
+  const currentlyFilteredPokemon = usePokedataStore(e => e.currentFilteredPokemon);
+  const currentPokefilter = usePokedataStore(e => e.currentPokeFilter);
+  const setCurrentlySelectedpokemon = usePokedataStore(e => e.setSelectedPokemon);
+  const updateCurrentSearchFilter = usePokedataStore(e => e.setTextSearchPokefilter);
+  const selectedPokemon = usePokedataStore(e => e.selectedPokemon);
 
   const flashListRef = useRef<FlashList<Pokemon>>(null);
   const [isDraggingFastScroll, setIsDraggingFastScroll] = useState(false);
   const scrollTopValue = useRef(new Animated.Value(topBarHeightPx)).current;
 
+  const onPokecardPress = useCallback((x: Pokemon) => {
+    setCurrentlySelectedpokemon(x)
+  }, [setCurrentlySelectedpokemon])
+
   const renderPokecard: ListRenderItem<Pokemon> = useCallback(({ item }) => {
     // @ts-ignore // this is too complex for some reason?
-    return <PokeCard pokemon={item} setSelectedPokemon={setSelectedPokemon} />;
-  }, [setSelectedPokemon])
-
-  const updateCurrentSearchFilter = useCallback((x: string) => {
-    setCurrentFilter(e => { return { ...e, searchString: x } })
-  }, [setCurrentFilter])
-
-  const hasFilterChangedExceptSearch = !deepEqual(currentFilter, { ...initialPokefilter, searchString: currentFilter.searchString });
-
+    return <PokeCard pokemon={item} onPress={onPokecardPress} />;
+  }, [onPokecardPress])
 
   // every time filter changes, scroll to top
   useEffect(() => {
     flashListRef.current?.scrollToIndex({ animated: true, index: 0 })
-  }, [currentFilter])
+  }, [currentlyFilteredPokemon])
+
+  const hasFilterChangedExceptSearch = !deepEqual(currentPokefilter, { ...initialPokefilter, searchString: currentPokefilter.searchString });
 
   const onNormalFlashListScroll = useCallback((ev: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (isDraggingFastScroll) // no need to sync
@@ -101,15 +95,14 @@ function ScrollPokeDisplay({
 
 
   // automatically scroll to selected pokemon, should it be available in the list
-  // if not available, well we don't really care.
   useEffect(() => {
     if (!selectedPokemon)
       return;
 
-    const foundIndex = currentData.map(e => e.id).indexOf(selectedPokemon.id)
+    const foundIndex = currentlyFilteredPokemon.map(e => e.id).indexOf(selectedPokemon.id)
     if (foundIndex !== -1)
       flashListRef.current?.scrollToIndex({ animated: true, index: foundIndex, viewPosition: 0 });
-  }, [selectedPokemon, currentData])
+  }, [selectedPokemon, currentlyFilteredPokemon])
 
   const draggableScrollbarGesture = Gesture.Pan().onBegin(() => {
     setIsDraggingFastScroll(true);
@@ -118,7 +111,7 @@ function ScrollPokeDisplay({
 
     const scrollProgress = scrollVal / (screenHeight - draggableScrollbarHeight - topBarHeightPx);
 
-    const scrollToIndex = Math.round(scrollProgress * (currentData.length - 1));
+    const scrollToIndex = Math.round(scrollProgress * (currentlyFilteredPokemon.length - 1));
 
     scrollTopValue.setValue(scrollVal + topBarHeightPx);
 
@@ -130,7 +123,7 @@ function ScrollPokeDisplay({
 
   return (
     <FlatListWrapper>
-      <TopBar currentSearch={currentFilter.searchString} setCurrentSearch={updateCurrentSearchFilter}
+      <TopBar currentSearch={currentPokefilter.searchString} setCurrentSearch={updateCurrentSearchFilter}
         onFilterPress={onTopFilterPress}
         onBurgerBarPress={onBurgerBarPress}
         displayFilterIndicator={hasFilterChangedExceptSearch} />
@@ -141,12 +134,12 @@ function ScrollPokeDisplay({
         numColumns={2}
         estimatedItemSize={screenWidth / 2}
         renderItem={renderPokecard}
-        data={currentData}
+        data={currentlyFilteredPokemon}
         extraData={[updateCurrentSearchFilter, onTopFilterPress]} // basically, dependency props of flatlist
       />
 
       {
-        currentData.length === 0 &&
+        currentlyFilteredPokemon.length === 0 &&
         <EmptyDisplay>
           No pokemon match your current query. Try adjusting your search / filter.
         </EmptyDisplay>

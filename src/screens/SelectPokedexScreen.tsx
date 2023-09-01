@@ -96,7 +96,7 @@ const ScrollableDexView = styled(ScrollView).attrs({
 export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList, 'SelectPokedexScreen'>) {
 
   const storedPokedexes = usePersistentStorage(e => e.allStoredPokedexes);
-  const currentlyActiveDex = usePersistentStorage(e => e.selectedPokedex);
+  const currentlyActiveDex = usePersistentStorage(e => e.activePokedex);
 
   const selectActiveDexStorage = usePersistentStorage(e => e.changeSelectedPokedex);
   const navigation = useTypedNavigation();

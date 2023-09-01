@@ -5,7 +5,7 @@ import { persist, createJSONStorage } from "zustand/middleware"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface LocalStorageState {
-  selectedPokedex: StoredPokedex | null, // null means global pokedex
+  activePokedex: StoredPokedex | null, // null means global pokedex
 
   allStoredPokedexes: StoredPokedex[],
 }
@@ -21,13 +21,13 @@ export interface LocalStorageFunctions {
 export const usePersistentStorage = create<LocalStorageState & LocalStorageFunctions>()(
   persist(
     (set, get) => ({
-      selectedPokedex: null,
+      activePokedex: null,
       allStoredPokedexes: [],
 
       sampleState: 0,
 
       changeSelectedPokedex: (x: StoredPokedex | null) => {
-        set({ selectedPokedex: x })
+        set({ activePokedex: x })
       },
 
       storeNewPokedex: (x: StoredPokedex) => {
@@ -35,8 +35,8 @@ export const usePersistentStorage = create<LocalStorageState & LocalStorageFunct
       },
 
       removeStoredPokedexByID: (id: string) => {
-        if (get().selectedPokedex?.pokedexId === id) {
-          set({ selectedPokedex: null }); // unselect pokedex if deleting that one.
+        if (get().activePokedex?.pokedexId === id) {
+          set({ activePokedex: null }); // unselect pokedex if deleting that one.
         }
 
         set({ allStoredPokedexes: get().allStoredPokedexes.filter(e => e.pokedexId !== id) })
@@ -51,8 +51,8 @@ export const usePersistentStorage = create<LocalStorageState & LocalStorageFunct
 
         // if renaming that one, also re-select with updated name
         const postUpdate = get();
-        if (postUpdate.selectedPokedex?.pokedexId === pokedexId) {
-          set({ selectedPokedex: postUpdate.allStoredPokedexes.find(e => e.pokedexId === pokedexId) }); // unselect pokedex if deleting that one.
+        if (postUpdate.activePokedex?.pokedexId === pokedexId) {
+          set({ activePokedex: postUpdate.allStoredPokedexes.find(e => e.pokedexId === pokedexId) }); // unselect pokedex if deleting that one.
         }
       },
     }),

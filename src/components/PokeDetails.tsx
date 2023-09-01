@@ -1,7 +1,7 @@
 import { styled } from "styled-components/native";
 import { Pokemon } from "../types/Pokemon";
 import { GestureDetector, Gesture, ScrollView, Directions, TouchableOpacity } from "react-native-gesture-handler";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Animated, Image } from "react-native";
 import pokeImages from "../assets/pokeImages";
 import { types2color } from "../styles/styles";
@@ -12,6 +12,7 @@ import { AbilityDisplayBox } from "./detailsComponents/abilitiesDisplay";
 import useActiveRoutes from "../hooks/useActiveRoutes";
 import { EvoTreeDisplay } from "./detailsComponents/EvoTreeDisplay";
 import PokeWeaknessDisplay from "./detailsComponents/PokeWeaknessDisplay";
+import { usePokedataStore } from "../actions/pokedata";
 
 const FullWrapper = styled(Animated.View)`
   position: absolute;
@@ -97,15 +98,13 @@ const RightButton = styled(LeftButton)`
 
 const hideVelocityThreshold = 2; // how "hard" it needs to be dragged down for it to be hidden
 const switchVelocityThreshold = 1.5;
-
 const switchAnimDurationMs = 350;
 
+function PokeDetails({ pokemon }: { pokemon: Pokemon }) {
+  const setSelectedPokemon = usePokedataStore(e => e.setSelectedPokemon);
+  const currentFilteredPokemon = usePokedataStore(e => e.currentFilteredPokemon);
+  const dataIdx = useMemo(() => currentFilteredPokemon.findIndex(e => e.id === pokemon.id) ?? 0, [currentFilteredPokemon, pokemon])
 
-export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx }: {
-  pokemon: Pokemon, setSelectedPokemon: (x: Pokemon | null) => void,
-  fullDataRef: Pokemon[],
-  dataIdx: number,
-}) {
   // used only for anim purposes
   const [pokeSwitchInfo, setPokeSwitchInfo] = useState<{ originPokeColor: string, targetPokeColor: string } | null>(null);
 
@@ -161,7 +160,7 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx 
 
   // func to Switch Currently Selected pokemon, applying proper animations
   const switchPoke = (newPoke: Pokemon) => {
-    let newIdx = fullDataRef.map(e => e.id).indexOf(newPoke.id);
+    let newIdx = currentFilteredPokemon.map(e => e.id).indexOf(newPoke.id);
     if (newIdx === -1)
       newIdx = 0; // if for some reason doesn't exist, just choose first
 
@@ -195,8 +194,8 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx 
     });
   }
 
-  const switchToNextPoke = () => { if (fullDataRef[dataIdx + 1]) switchPoke(fullDataRef[dataIdx + 1]) }
-  const switchToPreviousPoke = () => { if (fullDataRef[dataIdx - 1]) switchPoke(fullDataRef[dataIdx - 1]) }
+  const switchToNextPoke = () => { if (currentFilteredPokemon[dataIdx + 1]) switchPoke(currentFilteredPokemon[dataIdx + 1]) }
+  const switchToPreviousPoke = () => { if (currentFilteredPokemon[dataIdx - 1]) switchPoke(currentFilteredPokemon[dataIdx - 1]) }
 
   // Hide layout when flinged downwards or background is tapped
   const backgroundTap = Gesture.Tap().onStart(() => { hideLayout(); })
@@ -235,7 +234,7 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx 
                 }
 
                 {
-                  dataIdx < fullDataRef.length - 1 &&
+                  dataIdx < currentFilteredPokemon.length - 1 &&
                   <ArrowButtonWrapper style={{ right: 10, left: undefined }}>
                     <TouchableOpacity activeOpacity={1} style={{ opacity: 0.5 }} onPress={switchToNextPoke}>
                       <RightButton source={require('../icons/leftarrow.png')} resizeMode="contain" />
@@ -284,3 +283,5 @@ export function PokeDetails({ pokemon, setSelectedPokemon, fullDataRef, dataIdx 
 
   )
 }
+
+export default React.memo(PokeDetails) as typeof PokeDetails;
