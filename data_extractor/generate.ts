@@ -3,6 +3,7 @@ import { load as cheerioLoad } from 'cheerio';
 import { getIdFromHref, getPokeIdFromImageUrl, handleIdExceptions, parseEvolveTree, lowercaseAZNormalize } from './utils';
 import { Ability, AbilitySchema, BaseStat, BaseStatName, PokeType, Pokemon, PokemonSchema } from '../src/types/Pokemon';
 import fs from "fs";
+import CliProgress from "cli-progress"
 
 const excludedPokemonId = new Set(["eternatus-eternamax"]); // ensure to exclude so that everything is valid ! (don't exclude an evo and forget to exclude its prevo)
 
@@ -229,7 +230,7 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon[]> {
   }
 }
 
-async function fetchAllPokes() {
+async function fetchAllPokes(multiBar: CliProgress.MultiBar) {
   const dexMapping = await getDexMappingToURL()
 
   let prevPokemon: Pokemon[] = [];
@@ -241,9 +242,16 @@ async function fetchAllPokes() {
 
   let allhrefs = Array.from(dexMapping.values())
 
+  const pokeProgressBar = multiBar.create(allhrefs.length, 0, { barDisplay: "Downloading Pokemon  ".padEnd(20, ' ') })
+  const getPokemonFromUrlWithTick = async (e: string) => {
+    const res = await getPokemonFromUrl(e)
+    pokeProgressBar.increment();
+    return res;
+  }
+
   allhrefs = allhrefs.filter(e => !pokeUrlsAlreadyDownloaded.has(e)); // avoid redownloads
   const pokeResult = await Promise.all(
-    allhrefs.map(e => getPokemonFromUrl(e))
+    allhrefs.map(e => getPokemonFromUrlWithTick(e))
   )
 
   const toWritePokeResult = [...pokeResult.flat(), ...prevPokemon];
@@ -282,7 +290,7 @@ async function fetchAndParseAbility(abilityId: string): Promise<Ability> {
   }
 }
 
-async function fetchAllAbilities() {
+async function fetchAllAbilities(multiBar: CliProgress.MultiBar) {
   // check if some abilities have been fetched to avoid duplication.
   let prevAbilities: Ability[] = [];
   if (fs.existsSync("./src/assets/abilities.json")) {
@@ -304,8 +312,15 @@ async function fetchAllAbilities() {
   // remove already fetched abilities
   allAbilities = allAbilities.filter(e => !alreadyFetchedAbilities.has(e));
 
+  const abilityProgressBar = multiBar.create(allAbilities.length, 0, { barDisplay: "Downloading Abilities".padEnd(20, ' ') })
+  const fetchAndParseAbilityWithTick = async (e: string) => {
+    const res = fetchAndParseAbility(e);
+    abilityProgressBar.increment();
+    return res;
+  }
+
   let abilityResult = await Promise.all(
-    allAbilities.map(e => fetchAndParseAbility(e))
+    allAbilities.map(e => fetchAndParseAbilityWithTick(e))
   )
 
   abilityResult = [...abilityResult, ...prevAbilities]; // mix with previous abilities
@@ -315,27 +330,6 @@ async function fetchAllAbilities() {
 
   fs.writeFileSync('./src/assets/abilities.json', JSON.stringify(abilityResult.flat()))
 }
-
-
-// async function downloadAllPokeImages() {
-//   const pokemonJSON = JSON.parse(fs.readFileSync('./src/assets/pokemon.json').toString()) as Pokemon[];
-
-//   // create poke image folder if it doesn't exist.
-//   if (!fs.existsSync('./src/assets/pokeimages')) {
-//     fs.mkdirSync('./src/assets/pokeimages')
-//   }
-
-//   const downloadPokeImage = async (poke: Pokemon) => {
-//     const filename = getIdFromHref(poke.imageUrl);
-//     const targetPath = `./src/assets/pokeimages/${filename}`
-//     if (fs.existsSync(targetPath))
-//       return;
-
-//     await downloadImage(poke.imageUrl, targetPath, true)
-//   }
-
-//   await Promise.all(pokemonJSON.map(e => downloadPokeImage(e)));
-// }
 
 function verifyDataIntegrity() {
   if (!fs.existsSync('./src/assets/abilities.json'))
@@ -386,15 +380,6 @@ function verifyDataIntegrity() {
         throw new Error(`Invalid evo doesn't exist: ${e.pokeId}`)
       }
     })
-
-    // check that there's no repeated evo targets
-    // NVM there's actually multiple ways to evolve to same poke so not bad.
-    // Object.entries(evoTree).forEach(([prevo, targetEvos]) => {
-    //   const ids = targetEvos.map(e => e.pokeId);
-
-    //   if (ids.length !== (new Set(ids)).size)
-    //     throw new Error(`Duplicates found in evo targets: ${prevo} -> ${ids}`)
-    // })
   })
 
   // check that ids and displays names are consistent.
@@ -418,10 +403,20 @@ async function main() {
     fs.mkdirSync('./src/assets')
   }
 
+  // create new container
+  const pokeBarProgress = new CliProgress.MultiBar({
+    clearOnComplete: false,
+    hideCursor: true,
+    format: '{barDisplay} {bar} | {value}/{total} Pokemon | Elapsed: {duration_formatted} | Eta: {eta_formatted}',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+  });
 
-  await Promise.all([fetchAllPokes(), fetchAllAbilities()]);
+  await Promise.all([fetchAllPokes(pokeBarProgress), fetchAllAbilities(pokeBarProgress)]);
+  pokeBarProgress.stop();
 
-  verifyDataIntegrity();
+  verifyDataIntegrity(); // if didn't throw error
+  console.log("Successfully downloaded and generate data. Proceed to run npm imagegen")
 }
 
 
