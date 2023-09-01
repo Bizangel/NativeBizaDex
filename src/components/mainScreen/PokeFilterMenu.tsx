@@ -44,7 +44,19 @@ const IncludeMegasButton = styled(TouchableOpacity) <{ megaFilter: MegaFilter }>
   background-color: ${p => p.megaFilter === MegaFilter.OnlyMega ? "#e8578e" : p.megaFilter === MegaFilter.IncludeMegas ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
 `
 
+const ToggleVariantButton = styled(TouchableOpacity) <{ active: boolean }>`
+  margin-top: 10px;
+  padding: 5px;
+  width: 120px;
+  border-radius: 10px;
+  background-color: ${p => p.active ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
+`
 
+const ToggleVariantsButtonText = styled.Text`
+  font-size: 12px;
+  color: ${colorPalette.textWhite};
+  text-align: center;
+`
 
 const FilteredCountWrapper = styled.View`
   width: 25%;
@@ -179,9 +191,12 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
   const currentGlobalAppliedFilter = usePokedataStore(e => e.currentPokeFilter);
   const setCurrentGlobalAppliedFilter = usePokedataStore(e => e.setCurrentPokefilter)
   const amountFiltered = usePokedataStore(e => e.currentFilteredPokemon.length)
-  const clearPokefilters = usePokedataStore(e => e.clearPokefilter);
 
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(currentGlobalAppliedFilter);
+  const clearPokeFilters = useCallback(() => {
+    setCurrentFilter(prev => ({ ...initialPokefilter, searchString: prev.searchString }))
+  }, [setCurrentFilter])
+
 
   // every time local filter changes, update global. This is done this way so maybe in the future if filters grow too complex to create an "apply filter" button.
   useEffect(() => {
@@ -194,6 +209,14 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
       scrollRef.current?.scrollToEnd({ animated: false })
     }, 50)
   })
+
+  // for filtering logic, it doesn't really matter, but clarifying this is good for UX.
+  // whenever pokevariants are hidden, disable show megas, if show megas are enable, enable pokevariants.
+  useEffect(() => {
+    if (currentFilter.hideVariants && currentFilter.displayMegas !== MegaFilter.NoMega) {
+      setCurrentFilter(prev => ({ ...prev, displayMegas: MegaFilter.NoMega }))
+    }
+  }, [currentFilter])
 
   // this actually works, and not as complex as I though before.
   const setCurrentGenFilter: React.Dispatch<React.SetStateAction<PokeFilter["genFilter"]>> = useCallback((newVal) => {
@@ -262,8 +285,10 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
         </FilterSectionHeader>
         <HorizontalBottomRule />
 
-        <IncludeMegasButton megaFilter={currentFilter.displayMegas}
-          onPress={() => {
+        <IncludeMegasButton
+          activeOpacity={currentFilter.hideVariants ? 1 : 0.2} // disable touch feedback if hidden as if disabled.
+          megaFilter={currentFilter.displayMegas}
+          onPress={!currentFilter.hideVariants ? () => {
             setCurrentFilter(prev => {
               // cycle
               if (prev.displayMegas === MegaFilter.IncludeMegas) {
@@ -282,9 +307,20 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
                 displayMegas: MegaFilter.IncludeMegas,
               }
             })
-          }}>
+          } : undefined
+          }>
           <IncludeMegaText>{currentFilter.displayMegas}</IncludeMegaText>
         </IncludeMegasButton>
+
+        <ToggleVariantButton active={!currentFilter.hideVariants} onPress={() => {
+          setCurrentFilter(prev => produce(prev, draft => {
+            draft.hideVariants = !prev.hideVariants;
+          }))
+        }}>
+          <ToggleVariantsButtonText style={{ fontSize: !currentFilter.hideVariants ? 15 : 12 }}>
+            {currentFilter.hideVariants ? "Hidden PokeVariants (Megas, Regional, Costumes, etc)" : "Showing Pokevariants"}
+          </ToggleVariantsButtonText>
+        </ToggleVariantButton>
 
         <BaseStatThresholdWrapper>
           <BaseStatTextDisplay>
@@ -348,7 +384,7 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
 
       {hasFilterChanged &&
         <ClearFilterButtonWrapper spawnDuration={200}>
-          <TouchableOpacity style={{ backgroundColor: undefined }} onPress={clearPokefilters}>
+          <TouchableOpacity style={{ backgroundColor: undefined }} onPress={clearPokeFilters}>
             <ClearFilterButtonText>
               Clear Filters
             </ClearFilterButtonText>

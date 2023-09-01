@@ -45,7 +45,8 @@ export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter, active
     }
   }
 
+  const filteredByVariants = filters.hideVariants ? filteredByThreshold.filter(e => e.variantIndex === 0) : filteredByThreshold
 
-  return sortPokemon(filteredByThreshold, sortCriteria);
+  return sortPokemon(filteredByVariants, sortCriteria);
 }
 

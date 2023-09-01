@@ -57,7 +57,7 @@ export type TypeEffectiveness = "1/2" | "1" | "2" | "0" | "1/4" | "4"
 
 export enum MegaFilter {
   NoMega = "No Mega Evolutions",
-  IncludeMegas = "Include Mega Evolutions",
+  IncludeMegas = "Showing Mega Evolutions",
   OnlyMega = "Only Mega Evolutions",
 }
 
@@ -66,6 +66,7 @@ export type PokeFilter = {
   typesFilter: Record<PokeType, boolean>,
   genFilter: boolean[],
   displayMegas: MegaFilter,
+  hideVariants: boolean,
 
   baseStatThreshold: number | undefined,
   baseStatThresholdOperator: "le" | "ge",
@@ -106,7 +107,7 @@ const initialTypeFilter = Object.fromEntries(PokemonTypes.map(e => [e, true])) a
 
 export const initialPokefilter: PokeFilter = {
   searchString: "", typesFilter: initialTypeFilter, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
-  baseStatThreshold: undefined, baseStatThresholdOperator: "ge",
+  baseStatThreshold: undefined, baseStatThresholdOperator: "ge", hideVariants: false,
 }
 
 export const initialPokeSort: PokeSorting = {

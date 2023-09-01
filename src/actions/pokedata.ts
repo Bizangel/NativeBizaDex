@@ -14,15 +14,12 @@ interface PokedataStore {
   setTextSearchPokefilter: (x: string) => void,
   setCurrentPokefilter: (x: PokeFilter) => void,
 
-  clearPokefilter: () => void,
-
   setCurrentSortingKey: (key: PokeSortKey) => void,
-  toggleAscendingSorting: () => void,
 
   resetToDefaultSorting: () => void,
 }
 
-export const usePokedataStore = create<PokedataStore>()((set, _get) => ({
+export const usePokedataStore = create<PokedataStore>()((set, get) => ({
   currentPokeFilter: initialPokefilter,
   currentFilteredPokemon: allPokemon,
   selectedPokemon: null,
@@ -41,19 +38,21 @@ export const usePokedataStore = create<PokedataStore>()((set, _get) => ({
     set({ currentPokeFilter: x })
   },
 
+  togglePokevariantsFilter: () => {
+    set(prev => produce(prev, draft => {
+      draft.currentPokeFilter.hideVariants = !get().currentPokeFilter.hideVariants
+    }))
+  },
+
+
   setCurrentSortingKey: (key) => {
     set(prev => produce(prev, draft => {
       draft.currentSorting.sortKey = key;
     }))
   },
 
-  toggleAscendingSorting: () => {
-    set(prev => produce(prev, draft => {
-      draft.currentSorting.ascending = !prev.currentSorting.ascending;
-    }))
-  },
-
   resetToDefaultSorting: () => { set({ currentSorting: initialPokeSort }) },
 
-  clearPokefilter: () => { set({ currentPokeFilter: initialPokefilter }) }
+
+
 }))
