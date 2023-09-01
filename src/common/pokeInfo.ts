@@ -76,6 +76,13 @@ export enum PokeSortKey {
   DEX = "Dex Number",
   ALPHABETICALLY = "Name Alphabetically",
   STAT_TOTAL = "Stat Total",
+
+  HP_STAT = "Health Stat",
+  ATK_STAT = "Attack Stat",
+  DEF_STAT = "Defense Stat",
+  SPA_STAT = "Special Attack Stat",
+  SPD_STAT = "Special Defense Stat",
+  SPE_STAT = "Speed Stat",
 }
 
 export type PokeSorting = {
