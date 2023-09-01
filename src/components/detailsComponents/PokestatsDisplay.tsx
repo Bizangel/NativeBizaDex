@@ -29,8 +29,6 @@ const PokeStatRow = styled.View`
   flex-direction: row;
 
   align-items: center;
-
-  /* background-color: yellow; */
 `
 
 const PokeStatNameDisplay = styled.Text`
@@ -40,8 +38,6 @@ const PokeStatNameDisplay = styled.Text`
 
   text-align: right;
   padding-right: 5px;
-
-  /* background-color: skyblue; */
 `
 
 const PokeStatValueDisplay = styled.Text`
@@ -78,6 +74,7 @@ const statDisplayName: Record<BaseStatName, string> = {
   spd: "Sp. Defense",
   spe: "Speed",
 }
+
 // we consider 200 to be max stat for practical bar purposes.
 const getStatWidth = (statVal: number): DimensionValue => `${clamp(statVal / 2, 0, 100)}%`
 

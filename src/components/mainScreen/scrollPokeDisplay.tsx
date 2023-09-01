@@ -1,6 +1,6 @@
 import { styled } from "styled-components/native"
 import { colorPalette } from "../../styles/styles"
-import TopBar from "../TopBar"
+import TopBar from "./TopBar"
 import { useCallback, useEffect, useRef, memo, useState } from "react"
 import { useWindowDimensions, Animated, NativeSyntheticEvent, NativeScrollEvent } from "react-native"
 import { FlashList, ListRenderItem } from "@shopify/flash-list"
@@ -25,7 +25,6 @@ const DraggableScrollbar = styled(Animated.View) <{ isBeingDragged: boolean }>`
   position: absolute;
 
   background-color: ${p => p.isBeingDragged ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0)"};
-  /* background-color: rgba(255,255,255,0.3); */
 
   right: 0;
 
@@ -49,9 +48,7 @@ export type ScrollPokeDisplayProps = {
   onTopFilterPress: () => void,
 }
 
-
 const topBarHeightPx = 50;
-
 
 // this will be re-rendering due to scroll so keep that in mind due to performance reasons
 function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDisplayProps) {
@@ -89,7 +86,6 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDis
 
 
     const scrollProgress = ev.nativeEvent.contentOffset.y / (ev.nativeEvent.contentSize.height - ev.nativeEvent.layoutMeasurement.height);
-
     scrollTopValue.setValue(scrollProgress * (ev.nativeEvent.layoutMeasurement.height - draggableScrollbarHeight) + topBarHeightPx);
   }, [isDraggingFastScroll, scrollTopValue])
 

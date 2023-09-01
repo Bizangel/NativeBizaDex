@@ -22,8 +22,6 @@ const GenButton = styled(TouchableOpacity) <{ isActive: boolean }>`
 
   background-color: ${p => p.isActive ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
 
-  /* opacity: ${p => p.isActive ? 1 : 0.3}; */
-
   display: flex;
   justify-content: center;
   align-items: center;

@@ -5,7 +5,7 @@ import { Image, View } from "react-native"
 import pokeImages from "../../assets/pokeImages"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { pokeMapping } from "../../common/pokeInfo"
-import { ValueOf, findEvotreeStartingNodes } from "../../util/utils"
+import { findEvotreeStartingNodes, splitIntoThrees } from "../../util/utils"
 import React, { useCallback } from "react"
 
 const FullEvotreeCenteredWrapper = styled.View`
@@ -31,12 +31,11 @@ const EvotreeDisplayWrapper = styled.View`
   align-items: center;
 
   flex-wrap: wrap;
-  /* justify-content: center; */
 `
 
 
 const EvoTransitionWrapper = styled.View`
-  /* background-color: blue; */
+
 `
 
 const EvoTransitionTextDisplay = styled.Text`
@@ -127,21 +126,12 @@ function EvoPokeSquareDisplay({ pokeId, switchPokeRef }: { pokeId: string, switc
 
 const evoLengthToArrowIndices = [[], [0], [-1, 1], [-1, 0, 1]] as const;
 
-function EvoRecDisplay({ targetPokeID, fullEvoTreeRef, switchPokeRef }:
-  { targetPokeID: string, fullEvoTreeRef: Pokemon["evoTree"], switchPokeRef: (x: Pokemon) => void }) {
-
+function EvoRecDisplay({ targetPokeID, fullEvoTreeRef, switchPokeRef }: { targetPokeID: string, fullEvoTreeRef: Pokemon["evoTree"], switchPokeRef: (x: Pokemon) => void }) {
   const differentEvos = fullEvoTreeRef[targetPokeID]
   if (differentEvos === undefined) // that one doesn't evolve, return last
-    return <EvoPokeSquareDisplay pokeId={targetPokeID} switchPokeRef={switchPokeRef} />
+    return (<EvoPokeSquareDisplay pokeId={targetPokeID} switchPokeRef={switchPokeRef} />)
 
-  const SplittedTrees: (ValueOf<Pokemon["evoTree"]>)[] = [[]];
-
-  differentEvos.forEach((ele) => {
-    if (SplittedTrees.at(-1)?.length === 3)
-      SplittedTrees.push([ele])// add to new
-    else
-      SplittedTrees.at(-1)?.push(ele)
-  })
+  const SplittedTrees = splitIntoThrees(differentEvos);
 
   // it has evolution, render all evolutions
   return (
@@ -178,12 +168,12 @@ const EvoTreeDoesNotEvolveText = styled.Text`
   color: ${colorPalette.textWhite};
 `
 
-function EvoTreeDisplayNonMemod({ pokemon, switchPoke }: { pokemon: Pokemon, switchPoke: (x: Pokemon) => void }) {
+function EvoTreeDisplayNonMemod({ pokemon, onPokecardPress }: { pokemon: Pokemon, onPokecardPress: (x: Pokemon) => void }) {
 
   const switchPokeRef = useCallback((x: Pokemon) => { // hook into it to avoid switching if same poke.
     if (pokemon.id !== x.id)
-      switchPoke(x)
-  }, [switchPoke, pokemon])
+      onPokecardPress(x)
+  }, [onPokecardPress, pokemon])
 
   if (Object.keys(pokemon.evoTree).length === 0)
     return (

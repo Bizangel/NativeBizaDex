@@ -1,12 +1,12 @@
-import DirectionalSlidingMenu, { DirectionalSlidingMenuRef } from "../common/DirectionalSlidingMenu";
+import DirectionalSlidingMenu, { DirectionalSlidingMenuRef } from "../../common/DirectionalSlidingMenu";
 import styled from "styled-components/native";
-import { colorPalette } from "../styles/styles";
-import { HorizontalBottomRule } from "../common/common";
+import { colorPalette } from "../../styles/styles";
+import { HorizontalBottomRule } from "../../common/common";
 import { Image, ImageSourcePropType } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useCallback, useRef } from "react";
-import useTypedNavigation from "../hooks/useTypedNavigation";
-import { usePersistentStorage } from "../localstore/storage";
+import useTypedNavigation from "../../hooks/useTypedNavigation";
+import { usePersistentStorage } from "../../localstore/storage";
 
 const MainSideMenuHeader = styled.Text`
   color: ${colorPalette.textWhite};

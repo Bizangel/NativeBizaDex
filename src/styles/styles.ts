@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
-
+import { PokeType } from "../types/Pokemon";
+import { TypeEffectiveness } from "../common/pokeInfo";
 
 export const textStyle = StyleSheet.create({
   default: {
@@ -29,9 +30,6 @@ export const colorPalette = {
   notVeryEffectiveRed: "#cc1313",
   superEffectiveGreen: "#25680a"
 } as const
-
-import { PokeType } from "../types/Pokemon";
-import { TypeEffectiveness } from "../common/pokeInfo";
 
 export const types2color: Record<PokeType, string> = {
   Normal: "rgb(170,170,153)",

@@ -197,6 +197,8 @@ function PokeDetails({ pokemon }: { pokemon: Pokemon }) {
   const switchToNextPoke = () => { if (currentFilteredPokemon[dataIdx + 1]) switchPoke(currentFilteredPokemon[dataIdx + 1]) }
   const switchToPreviousPoke = () => { if (currentFilteredPokemon[dataIdx - 1]) switchPoke(currentFilteredPokemon[dataIdx - 1]) }
 
+  const onEvotreeCardPress = (x: Pokemon) => { if (pokemon.id !== x.id) switchPoke(x); }
+
   // Hide layout when flinged downwards or background is tapped
   const backgroundTap = Gesture.Tap().onStart(() => { hideLayout(); })
   const detailsFling = Gesture.Fling().direction(Directions.DOWN).onStart(() => { hideLayout(); })
@@ -269,10 +271,7 @@ function PokeDetails({ pokemon }: { pokemon: Pokemon }) {
 
                   <AbilityDisplayBox abilitiesId={pokemon.abilitiesId}
                     hiddenAbilityId={pokemon.hiddenAbility} />
-                  <EvoTreeDisplay pokemon={pokemon} switchPoke={switchPoke} />
-
-
-
+                  <EvoTreeDisplay pokemon={pokemon} onPokecardPress={onEvotreeCardPress} />
                 </ScrollableDetails>
               </ScrollableDetailsWrapperContent>
             </ScrollableDetailsWrapperBackground>

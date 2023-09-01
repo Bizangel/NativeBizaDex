@@ -5,7 +5,6 @@ import pokeImages from "../../assets/pokeImages";
 
 
 const RowWrapper = styled.View`
-
   height: 100%;
   width: 100%;
 
@@ -24,8 +23,6 @@ const PokePreviewWrapper = styled.View`
   height: 50px;
 
   border-radius: 50px;
-
-
 `
 
 function PokeTeamRowDisplay({ team }: { team: Pokemon[] }) {
@@ -36,7 +33,6 @@ function PokeTeamRowDisplay({ team }: { team: Pokemon[] }) {
           <Image source={pokeImages[poke.id]} resizeMode="contain" style={{ flex: 1, width: undefined, height: undefined }} />
         </PokePreviewWrapper>
       )}
-
     </RowWrapper>
   )
 }

@@ -26,8 +26,6 @@ const PokeRowGradient = styled(LinearGradient)`
   flex-direction: row;
 `
 
-
-
 const PokemonImageWrapper = styled.View`
   width: 25%;
   height: 100%;

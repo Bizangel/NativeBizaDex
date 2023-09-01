@@ -1,8 +1,8 @@
 import { Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { styled } from "styled-components/native";
-import { colorPalette } from "../styles/styles";
-import { TextInputWithBlurOnHide } from "../common/common";
+import { colorPalette } from "../../styles/styles";
+import { TextInputWithBlurOnHide } from "../../common/common";
 
 
 const TopbarWrapper = styled.View`

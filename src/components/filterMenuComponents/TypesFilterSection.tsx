@@ -21,8 +21,6 @@ const TypeFilterWrapper = styled(ProgressiveRenderer)`
 ` as typeof ProgressiveRenderer
 
 const TypeButton = styled(TouchableOpacity) <{ isActive: boolean }>`
-  /* opacity: ${p => p.isActive ? 1 : 0.3}; */
-  /* background-color: ${p => p.isActive ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive}; */
   margin-top: 10px;
 `
 
@@ -37,9 +35,7 @@ export function TypesFilterSection({ currentFilter, setCurrentFilter }: {
   currentFilter: PokeFilter,
   setCurrentFilter: React.Dispatch<React.SetStateAction<PokeFilter>>,
 }) {
-
   const activeTypes = PokemonTypes.map(e => { return { selected: currentFilter.typesFilter[e], type: e } });
-
 
   const renderItem: ProgressiveRendererRenderItem<{ type: PokeType, selected: boolean }> = useCallback(({ selected, type }) => {
     return (<TypeButton

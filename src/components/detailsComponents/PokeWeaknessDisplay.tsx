@@ -15,8 +15,6 @@ const WeaknessDisplayWrapper = styled.View`
   border-radius: 10px;
 `
 
-
-
 const WeaknessHeader = styled.Text`
   color: ${colorPalette.textWhite};
   font-size: 20px;
@@ -24,7 +22,6 @@ const WeaknessHeader = styled.Text`
   width: 100%;
   text-align: center;
 `
-
 
 const EffectivenessWrapper = styled.View`
   margin-top: 5px;
@@ -68,9 +65,6 @@ const ColumnResistanceHeader = styled.Text`
   text-align: left;
 `
 
-
-
-
 function TypeEffectivenessComp({ type, displayMultiplier }: { type: PokeType, displayMultiplier: TypeEffectiveness }) {
   return (
     <EffectivenessWrapper>
@@ -108,7 +102,6 @@ const findValueToEnum = (x: number) => {
 }
 
 function PokeWeaknessDisplay({ pokeTypes }: { pokeTypes: PokeType[], }) {
-
   // 0 means normal effectiveness, 1 se, 2 means x4, -1 means 1/2, -2 means 1/4
   const typeMultiplierLevel = Object.fromEntries(PokemonTypes.map(e => [e, 1])) as Record<PokeType, number>;
 
@@ -153,9 +146,6 @@ function PokeWeaknessDisplay({ pokeTypes }: { pokeTypes: PokeType[], }) {
           )}
         </ColumnResistanceWrapper>
       </ResistanceSideBySideWrapper>
-
-
-
     </WeaknessDisplayWrapper>
   )
 }

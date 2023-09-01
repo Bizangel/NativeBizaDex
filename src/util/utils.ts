@@ -124,3 +124,17 @@ export function generateRangesWithPrefix(arr: boolean[], prefix: string) {
 
   return result.join(", ");
 }
+
+/** Receives an array, and splits it into an array of subarrays of at most length 3
+ * ex: [a,b,c,d,e,f,g,h] => [[a,b,c],[d,e,f], [g,h]]
+ */
+export function splitIntoThrees<T>(arr: T[]) {
+  const splitted: T[][] = [[]]
+  arr.forEach((ele) => {
+    if (splitted.at(-1)?.length === 3)
+      splitted.push([ele])// add to new
+    else
+      splitted.at(-1)?.push(ele)
+  })
+  return splitted;
+}

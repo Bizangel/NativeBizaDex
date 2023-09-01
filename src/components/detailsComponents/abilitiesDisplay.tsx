@@ -108,9 +108,6 @@ export function AbilityDisplayBox({ abilitiesId, hiddenAbilityId }: {
           </AbilityDisplayButton>
         </HiddenAbilityDisplayWrapper>
       }
-
-
-
     </AbilityDisplayWrapper>
   )
 }
