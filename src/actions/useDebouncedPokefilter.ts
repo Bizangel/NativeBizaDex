@@ -9,19 +9,20 @@ const debounceDelay = 200;
 
 export function useDebouncedPokeFilter() {
   const currentPokeFilter = usePokedataStore(e => e.currentPokeFilter)
+  const sortCriteria = usePokedataStore(e => e.currentSorting)
   const setCurrentFilteredPokemon = usePokedataStore(e => e.setCurrentFilteredPokemon)
   const activePokedex = usePersistentStorage(e => e.activePokedex)
 
   // debounce filter for efficiency
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const filteredPoke = filterPokemon(allPokemon, currentPokeFilter, activePokedex);
+      const filteredPoke = filterPokemon(allPokemon, currentPokeFilter, activePokedex, sortCriteria);
       setCurrentFilteredPokemon(filteredPoke)
     }, debounceDelay);
 
     return () => {
       clearTimeout(timeout)
     }
-  }, [currentPokeFilter, activePokedex, setCurrentFilteredPokemon])
+  }, [currentPokeFilter, activePokedex, setCurrentFilteredPokemon, sortCriteria])
 
 }

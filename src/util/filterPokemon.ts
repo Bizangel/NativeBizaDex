@@ -1,5 +1,6 @@
-import { GenerationalDexSteps, MegaFilter, PokeFilter, StoredPokedex } from "../common/pokeInfo";
+import { GenerationalDexSteps, MegaFilter, PokeFilter, PokeSorting, StoredPokedex } from "../common/pokeInfo";
 import { Pokemon } from "../types/Pokemon";
+import { sortPokemon } from "./sortPokemon";
 import { lowercaseAZNormalizeMobile } from "./utils";
 
 function stringSearchMatchSimilar(query: string, pokeName: string) {
@@ -18,7 +19,7 @@ function isPokeGenIncluded(dexNumber: number, genFilter: boolean[]) {
 }
 
 
-export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter, activePokedex: StoredPokedex | null): Pokemon[] {
+export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter, activePokedex: StoredPokedex | null, sortCriteria: PokeSorting): Pokemon[] {
 
   const genFilter = activePokedex ? activePokedex.genFilter : filters.genFilter; // use gen filter from pokedex if it is specified
 
@@ -45,6 +46,6 @@ export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter, active
   }
 
 
-  return filteredByThreshold
+  return sortPokemon(filteredByThreshold, sortCriteria);
 }
 
