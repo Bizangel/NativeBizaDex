@@ -6,7 +6,7 @@ import { Image, ImageSourcePropType } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useCallback, useRef } from "react";
 import useTypedNavigation from "../../hooks/useTypedNavigation";
-import { usePersistentStorage } from "../../localstore/storage";
+import usePersistentActiveDex from "../../hooks/usePersistentActiveDex";
 
 const MainSideMenuHeader = styled.Text`
   color: ${colorPalette.textWhite};
@@ -76,7 +76,7 @@ export type MainSidebarProps = {
 }
 
 function MainSidebar({ dissmissMenu }: MainSidebarProps) {
-  const activeDex = usePersistentStorage(e => e.activePokedex);
+  const activeDex = usePersistentActiveDex(e => e);
   const slidingRef = useRef<DirectionalSlidingMenuRef>(null);
   const navigation = useTypedNavigation();
 
@@ -122,7 +122,7 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
         <SectionButtonLink text="Type Chart Table" iconSource={require('../../icons/typetable_icon.png')} onPress={navigateToTypechartTable} />
 
         {/* Not planning to implement for now. */}
-        <SectionButtonLink text="Switch Pokedex" iconSource={require('../../icons/caught_indicator.png')} onPress={navigateToSelectPokedex} />
+        <SectionButtonLink text="Switch Pokedex" iconSource={require('../../icons/caught_empty.png')} onPress={navigateToSelectPokedex} />
 
       </SidebarWrapper>
     </DirectionalSlidingMenu>

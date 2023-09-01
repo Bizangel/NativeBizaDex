@@ -40,6 +40,12 @@ export const ascendingFilterIcon2Image = (ascending: boolean) => (ascending ?
   require("../icons/descending-filter-icon.png")
 );
 
+export const caughtNotCaughtToIconImage = (caught: boolean) => (caught ?
+  require("../icons/caught_empty.png") :
+  require("../icons/caught_indicator.png")
+);
+
+
 export const HorizontalBottomRule = styled.View`
   width: 85%;
   border-color: ${colorPalette.textWhite};

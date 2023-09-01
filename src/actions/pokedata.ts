@@ -15,6 +15,7 @@ interface PokedataStore {
   setCurrentPokefilter: (x: PokeFilter) => void,
 
   setCurrentSortingKey: (key: PokeSortKey) => void,
+  toggleAscendingSorting: () => void,
 
   resetToDefaultSorting: () => void,
   resetToDefaultFilters: () => void,
@@ -49,6 +50,12 @@ export const usePokedataStore = create<PokedataStore>()((set, get) => ({
   setCurrentSortingKey: (key) => {
     set(prev => produce(prev, draft => {
       draft.currentSorting.sortKey = key;
+    }))
+  },
+
+  toggleAscendingSorting: () => {
+    set(prev => produce(prev, draft => {
+      draft.currentSorting.ascending = !prev.currentSorting.ascending;
     }))
   },
 

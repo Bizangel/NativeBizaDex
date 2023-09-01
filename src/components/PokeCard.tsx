@@ -7,6 +7,7 @@ import pokeImages from "../assets/pokeImages";
 import { RectButton } from 'react-native-gesture-handler';
 import { colorPalette, types2color } from "../styles/styles";
 import { getPokegradientColorFromTypes } from "../util/utils";
+import { caughtNotCaughtToIconImage } from "../common/common";
 
 const ActualCard = styled(LinearGradient)`
   width: 100%;
@@ -75,15 +76,33 @@ const PokenameDisplay = styled.Text`
   text-shadow: 1px 1px 2px rgba(0,0,0,.7);
 `
 
+const CaughtIndicator = styled.View`
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  top: 0;
+  right: 0;
+  margin: 5px;
+
+  /* background-color: blue; */
+  border-radius: 5px;
+  z-index: 2;
+`
+
 const PokeCard = memo(({ pokemon, onPress }: { pokemon: Pokemon, onPress: (cardPoke: Pokemon) => void }) => {
   const dimension = useWindowDimensions();
 
   return (
     <CardWrapper style={[{ width: dimension.width / 2 }]}>
+
       <RectButton
         onPress={() => { onPress(pokemon); }}
         underlayColor="black" foreground={true} style={{ backgroundColor: "black" }} rippleColor="black">
         <ActualCard colors={getPokegradientColorFromTypes(pokemon.type)} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <CaughtIndicator>
+            <Image source={caughtNotCaughtToIconImage(false)} resizeMode="contain" style={{ width: "100%", height: "100%" }} />
+          </CaughtIndicator>
+
           <DexNumber>#{pokemon.nationalDexNumber}</DexNumber>
 
           <Image source={pokeImages[pokemon.id]} resizeMode="contain" style={{ flex: 1, width: undefined, height: undefined }} />

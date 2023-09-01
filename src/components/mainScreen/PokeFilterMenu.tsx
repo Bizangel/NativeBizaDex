@@ -11,8 +11,8 @@ import { useOnKeyboardShow } from "../../hooks/useKeyboardHooks"
 import { isEqual as deepEqual } from "lodash"
 import { MegaFilter, PokeFilter, initialPokefilter } from "../../common/pokeInfo"
 import { OpacitySpawn, TextInputWithBlurOnHide } from "../../common/common"
-import { usePersistentStorage } from "../../localstore/storage"
 import { usePokedataStore } from "../../actions/pokedata"
+import usePersistentActiveDex from "../../hooks/usePersistentActiveDex"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
@@ -186,7 +186,7 @@ export type PokeFilterMenuProps = {
 
 function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
   const scrollRef = useRef<ScrollView>(null);
-  const activeDex = usePersistentStorage(e => e.activePokedex);
+  const activeDex = usePersistentActiveDex(e => e);
 
   const currentGlobalAppliedFilter = usePokedataStore(e => e.currentPokeFilter);
   const setCurrentGlobalAppliedFilter = usePokedataStore(e => e.setCurrentPokefilter)

@@ -24,11 +24,11 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   const preSelectedPoke = props.route.params.preSelectedPokemonId
 
   const resetFilters = usePokedataStore(e => e.resetToDefaultFilters);
-  const activePokedex = usePersistentStorage(e => e.activePokedex);
+  const activePokedexIndex = usePersistentStorage(e => e.activePokedexIndex);
 
   useEffect(() => { // whenever active pokedex changes, reset active filters. This saves a big headache.
     resetFilters();
-  }, [activePokedex, resetFilters])
+  }, [activePokedexIndex, resetFilters])
 
   const selectedPokemon = usePokedataStore(e => e.selectedPokemon);
 
@@ -40,9 +40,11 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   const onBurgerBarPress = useCallback(() => { setShowMainSidebar(true); }, [setShowMainSidebar])
   const onSortingPress = useCallback(() => { setShowSortingMenu(true); }, [setShowSortingMenu])
 
+
   const onPreselectedPokeDisplay = useCallback(() => { setShowFilterMenu(false); setShowMainSidebar(false); }, [setShowFilterMenu, setShowMainSidebar])
 
   useDisplayPreselectedPoke(preSelectedPoke, onPreselectedPokeDisplay);
+  useDisplayPreselectedPoke(preSelectedPoke, () => { });
   useDebouncedPokeFilter();
 
   const dissmissPokeFilterMenu = useCallback(() => { setShowFilterMenu(false); }, [])

@@ -63,7 +63,7 @@ function usePokedexCreateEditPanelService(editingPokedex: StoredPokedex | null) 
       pokedexId: `${uuid.v4()}`,
       pokedexName: pokedexNameField,
       genFilter: genFilter,
-      caughtPokemon: [],
+      caughtPokemon: {},
       hidePokeVariants: !includeVariantInCreation,
     }
 

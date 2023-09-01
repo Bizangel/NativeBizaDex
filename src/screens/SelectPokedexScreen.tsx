@@ -106,15 +106,15 @@ const ScrollableDexView = styled(ScrollView).attrs({
 export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList, 'SelectPokedexScreen'>) {
 
   const storedPokedexes = usePersistentStorage(e => e.allStoredPokedexes);
-  const currentlyActiveDex = usePersistentStorage(e => e.activePokedex);
+  const currentlyActiveDexIndex = usePersistentStorage(e => e.activePokedexIndex);
 
-  const selectActiveDexStorage = usePersistentStorage(e => e.changeSelectedPokedex);
+  const selectActivePokedexIndex = usePersistentStorage(e => e.changeSelectedPokedexIndex);
   const navigation = useTypedNavigation();
 
-  const selectActiveDex = useCallback((val: StoredPokedex | null) => {
-    selectActiveDexStorage(val);
+  const selectActiveDex = useCallback((val: number | null) => {
+    selectActivePokedexIndex(val);
     navigation.pop();
-  }, [selectActiveDexStorage, navigation])
+  }, [selectActivePokedexIndex, navigation])
 
   const [pokedexDetails, setCurrentPokedexDetails] = useState<StoredPokedex | null | undefined>(undefined);
 
@@ -141,7 +141,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
         <ScrollableDexView >
 
           {/* Base Pokedex containing all mons */}
-          <PokedexCard style={{ width: screenWidth / 3 }} onPress={() => { selectActiveDex(null) }} isActive={currentlyActiveDex === null}>
+          <PokedexCard style={{ width: screenWidth / 3 }} onPress={() => { selectActiveDex(null) }} isActive={currentlyActiveDexIndex === null}>
             <Image source={require('../icons/globe-icon.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
 
             <PokedexGenIncludeText> All Generations </PokedexGenIncludeText>
@@ -151,12 +151,12 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
           {/*  Custom Pokedex */}
 
           {
-            storedPokedexes.map(e =>
+            storedPokedexes.map((e, idx) =>
               <PokedexCard style={{ width: screenWidth / 3 }} key={e.pokedexId}
-                isActive={currentlyActiveDex?.pokedexId === e.pokedexId}
-                onPress={() => { selectActiveDex(e) }}
+                isActive={currentlyActiveDexIndex === idx}
+                onPress={() => { selectActiveDex(idx) }}
                 onLongPress={() => { showEditPokedexPanel(e) }}>
-                <Image source={require('../icons/caught_indicator.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
+                <Image source={require('../icons/caught_empty.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
 
                 <PokedexGenIncludeText> {generateRangesWithPrefix(e.genFilter, "Gen")} </PokedexGenIncludeText>
                 <PokedexNameDisplay> {e.pokedexName} </PokedexNameDisplay>

@@ -5,29 +5,29 @@ import { persist, createJSONStorage } from "zustand/middleware"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface LocalStorageState {
-  activePokedex: StoredPokedex | null, // null means global pokedex
+  activePokedexIndex: number | null, // null means global pokedex
 
   allStoredPokedexes: StoredPokedex[],
 }
 
 export interface LocalStorageFunctions {
-  changeSelectedPokedex: (x: StoredPokedex | null) => void,
+  changeSelectedPokedexIndex: (x: number | null) => void,
 
   storeNewPokedex: (x: StoredPokedex) => void,
   removeStoredPokedexByID: (id: string) => void,
   renameStoredPokedex: (pokedexId: string, newName: string) => void,
+
+  togglePokemonCaptured: (pokemonId: string) => void,
 }
 
 export const usePersistentStorage = create<LocalStorageState & LocalStorageFunctions>()(
   persist(
     (set, get) => ({
-      activePokedex: null,
+      activePokedexIndex: null,
       allStoredPokedexes: [],
 
-      sampleState: 0,
-
-      changeSelectedPokedex: (x: StoredPokedex | null) => {
-        set({ activePokedex: x })
+      changeSelectedPokedexIndex: (newIndex: number | null) => {
+        set({ activePokedexIndex: newIndex })
       },
 
       storeNewPokedex: (x: StoredPokedex) => {
@@ -35,8 +35,11 @@ export const usePersistentStorage = create<LocalStorageState & LocalStorageFunct
       },
 
       removeStoredPokedexByID: (id: string) => {
-        if (get().activePokedex?.pokedexId === id) {
-          set({ activePokedex: null }); // unselect pokedex if deleting that one.
+        const storedDexes = get().allStoredPokedexes;
+        const indexToRemove = storedDexes.findIndex(e => e.pokedexId === id);
+
+        if (indexToRemove === get().activePokedexIndex) {
+          set({ activePokedexIndex: null }); // unselect pokedex if deleting active one
         }
 
         set({ allStoredPokedexes: get().allStoredPokedexes.filter(e => e.pokedexId !== id) })
@@ -48,13 +51,22 @@ export const usePersistentStorage = create<LocalStorageState & LocalStorageFunct
           if (found)
             found.pokedexName = newName;
         }))
-
-        // if renaming that one, also re-select with updated name
-        const postUpdate = get();
-        if (postUpdate.activePokedex?.pokedexId === pokedexId) {
-          set({ activePokedex: postUpdate.allStoredPokedexes.find(e => e.pokedexId === pokedexId) }); // unselect pokedex if deleting that one.
-        }
       },
+
+      togglePokemonCaptured: (pokemonId: string) => {
+        set(prev => produce(prev, draft => {
+          const activePokedexIndex = prev.activePokedexIndex
+          if (activePokedexIndex !== null) {
+            const activeDex = prev.allStoredPokedexes[activePokedexIndex];
+            if (pokemonId in activeDex.caughtPokemon) {
+              delete draft.allStoredPokedexes[activePokedexIndex].caughtPokemon[pokemonId];
+            } else {
+              draft.allStoredPokedexes[activePokedexIndex].caughtPokemon[pokemonId] = true;
+            }
+          }
+        }))
+      },
+
     }),
     {
       name: 'persistant-storage',

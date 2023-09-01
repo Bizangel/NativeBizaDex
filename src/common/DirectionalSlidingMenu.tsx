@@ -57,7 +57,14 @@ export type SlidingMenuProps = {
    */
   onBackCloseTap?: () => boolean,
 
-  contentContainerWrapperStyle?: ViewStyle
+  contentContainerWrapperStyle?: ViewStyle,
+
+  /** An optional extra overflow size to keep in consideration when hiding the menu
+   * If any overlays overflow the original size,
+   * this will result in clipping during the animation if this value is not specified
+   * ex: 20 means there's an overflow of 20% additional to the size.
+   */
+  extraOverflowSize?: number,
 }
 
 export interface DirectionalSlidingMenuRef {
@@ -72,12 +79,12 @@ const originToDirections: Record<"top" | "bottom" | "left" | "right", number> = 
 } as const
 
 const DirectionalSlidingMenu = forwardRef<DirectionalSlidingMenuRef, SlidingMenuProps>(function DirectionalSlidingMenu(
-  { dismissLayout, overlayedComponent, children, slidingOrigin, menuViewportSize, onBackCloseTap, contentContainerWrapperStyle }, ref) {
+  { dismissLayout, overlayedComponent, children, slidingOrigin, menuViewportSize, onBackCloseTap, contentContainerWrapperStyle, extraOverflowSize }, ref) {
   // animation regarding opening progress
   const animOpeningProgress = useRef(new Animated.Value(0)).current;
-  const animatedOriginProp = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [`-${menuViewportSize}%`, "0%"] });
+  const animatedOriginProp = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [`-${menuViewportSize + (extraOverflowSize ?? 0)}%`, "0%"] });
   const animatedBackgroundOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,.8)'] });
-  const animDissapearOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [0, 0.7] });
+  const animDissapearOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [0, 1] });
 
   const isHorizontal = slidingOrigin === "left" || slidingOrigin === "right";
 
@@ -137,13 +144,13 @@ const DirectionalSlidingMenu = forwardRef<DirectionalSlidingMenuRef, SlidingMenu
     hideLayoutAnimated();
   });
 
-  const closeFlingToRightGesture = Gesture.Fling().direction(originToDirections[slidingOrigin]).onStart(() => hideLayoutAnimated())
+  const closeFlingToOppositeGesture = Gesture.Fling().direction(originToDirections[slidingOrigin]).onStart(() => hideLayoutAnimated())
   const backgroundTapAvoidCaptureEmptyTap = Gesture.Tap();
 
   return (
     <GestureDetector gesture={backgroundTapCloseGesture}>
       <FullFilterOverlayWrapper style={{ backgroundColor: animatedBackgroundOpacity }}>
-        <GestureDetector gesture={Gesture.Race(backgroundTapAvoidCaptureEmptyTap, closeFlingToRightGesture)}>
+        <GestureDetector gesture={Gesture.Race(backgroundTapAvoidCaptureEmptyTap, closeFlingToOppositeGesture)}>
           <SlidingComponentWrapper style={{
             [slidingOrigin]: animatedOriginProp,
             [isHorizontal ? "width" : "height"]: `${menuViewportSize}%`,
