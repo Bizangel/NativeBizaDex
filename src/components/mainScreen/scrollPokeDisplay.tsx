@@ -1,7 +1,7 @@
 import { styled } from "styled-components/native"
 import { colorPalette } from "../../styles/styles"
 import TopBar from "./TopBar"
-import { useCallback, useEffect, useRef, memo, useState } from "react"
+import { useCallback, useEffect, useRef, memo, useState, useMemo } from "react"
 import { useWindowDimensions, Animated } from "react-native"
 import { FlashList, ListRenderItem } from "@shopify/flash-list"
 import { Pokemon } from "../../types/Pokemon"
@@ -12,6 +12,7 @@ import { isEqual as deepEqual } from "lodash"
 import { usePokedataStore } from "../../actions/pokedata"
 import { topBarHeightPx } from "../../common/common"
 import { useFlashlistScrollSyncFasthandle } from "../../hooks/useFlashlistScrollSyncFasthandle"
+import usePersistentActiveDex from "../../hooks/usePersistentActiveDex"
 
 const FlatListWrapper = styled.View`
   justify-content: center;
@@ -65,10 +66,15 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress, onSortingPress 
   const [isDraggingFastScroll, setIsDraggingFastScroll] = useState(false);
   const scrollTopValue = useRef(new Animated.Value(topBarHeightPx)).current;
 
+  const caughtPokemonFromStorage = usePersistentActiveDex(e => e.caughtPokemon);
+
+  const caughtPokemonIds = useMemo(() => caughtPokemonFromStorage ? new Set(Object.keys(caughtPokemonFromStorage)) : null, [caughtPokemonFromStorage]);
+
+  // every time pokedex changes, the re-render does too!
   const renderPokecard: ListRenderItem<Pokemon> = useCallback(({ item }) => {
     // @ts-ignore // this is too complex for some reason?
-    return <PokeCard pokemon={item} onPress={setCurrentlySelectedpokemon} />;
-  }, [setCurrentlySelectedpokemon])
+    return <PokeCard pokemon={item} onPress={setCurrentlySelectedpokemon} caught={caughtPokemonIds?.has(item.id)} />;
+  }, [setCurrentlySelectedpokemon, caughtPokemonIds])
 
   // every time filter changes, scroll to top
   useEffect(() => {

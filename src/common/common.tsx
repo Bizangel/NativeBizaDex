@@ -41,8 +41,8 @@ export const ascendingFilterIcon2Image = (ascending: boolean) => (ascending ?
 );
 
 export const caughtNotCaughtToIconImage = (caught: boolean) => (caught ?
-  require("../icons/caught_empty.png") :
-  require("../icons/caught_indicator.png")
+  require("../icons/caught_indicator.png") :
+  require("../icons/caught_empty.png")
 );
 
 

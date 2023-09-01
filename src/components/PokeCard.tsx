@@ -89,7 +89,7 @@ const CaughtIndicator = styled.View`
   z-index: 2;
 `
 
-const PokeCard = memo(({ pokemon, onPress }: { pokemon: Pokemon, onPress: (cardPoke: Pokemon) => void }) => {
+const PokeCard = memo(({ pokemon, onPress, caught }: { pokemon: Pokemon, onPress: (cardPoke: Pokemon) => void, caught?: boolean }) => {
   const dimension = useWindowDimensions();
 
   return (
@@ -99,9 +99,13 @@ const PokeCard = memo(({ pokemon, onPress }: { pokemon: Pokemon, onPress: (cardP
         onPress={() => { onPress(pokemon); }}
         underlayColor="black" foreground={true} style={{ backgroundColor: "black" }} rippleColor="black">
         <ActualCard colors={getPokegradientColorFromTypes(pokemon.type)} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-          <CaughtIndicator>
-            <Image source={caughtNotCaughtToIconImage(false)} resizeMode="contain" style={{ width: "100%", height: "100%" }} />
-          </CaughtIndicator>
+
+          {caught !== undefined &&
+            <CaughtIndicator>
+              <Image source={caughtNotCaughtToIconImage(caught)} resizeMode="contain" style={{ width: "100%", height: "100%" }} />
+            </CaughtIndicator>
+          }
+
 
           <DexNumber>#{pokemon.nationalDexNumber}</DexNumber>
 

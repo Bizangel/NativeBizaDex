@@ -103,7 +103,7 @@ function PokeDetails({ pokemon }: { pokemon: Pokemon }) {
   const dataIdx = useMemo(() => currentFilteredPokemon.findIndex(e => e.id === pokemon.id) ?? 0, [currentFilteredPokemon, pokemon])
 
   const slidingRef = useRef<DirectionalSlidingMenuRef>(null);
-  const isPokemonCaught = usePersistentStorage(e => e.activePokedexIndex !== null ? (pokemon.id in e.allStoredPokedexes[e.activePokedexIndex].caughtPokemon) : false);
+  const isPokemonCaught = usePersistentStorage(e => e.activePokedexIndex !== null ? (pokemon.id in e.allStoredPokedexes[e.activePokedexIndex].caughtPokemon) : null);
   const togglePokecapturedStorage = usePersistentStorage(e => e.togglePokemonCaptured);
   const togglePokemonCaptureState = useCallback(() => { togglePokecapturedStorage(pokemon.id) }, [pokemon.id, togglePokecapturedStorage]);
 
@@ -179,17 +179,17 @@ function PokeDetails({ pokemon }: { pokemon: Pokemon }) {
       ref={slidingRef}
       overlayedComponent={
         <>
-
-          <CaughtIndicator>
-            <GestureDetector gesture={onPokeballPress}>
-              <TouchableOpacity>
-                <Image source={caughtNotCaughtToIconImage(isPokemonCaught)}
-                  resizeMode="contain" style={{ width: "100%", height: "100%" }} />
-              </TouchableOpacity>
-            </GestureDetector>
-          </CaughtIndicator>
-
-
+          {
+            isPokemonCaught !== null &&  // only display when a custom dex is selected
+            <CaughtIndicator>
+              <GestureDetector gesture={onPokeballPress}>
+                <TouchableOpacity>
+                  <Image source={caughtNotCaughtToIconImage(isPokemonCaught)}
+                    resizeMode="contain" style={{ width: "100%", height: "100%" }} />
+                </TouchableOpacity>
+              </GestureDetector>
+            </CaughtIndicator>
+          }
         </>
       }
     >
