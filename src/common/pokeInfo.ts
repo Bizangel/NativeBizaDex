@@ -110,7 +110,7 @@ export const initialPokefilter: PokeFilter = {
 }
 
 export const initialPokeSort: PokeSorting = {
-  ascending: false,
+  ascending: true,
   sortKey: PokeSortKey.DEX
 }
 

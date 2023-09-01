@@ -4,14 +4,17 @@ import React, { useCallback } from "react"
 import { colorPalette } from "../../styles/styles"
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
 import DirectionalSlidingMenu from "../../common/DirectionalSlidingMenu"
-import { PokeSortKey } from "../../common/pokeInfo"
+import { PokeSortKey, initialPokeSort } from "../../common/pokeInfo"
 import { usePokedataStore } from "../../actions/pokedata"
-import { ascendingFilterIcon2Image } from "../../common/common"
+import { OpacitySpawn, ascendingFilterIcon2Image } from "../../common/common"
+import { isEqual as deepEqual } from "lodash"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
 
   color: ${colorPalette.textWhite};
+
+  text-align: center;
 `
 
 const SortByButtonText = styled.Text`
@@ -63,6 +66,26 @@ const HorizontalBottomRule = styled.View`
   border-bottom-width: ${StyleSheet.hairlineWidth}px;
 `
 
+const ResetSortingButtonWrapper = styled(OpacitySpawn)`
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+
+  border-radius: 10px;
+  background-color: ${colorPalette.foregroundButtonBlackFull};
+
+  margin: 5px;
+`
+
+const ResetFilterText = styled.Text`
+  color: ${colorPalette.textWhite};
+  font-size: 15px;
+
+  padding: 5px;
+`
+
 function SortByButtonComponent({ sortKey, isActive, onPress }: { sortKey: PokeSortKey, isActive: boolean, onPress: (key: PokeSortKey) => void }) {
   return (
     <SortByButton isSelected={isActive} onPress={() => { onPress(sortKey) }}>
@@ -75,7 +98,9 @@ function PokeSortingMenu({ dismissLayout }: { dismissLayout: () => void }) {
   const currentSorting = usePokedataStore(e => e.currentSorting);
   const setSortingKey = usePokedataStore(e => e.setCurrentSortingKey);
   const toggleAscending = usePokedataStore(e => e.toggleAscendingSorting);
+  const resetSorting = usePokedataStore(e => e.resetToDefaultSorting);
   const onSortButtonPress = useCallback((key: PokeSortKey) => { setSortingKey(key) }, [setSortingKey])
+  const hasDefaultSortChanged = !deepEqual(currentSorting, initialPokeSort);
 
   return (
     <DirectionalSlidingMenu
@@ -104,6 +129,15 @@ function PokeSortingMenu({ dismissLayout }: { dismissLayout: () => void }) {
         </AscendingDescendingButton>
 
       </ScrollView>
+
+      {hasDefaultSortChanged &&
+        <ResetSortingButtonWrapper spawnDuration={200}>
+          <TouchableOpacity style={{ backgroundColor: undefined }} onPress={resetSorting}>
+            <ResetFilterText>
+              Reset Sorting
+            </ResetFilterText>
+          </TouchableOpacity>
+        </ResetSortingButtonWrapper>}
     </DirectionalSlidingMenu >
   )
 }

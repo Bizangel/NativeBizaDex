@@ -4,7 +4,8 @@ import { styled } from "styled-components/native";
 import { colorPalette } from "../../styles/styles";
 import { TextInputWithBlurOnHide, ascendingFilterIcon2Image, topBarHeightPx } from "../../common/common";
 import { usePokedataStore } from "../../actions/pokedata";
-
+import { isEqual as deepEqual } from "lodash"
+import { initialPokeSort } from "../../common/pokeInfo";
 
 const TopbarWrapper = styled.View`
   z-index: 1;
@@ -61,10 +62,20 @@ const EnabledFilterIndicatorWrapper = styled.View`
   top: 0;
 `
 
+
 const EnabledFilterIndicatorText = styled.Text`
   font-size: 10px;
 
   color: ${colorPalette.textWhite};
+`
+
+const EnabledFilterIndicatorWrapperForSorting = styled(EnabledFilterIndicatorWrapper)`
+  width: 15px;
+  height: 15px;
+`
+
+const EnabledFilterIndicatorTextForSorting = styled(EnabledFilterIndicatorText)`
+  font-size: 7px;
 `
 
 export type TopBarProps = {
@@ -77,7 +88,8 @@ export type TopBarProps = {
 }
 
 function TopBar({ currentSearch, setCurrentSearch, onFilterPress, onBurgerBarPress, onSortingPress, displayFilterIndicator }: TopBarProps) {
-  const currentAscending = usePokedataStore(e => e.currentSorting.ascending);
+  const currentSorting = usePokedataStore(e => e.currentSorting);
+  const hasDefaultSortChanged = !deepEqual(currentSorting, initialPokeSort);
 
   return (
     <TopbarWrapper>
@@ -97,7 +109,14 @@ function TopBar({ currentSearch, setCurrentSearch, onFilterPress, onBurgerBarPre
       </SearchBarWrapper>
 
       <TouchableOpacity onPress={onSortingPress} style={{ marginRight: 15 }}>
-        <Image source={ascendingFilterIcon2Image(currentAscending)} style={{ width: 30, height: 30 }} resizeMode="contain" />
+        <Image source={ascendingFilterIcon2Image(currentSorting.ascending)} style={{ width: 30, height: 30 }} resizeMode="contain" />
+        {hasDefaultSortChanged &&
+          <EnabledFilterIndicatorWrapperForSorting style={{ top: currentSorting.ascending ? 0 : 15 }}>
+            <EnabledFilterIndicatorTextForSorting>
+              ON
+            </EnabledFilterIndicatorTextForSorting>
+          </EnabledFilterIndicatorWrapperForSorting>
+        }
       </TouchableOpacity>
 
       <TouchableOpacity onPress={onFilterPress}>

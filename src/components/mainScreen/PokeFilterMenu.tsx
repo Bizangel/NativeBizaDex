@@ -18,6 +18,7 @@ const FilterHeader = styled.Text`
   font-size: 24px;
 
   color: ${colorPalette.textWhite};
+  text-align: center;
 `
 
 
