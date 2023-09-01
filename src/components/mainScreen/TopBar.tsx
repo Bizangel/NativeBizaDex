@@ -2,7 +2,8 @@ import { Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { styled } from "styled-components/native";
 import { colorPalette } from "../../styles/styles";
-import { TextInputWithBlurOnHide, topBarHeightPx } from "../../common/common";
+import { TextInputWithBlurOnHide, ascendingFilterIcon2Image, topBarHeightPx } from "../../common/common";
+import { usePokedataStore } from "../../actions/pokedata";
 
 
 const TopbarWrapper = styled.View`
@@ -23,7 +24,7 @@ const TopbarWrapper = styled.View`
 `
 
 const SearchBarWrapper = styled.View`
-  width: 75%;
+  flex: 1;
   background-color: rgba(33, 46, 51, .7);
 
   border-radius: 20px;
@@ -70,17 +71,19 @@ export type TopBarProps = {
   currentSearch: string,
   setCurrentSearch: (x: string) => void,
   onFilterPress: () => void,
+  onSortingPress: () => void,
   onBurgerBarPress: () => void,
   displayFilterIndicator: boolean,
 }
 
-function TopBar({ currentSearch, setCurrentSearch, onFilterPress, onBurgerBarPress, displayFilterIndicator }: TopBarProps) {
+function TopBar({ currentSearch, setCurrentSearch, onFilterPress, onBurgerBarPress, onSortingPress, displayFilterIndicator }: TopBarProps) {
+  const currentAscending = usePokedataStore(e => e.currentSorting.ascending);
 
   return (
     <TopbarWrapper>
 
       <TouchableOpacity onPress={onBurgerBarPress}>
-        <Image source={require('../icons/burgerbar.png')} style={{ width: 30, height: 30 }} resizeMode="contain" />
+        <Image source={require('../../icons/burgerbar.png')} style={{ width: 30, height: 30 }} resizeMode="contain" />
       </TouchableOpacity>
 
       <SearchBarWrapper>
@@ -93,15 +96,20 @@ function TopBar({ currentSearch, setCurrentSearch, onFilterPress, onBurgerBarPre
         />
       </SearchBarWrapper>
 
+      <TouchableOpacity onPress={onSortingPress} style={{ marginRight: 15 }}>
+        <Image source={ascendingFilterIcon2Image(currentAscending)} style={{ width: 30, height: 30 }} resizeMode="contain" />
+      </TouchableOpacity>
 
       <TouchableOpacity onPress={onFilterPress}>
-        <Image source={require('../icons/filter.png')} style={{ width: 40, height: 40 }} />
+        <Image source={require('../../icons/filter.png')} style={{ width: 40, height: 40 }} />
 
-        {displayFilterIndicator && <EnabledFilterIndicatorWrapper>
-          <EnabledFilterIndicatorText>
-            ON
-          </EnabledFilterIndicatorText>
-        </EnabledFilterIndicatorWrapper>}
+        {displayFilterIndicator &&
+          <EnabledFilterIndicatorWrapper>
+            <EnabledFilterIndicatorText>
+              ON
+            </EnabledFilterIndicatorText>
+          </EnabledFilterIndicatorWrapper>
+        }
       </TouchableOpacity>
 
 

@@ -6,6 +6,7 @@ import { colorPalette } from '../styles/styles';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import PokeFilterMenu from '../components/mainScreen/PokeFilterMenu';
+import PokeSortingMenu from '../components/mainScreen/PokeSortingMenu';
 import MainSidebar from '../components/mainScreen/MainSidebar';
 import ScrollPokeDisplay from '../components/mainScreen/scrollPokeDisplay';
 import useDisplayPreselectedPoke from '../actions/useDisplayPreselectedPoke';
@@ -24,26 +25,25 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   const selectedPokemon = usePokedataStore(e => e.selectedPokemon);
 
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showSortingMenu, setShowSortingMenu] = useState(false);
   const [showMainSidebar, setShowMainSidebar] = useState(false);
 
   const onTopFilterPress = useCallback(() => { setShowFilterMenu(true); }, [setShowFilterMenu])
   const onBurgerBarPress = useCallback(() => { setShowMainSidebar(true); }, [setShowMainSidebar])
+  const onSortingPress = useCallback(() => { setShowSortingMenu(true); }, [setShowSortingMenu])
+
   const onPreselectedPokeDisplay = useCallback(() => { setShowFilterMenu(false); setShowMainSidebar(false); }, [setShowFilterMenu, setShowMainSidebar])
 
   useDisplayPreselectedPoke(preSelectedPoke, onPreselectedPokeDisplay);
   useDebouncedPokeFilter();
 
-  const dissmissPokeFilterMenu = useCallback(() => {
-    setShowFilterMenu(false);
-  }, [])
-
-  const dismissMainSidebar = useCallback(() => {
-    setShowMainSidebar(false);
-  }, [])
+  const dissmissPokeFilterMenu = useCallback(() => { setShowFilterMenu(false); }, [])
+  const dissmissSortingMenu = useCallback(() => { setShowSortingMenu(false); }, [])
+  const dismissMainSidebar = useCallback(() => { setShowMainSidebar(false); }, [])
 
   return (
     <Body>
-      <ScrollPokeDisplay {...{ onTopFilterPress, onBurgerBarPress }} />
+      <ScrollPokeDisplay {...{ onTopFilterPress, onBurgerBarPress, onSortingPress }} />
 
       {
         selectedPokemon && <PokeDetails pokemon={selectedPokemon} />
@@ -51,6 +51,10 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
 
       {
         showFilterMenu && <PokeFilterMenu dismissLayout={dissmissPokeFilterMenu} />
+      }
+
+      {
+        showSortingMenu && <PokeSortingMenu dismissLayout={dissmissSortingMenu} />
       }
 
       {

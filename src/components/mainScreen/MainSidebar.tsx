@@ -112,17 +112,17 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
         </MainSideMenuSubHeader>
         <HorizontalBottomRule />
 
-        <SectionButtonLink text="All Pokemon" iconSource={require('../icons/list_icon.png')} onPress={closeMenuAnimated} />
+        <SectionButtonLink text="All Pokemon" iconSource={require('../../icons/list_icon.png')} onPress={closeMenuAnimated} />
 
-        <SectionButtonLink text="Pokemon Abilities" iconSource={require('../icons/ability_icon.png')} onPress={navigateToAllAbilitiesScreen} />
+        <SectionButtonLink text="Pokemon Abilities" iconSource={require('../../icons/ability_icon.png')} onPress={navigateToAllAbilitiesScreen} />
 
         {/* Not planning to implement for now. */}
         {/* <SectionButtonLink text="Team Builder" iconSource={require('../icons/teambuilder_icon.png')} onPress={navigateToTeamBuilder} /> */}
 
-        <SectionButtonLink text="Type Chart Table" iconSource={require('../icons/typetable_icon.png')} onPress={navigateToTypechartTable} />
+        <SectionButtonLink text="Type Chart Table" iconSource={require('../../icons/typetable_icon.png')} onPress={navigateToTypechartTable} />
 
         {/* Not planning to implement for now. */}
-        <SectionButtonLink text="Switch Pokedex" iconSource={require('../icons/caught_indicator.png')} onPress={navigateToSelectPokedex} />
+        <SectionButtonLink text="Switch Pokedex" iconSource={require('../../icons/caught_indicator.png')} onPress={navigateToSelectPokedex} />
 
       </SidebarWrapper>
     </DirectionalSlidingMenu>

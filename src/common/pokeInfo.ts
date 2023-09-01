@@ -72,15 +72,15 @@ export type PokeFilter = {
 }
 
 
-export enum SortKey {
+export enum PokeSortKey {
   DEX = "Dex Number",
-  ALPHABETICALLY = "Alphabetically",
+  ALPHABETICALLY = "Name Alphabetically",
   STAT_TOTAL = "Stat Total",
 }
 
 export type PokeSorting = {
   ascending: boolean,
-  sortKey: "Dex Number" | "Alphabetically" | ""
+  sortKey: PokeSortKey
 }
 
 export type StoredPokedex = {
@@ -100,5 +100,10 @@ const initialTypeFilter = Object.fromEntries(PokemonTypes.map(e => [e, true])) a
 export const initialPokefilter: PokeFilter = {
   searchString: "", typesFilter: initialTypeFilter, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
   baseStatThreshold: undefined, baseStatThresholdOperator: "ge",
+}
+
+export const initialPokeSort: PokeSorting = {
+  ascending: false,
+  sortKey: PokeSortKey.DEX
 }
 

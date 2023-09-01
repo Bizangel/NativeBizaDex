@@ -34,6 +34,12 @@ export const TypeDisplay = styled.Text<{ type: PokeType }>`
   margin-right: 5px;
 `
 
+
+export const ascendingFilterIcon2Image = (ascending: boolean) => (ascending ?
+  require("../icons/ascending-filter-icon.png") :
+  require("../icons/descending-filter-icon.png")
+);
+
 export const HorizontalBottomRule = styled.View`
   width: 85%;
   border-color: ${colorPalette.textWhite};
@@ -68,3 +74,4 @@ export const TextInputWithBlurOnHide = (props: TextInputProps) => {
 
   return <TextInput {...props} ref={inputref} />
 }
+

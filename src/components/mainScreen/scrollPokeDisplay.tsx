@@ -47,11 +47,12 @@ const EmptyDisplay = styled.Text`
 export type ScrollPokeDisplayProps = {
   onBurgerBarPress: () => void,
   onTopFilterPress: () => void,
+  onSortingPress: () => void,
 }
 
 
 // this will be re-rendering due to scroll so keep that in mind due to performance reasons
-function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDisplayProps) {
+function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress, onSortingPress }: ScrollPokeDisplayProps) {
   const { width: screenWidth } = useWindowDimensions();
 
   const currentlyFilteredPokemon = usePokedataStore(e => e.currentFilteredPokemon);
@@ -98,6 +99,7 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDis
   return (
     <FlatListWrapper>
       <TopBar currentSearch={currentPokefilter.searchString} setCurrentSearch={updateCurrentSearchFilter}
+        onSortingPress={onSortingPress}
         onFilterPress={onTopFilterPress}
         onBurgerBarPress={onBurgerBarPress}
         displayFilterIndicator={hasFilterChangedExceptSearch} />
