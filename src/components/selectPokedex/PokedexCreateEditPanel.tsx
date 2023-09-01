@@ -1,15 +1,12 @@
 import { styled } from "styled-components/native"
-import DirectionalSlidingMenu, { DirectionalSlidingMenuRef } from "../../common/DirectionalSlidingMenu"
+import DirectionalSlidingMenu from "../../common/DirectionalSlidingMenu"
 import { HorizontalBottomRule, TextInputWithBlurOnHide } from "../../common/common"
 import { GenFilterSection } from "../filterMenuComponents/GenFilterSection"
-import { useCallback, useRef, useState } from "react"
-import { Alert } from "react-native"
-import { PokeFilter, StoredPokedex, initialPokefilter } from "../../common/pokeInfo"
+import { StoredPokedex } from "../../common/pokeInfo"
 import { colorPalette } from "../../styles/styles"
 import { Image } from "react-native"
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
-import uuid from 'react-native-uuid';
-import { usePersistentStorage } from "../../localstore/storage"
+import usePokedexCreateEditPanelService from "./PokedexCreateEditPanel.service"
 
 const DetailsWrapper = styled(ScrollView).attrs({
   contentContainerStyle: {
@@ -99,25 +96,6 @@ const DeleteButtonWrapper = styled(TouchableOpacity).attrs({
   height: 100%;
 `
 
-function verifyPokedexName(name: string) {
-  if (name.length === 0) {
-    Alert.alert('Empty Pokedex Name', "Pokedex Name cannot be empty!")
-    return false;
-  }
-
-  if (name.length < 3) {
-    Alert.alert('Invalid Pokedex Name', "Name is too short, must be at least three characters long!")
-    return false;
-  }
-
-  if (name.length > 20) {
-    Alert.alert('Invalid Pokedex Name', "Name is too long, must be at most 20 characters long!")
-    return false;
-  }
-
-  return true;
-}
-
 export type PokedexDetailsMenuProps = {
   dissmiss: () => void,
 
@@ -127,62 +105,9 @@ export type PokedexDetailsMenuProps = {
 
 export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDetailsMenuProps) {
   const isEditing = editingPokedex !== null;
-
-  const slidingMenuRef = useRef<DirectionalSlidingMenuRef>(null);
-  const storeNewPokedex = usePersistentStorage(e => e.storeNewPokedex);
-  const removePokedexByID = usePersistentStorage(e => e.removeStoredPokedexByID);
-  const renameStoredDex = usePersistentStorage(e => e.renameStoredPokedex);
-
-  const [genFilter, setGenFilter] = useState<PokeFilter["genFilter"]>(editingPokedex ? editingPokedex.genFilter : initialPokefilter.genFilter);
-  const [pokedexNameField, setPokedexNameField] = useState(editingPokedex?.pokedexName ?? "");
-
-  const onRenamePress = useCallback(() => {
-    if (editingPokedex) {
-      if (!verifyPokedexName(pokedexNameField)) {
-        return;
-      }
-
-      renameStoredDex(editingPokedex.pokedexId, pokedexNameField)
-      slidingMenuRef.current?.closeOverlay();
-    }
-  }, [renameStoredDex, editingPokedex, pokedexNameField, slidingMenuRef])
-
-  const createPokedex = useCallback(() => {
-    if (!verifyPokedexName(pokedexNameField)) {
-      return;
-    }
-
-    if (!genFilter.some(e => e)) {
-      Alert.alert('Invalid Gen Filter', "Please select at least one generation")
-      return;
-    }
-
-    const newPokedexToAdd: StoredPokedex = {
-      pokedexId: `${uuid.v4()}`,
-      pokedexName: pokedexNameField,
-      genFilter: genFilter,
-      caughtPokemon: [],
-    }
-
-    storeNewPokedex(newPokedexToAdd)
-    slidingMenuRef.current?.closeOverlay();
-  }, [pokedexNameField, genFilter, storeNewPokedex])
-
-  const deletePokedex = useCallback(() => {
-    Alert.alert('Delete Pokedex', `Delete ${editingPokedex?.pokedexName}?`, [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Delete',
-        style: 'cancel',
-        onPress: () => { removePokedexByID(editingPokedex?.pokedexId ?? ""); slidingMenuRef.current?.closeOverlay(); }
-      },
-    ], { cancelable: true })
-    return;
-  }, [editingPokedex, removePokedexByID, slidingMenuRef])
-
+  const { onCreatePokedexPress, onRenamePress, onDeletePokedexPress,
+    pokedexNameField, setPokedexNameField,
+    genFilter, setGenFilter, slidingMenuRef } = usePokedexCreateEditPanelService(editingPokedex);
 
   return <DirectionalSlidingMenu
     ref={slidingMenuRef}
@@ -191,9 +116,8 @@ export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDeta
     slidingOrigin="bottom"
   >
     <DetailsWrapper >
-
       {isEditing &&
-        <DeleteButtonWrapper onPress={deletePokedex}>
+        <DeleteButtonWrapper onPress={onDeletePokedexPress}>
           <Image source={require('../../icons/delete-bin-icon.png')} resizeMode="contain" style={{ flex: 1, width: "100%", height: undefined }} />
         </DeleteButtonWrapper>
       }
@@ -228,7 +152,7 @@ export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDeta
       </GenFilterWrapper>
 
       {!isEditing &&
-        <BottomBigActionButton onPress={createPokedex}>
+        <BottomBigActionButton onPress={onCreatePokedexPress}>
           <BottomBigActionButtonText>
             Create Pokedex
           </BottomBigActionButtonText>

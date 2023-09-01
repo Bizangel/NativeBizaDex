@@ -6,7 +6,8 @@ import { Animated, ViewStyle, StyleSheet, TextInputProps } from "react-native"
 import { useOnKeyboardHide } from "../hooks/useKeyboardHooks";
 import { TextInput } from "react-native-gesture-handler";
 
-
+// Height of the upper topbar
+export const topBarHeightPx = 50;
 
 
 export const TypeDisplay = styled.Text<{ type: PokeType }>`
@@ -66,5 +67,4 @@ export const TextInputWithBlurOnHide = (props: TextInputProps) => {
   })
 
   return <TextInput {...props} ref={inputref} />
-
 }

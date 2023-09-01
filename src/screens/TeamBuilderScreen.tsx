@@ -54,12 +54,6 @@ const AddPokeButton = styled(TouchableOpacity).attrs({
 `
 
 function TeamBuilderScreen(_: NativeStackScreenProps<RootStackParamList, 'TeamBuilderScreen'>) {
-  // const [pokeTeams, setPokeTeams] = useLocalStorage<Pokemon[]>("poketeam", []);
-
-  // const addNewPoketoTeam = useCallback(() => {
-  //   setPokeTeams(prev => [...prev, allPokemon[0]])
-  // }, [setPokeTeams]);
-
   return (
     <Body>
       <HeaderText>

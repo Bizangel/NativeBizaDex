@@ -13,6 +13,8 @@ interface PokedataStore {
   setCurrentFilteredPokemon: (x: Pokemon[]) => void,
   setTextSearchPokefilter: (x: string) => void,
   setCurrentPokefilter: (x: PokeFilter) => void,
+
+  clearPokefilter: () => void,
 }
 
 export const usePokedataStore = create<PokedataStore>()((set, _get) => ({
@@ -32,4 +34,6 @@ export const usePokedataStore = create<PokedataStore>()((set, _get) => ({
   setCurrentPokefilter: (x) => {
     set({ currentPokeFilter: x })
   },
+
+  clearPokefilter: () => { set({ currentPokeFilter: initialPokefilter }) }
 }))

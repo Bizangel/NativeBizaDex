@@ -47,7 +47,6 @@ const SectionButtonWrapper = styled(TouchableOpacity).attrs({
 
   display: flex;
   flex-direction: row;
-  /* justify-content: space-evenly; */
   align-items: center;
 
   border-width: 2px;
@@ -77,15 +76,9 @@ export type MainSidebarProps = {
 }
 
 function MainSidebar({ dissmissMenu }: MainSidebarProps) {
-
   const activeDex = usePersistentStorage(e => e.activePokedex);
-
-
-
   const slidingRef = useRef<DirectionalSlidingMenuRef>(null);
-
   const navigation = useTypedNavigation();
-
 
   const closeMenuAnimated = useCallback(() => {
     slidingRef.current?.closeOverlay();
@@ -98,10 +91,6 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
   const navigateToTypechartTable = useCallback(() => {
     navigation.push("TypeChartScreen", {})
   }, [navigation])
-
-  // const navigateToTeamBuilder = useCallback(() => {
-  //   navigation.push("TeamBuilderScreen", {})
-  // }, [navigation])
 
   const navigateToSelectPokedex = useCallback(() => {
     navigation.push("SelectPokedexScreen", {})

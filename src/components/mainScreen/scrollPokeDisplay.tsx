@@ -2,15 +2,16 @@ import { styled } from "styled-components/native"
 import { colorPalette } from "../../styles/styles"
 import TopBar from "./TopBar"
 import { useCallback, useEffect, useRef, memo, useState } from "react"
-import { useWindowDimensions, Animated, NativeSyntheticEvent, NativeScrollEvent } from "react-native"
+import { useWindowDimensions, Animated } from "react-native"
 import { FlashList, ListRenderItem } from "@shopify/flash-list"
 import { Pokemon } from "../../types/Pokemon"
 import PokeCard from "../PokeCard"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import { initialPokefilter } from "../../common/pokeInfo"
 import { isEqual as deepEqual } from "lodash"
-import { clamp } from "../../util/utils"
 import { usePokedataStore } from "../../actions/pokedata"
+import { topBarHeightPx } from "../../common/common"
+import { useFlashlistScrollSyncFasthandle } from "../../hooks/useFlashlistScrollSyncFasthandle"
 
 const FlatListWrapper = styled.View`
   justify-content: center;
@@ -48,11 +49,10 @@ export type ScrollPokeDisplayProps = {
   onTopFilterPress: () => void,
 }
 
-const topBarHeightPx = 50;
 
 // this will be re-rendering due to scroll so keep that in mind due to performance reasons
 function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDisplayProps) {
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { width: screenWidth } = useWindowDimensions();
 
   const currentlyFilteredPokemon = usePokedataStore(e => e.currentFilteredPokemon);
   const currentPokefilter = usePokedataStore(e => e.currentPokeFilter);
@@ -64,14 +64,10 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDis
   const [isDraggingFastScroll, setIsDraggingFastScroll] = useState(false);
   const scrollTopValue = useRef(new Animated.Value(topBarHeightPx)).current;
 
-  const onPokecardPress = useCallback((x: Pokemon) => {
-    setCurrentlySelectedpokemon(x)
-  }, [setCurrentlySelectedpokemon])
-
   const renderPokecard: ListRenderItem<Pokemon> = useCallback(({ item }) => {
     // @ts-ignore // this is too complex for some reason?
-    return <PokeCard pokemon={item} onPress={onPokecardPress} />;
-  }, [onPokecardPress])
+    return <PokeCard pokemon={item} onPress={setCurrentlySelectedpokemon} />;
+  }, [setCurrentlySelectedpokemon])
 
   // every time filter changes, scroll to top
   useEffect(() => {
@@ -79,16 +75,6 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDis
   }, [currentlyFilteredPokemon])
 
   const hasFilterChangedExceptSearch = !deepEqual(currentPokefilter, { ...initialPokefilter, searchString: currentPokefilter.searchString });
-
-  const onNormalFlashListScroll = useCallback((ev: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (isDraggingFastScroll) // no need to sync
-      return;
-
-
-    const scrollProgress = ev.nativeEvent.contentOffset.y / (ev.nativeEvent.contentSize.height - ev.nativeEvent.layoutMeasurement.height);
-    scrollTopValue.setValue(scrollProgress * (ev.nativeEvent.layoutMeasurement.height - draggableScrollbarHeight) + topBarHeightPx);
-  }, [isDraggingFastScroll, scrollTopValue])
-
 
   // automatically scroll to selected pokemon, should it be available in the list
   useEffect(() => {
@@ -100,22 +86,14 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDis
       flashListRef.current?.scrollToIndex({ animated: true, index: foundIndex, viewPosition: 0 });
   }, [selectedPokemon, currentlyFilteredPokemon])
 
-  const draggableScrollbarGesture = Gesture.Pan().onBegin(() => {
-    setIsDraggingFastScroll(true);
-  }).onUpdate((e) => {
-    const scrollVal = clamp(e.absoluteY, topBarHeightPx, screenHeight - draggableScrollbarHeight) - topBarHeightPx; // from 0 - scrollview height
+  const { onDraggableFastScrollHandlePan, onFlashlistScroll } = useFlashlistScrollSyncFasthandle(flashListRef, isDraggingFastScroll, draggableScrollbarHeight, scrollTopValue, currentlyFilteredPokemon.length);
 
-    const scrollProgress = scrollVal / (screenHeight - draggableScrollbarHeight - topBarHeightPx);
-
-    const scrollToIndex = Math.round(scrollProgress * (currentlyFilteredPokemon.length - 1));
-
-    scrollTopValue.setValue(scrollVal + topBarHeightPx);
-
-    flashListRef.current?.scrollToIndex({ animated: false, index: scrollToIndex })
-  }).onEnd(() => {
-    setIsDraggingFastScroll(false);
-  });
-
+  const draggableScrollbarGesture = Gesture.Pan()
+    .onBegin(() => { setIsDraggingFastScroll(true); })
+    .onUpdate(onDraggableFastScrollHandlePan)
+    .onEnd(() => {
+      setIsDraggingFastScroll(false);
+    });
 
   return (
     <FlatListWrapper>
@@ -126,7 +104,7 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress }: ScrollPokeDis
       <FlashList
         showsVerticalScrollIndicator={!isDraggingFastScroll}
         ref={flashListRef}
-        onScroll={onNormalFlashListScroll}
+        onScroll={onFlashlistScroll}
         numColumns={2}
         estimatedItemSize={screenWidth / 2}
         renderItem={renderPokecard}

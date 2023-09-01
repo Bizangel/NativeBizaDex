@@ -178,22 +178,21 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
   const currentGlobalAppliedFilter = usePokedataStore(e => e.currentPokeFilter);
   const setCurrentGlobalAppliedFilter = usePokedataStore(e => e.setCurrentPokefilter)
   const amountFiltered = usePokedataStore(e => e.currentFilteredPokemon.length)
+  const clearPokefilters = usePokedataStore(e => e.clearPokefilter);
 
   const [currentFilter, setCurrentFilter] = useState<PokeFilter>(currentGlobalAppliedFilter);
 
+  // every time local filter changes, update global. This is done this way so maybe in the future if filters grow too complex to create an "apply filter" button.
   useEffect(() => {
     setCurrentGlobalAppliedFilter(currentFilter)
   }, [currentFilter, setCurrentGlobalAppliedFilter])
 
+  // scroll to end everytime keyboard is shown.
   useOnKeyboardShow(() => {
     setTimeout(() => {
       scrollRef.current?.scrollToEnd({ animated: false })
     }, 50)
   })
-
-  const clearFilter = useCallback(() => {
-    setCurrentFilter(initialPokefilter)
-  }, [setCurrentFilter])
 
   // this actually works, and not as complex as I though before.
   const setCurrentGenFilter: React.Dispatch<React.SetStateAction<PokeFilter["genFilter"]>> = useCallback((newVal) => {
@@ -249,10 +248,6 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
             Gen filters are currently controlled by the active pokedex.
           </GenerationTextDisplayControlledByPokedex>
         }
-
-
-        {/* <GenFilterSection {...{ currentFilter, setCurrentFilter }} /> */}
-
 
         <FilterSectionHeader>
           Types
@@ -352,7 +347,7 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
 
       {hasFilterChanged &&
         <ClearFilterButtonWrapper spawnDuration={200}>
-          <TouchableOpacity style={{ backgroundColor: undefined }} onPress={clearFilter}>
+          <TouchableOpacity style={{ backgroundColor: undefined }} onPress={clearPokefilters}>
             <ClearFilterButtonText>
               Clear Filters
             </ClearFilterButtonText>

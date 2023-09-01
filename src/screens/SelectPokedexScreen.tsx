@@ -108,17 +108,9 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
 
   const [pokedexDetails, setCurrentPokedexDetails] = useState<StoredPokedex | null | undefined>(undefined);
 
-  const showCreateNewPokedexPanel = useCallback(() => {
-    setCurrentPokedexDetails(null)
-  }, [setCurrentPokedexDetails])
-
-  const showEditPokedexPanel = useCallback((val: StoredPokedex) => {
-    setCurrentPokedexDetails(val)
-  }, [setCurrentPokedexDetails])
-
-  const dissmissDetails = useCallback(() => {
-    setCurrentPokedexDetails(undefined);
-  }, [setCurrentPokedexDetails])
+  const showCreateNewPokedexPanel = useCallback(() => { setCurrentPokedexDetails(null) }, [setCurrentPokedexDetails])
+  const showEditPokedexPanel = useCallback((val: StoredPokedex) => { setCurrentPokedexDetails(val) }, [setCurrentPokedexDetails])
+  const dissmissDetails = useCallback(() => { setCurrentPokedexDetails(undefined); }, [setCurrentPokedexDetails])
 
   const screenWidth = useWindowDimensions().width;
 

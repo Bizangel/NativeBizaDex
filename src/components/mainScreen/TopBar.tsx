@@ -2,7 +2,7 @@ import { Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { styled } from "styled-components/native";
 import { colorPalette } from "../../styles/styles";
-import { TextInputWithBlurOnHide } from "../../common/common";
+import { TextInputWithBlurOnHide, topBarHeightPx } from "../../common/common";
 
 
 const TopbarWrapper = styled.View`
@@ -10,7 +10,7 @@ const TopbarWrapper = styled.View`
 
   background-color: rgba(33, 46, 51, 0.698);
 
-  height: 50px;
+  height: ${topBarHeightPx}px;
   width: 100%;
 
   display: flex;
