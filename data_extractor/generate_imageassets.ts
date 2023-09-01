@@ -1,6 +1,7 @@
 import fs from "fs"
 import { Pokemon } from "../src/types/Pokemon"
-import { downloadImage } from "./utils";
+import { downloadImage, withProgressBarTick } from "./utils";
+import CliProgress from "cli-progress"
 
 const pokeJSONPath = "./src/assets/pokemon.json"
 const pokeImagesPath = "./src/assets/pokeimages"
@@ -99,10 +100,25 @@ const pokeInfoPrev: [string, number, number | null][] = pokeJSON.map(poke => {
   }
 })
 
+
 async function MainFunc() {
+
+  const pokeBarProgress = new CliProgress.SingleBar({
+    clearOnComplete: false,
+    hideCursor: true,
+    format: 'Downloading PokeImages {bar} | {value}/{total} Pokemon | Elapsed: {duration_formatted} | Eta: {eta_formatted}',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+  });
+
+  const downloadPokeImageWithTick = withProgressBarTick(downloadPokeImage, pokeBarProgress);
+
+  pokeBarProgress.start(pokeInfoPrev.length, 0)
   await Promise.all(pokeInfoPrev.map(async ([pokeId, dexNumber, formIndex]) => {
-    await downloadPokeImage(pokeId, dexNumber, formIndex)
+    await downloadPokeImageWithTick(pokeId, dexNumber, formIndex)
   }))
+
+  pokeBarProgress.stop();
 
   // validate that all exists
   pokeJSON.forEach((e) => {
@@ -110,6 +126,7 @@ async function MainFunc() {
       throw new Error(`Missing image for: ${e.id} ${e.displayName}`)
   })
 
+  console.log("All images downloaded and validated successfully.")
   /**
    * TS FILE GENERATION with images
    * ============================

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { load as cheerioLoad } from 'cheerio';
-import { getIdFromHref, getPokeIdFromImageUrl, handleIdExceptions, parseEvolveTree, lowercaseAZNormalize } from './utils';
+import { getIdFromHref, getPokeIdFromImageUrl, handleIdExceptions, parseEvolveTree, lowercaseAZNormalize, withProgressBarTick } from './utils';
 import { Ability, AbilitySchema, BaseStat, BaseStatName, PokeType, Pokemon, PokemonSchema } from '../src/types/Pokemon';
 import fs from "fs";
 import CliProgress from "cli-progress"
@@ -243,11 +243,7 @@ async function fetchAllPokes(multiBar: CliProgress.MultiBar) {
   let allhrefs = Array.from(dexMapping.values())
 
   const pokeProgressBar = multiBar.create(allhrefs.length, 0, { barDisplay: "Downloading Pokemon  ".padEnd(20, ' ') })
-  const getPokemonFromUrlWithTick = async (e: string) => {
-    const res = await getPokemonFromUrl(e)
-    pokeProgressBar.increment();
-    return res;
-  }
+  const getPokemonFromUrlWithTick = withProgressBarTick(getPokemonFromUrl, pokeProgressBar)
 
   allhrefs = allhrefs.filter(e => !pokeUrlsAlreadyDownloaded.has(e)); // avoid redownloads
   const pokeResult = await Promise.all(
@@ -313,11 +309,7 @@ async function fetchAllAbilities(multiBar: CliProgress.MultiBar) {
   allAbilities = allAbilities.filter(e => !alreadyFetchedAbilities.has(e));
 
   const abilityProgressBar = multiBar.create(allAbilities.length, 0, { barDisplay: "Downloading Abilities".padEnd(20, ' ') })
-  const fetchAndParseAbilityWithTick = async (e: string) => {
-    const res = fetchAndParseAbility(e);
-    abilityProgressBar.increment();
-    return res;
-  }
+  const fetchAndParseAbilityWithTick = withProgressBarTick(fetchAndParseAbility, abilityProgressBar)
 
   let abilityResult = await Promise.all(
     allAbilities.map(e => fetchAndParseAbilityWithTick(e))

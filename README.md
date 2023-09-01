@@ -12,7 +12,7 @@ npm run imagegen
 ```
 
 Ensure the datagen runs without errors before running the imagegen!
-The datagen may fail sometimes as it has to fetch many images. It will cache the previous ones.
+The datagen may fail sometimes as it has to fetch a lot of data from different pages. It will cache the previous ones.
 So if it fails just run multiple times until it finishes successfully.
 
 ## Step 1: Start the Metro Server

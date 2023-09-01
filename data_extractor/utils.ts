@@ -2,6 +2,17 @@ import fs from 'fs'
 import axios from 'axios'
 import { load as cheerioLoad } from 'cheerio';
 import { Pokemon } from '../src/types/Pokemon';
+import CliProgress from "cli-progress"
+
+type AsyncFuncType = (...args: any[]) => Promise<any>;
+
+export function withProgressBarTick<T extends AsyncFuncType>(func: T, pokeBarProgress: CliProgress.Bar): T {
+  return (async (...args: any[]) => {
+    const res = await func(...args);
+    pokeBarProgress.increment();
+    return res;
+  }) as T;
+}
 
 export async function downloadImage(imageUrl: string, localTargetLocation: string, override = false) {
   try {
