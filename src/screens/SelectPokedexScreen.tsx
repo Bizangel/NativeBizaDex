@@ -70,6 +70,16 @@ const PokedexGenIncludeText = styled.Text`
   color: ${colorPalette.textWhite};
 `
 
+const SubHeaderText = styled.Text`
+  width: 90%;
+  text-align: center;
+  font-size: 13px;
+  color: ${colorPalette.textWhite};
+
+  margin: 0 5px;
+`
+
+
 const PokedexNameDisplay = styled.Text`
 
   width: 100%;
@@ -121,6 +131,10 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
         <HeaderText style={{}}>
           Choose Pokedex
         </HeaderText>
+        <SubHeaderText>
+          Having a custom pokedex allows you to store and keep track of which pokemon you have caught, as well as save hassle filtering.
+          This can be useful especially if playing old Pokemon games.
+        </SubHeaderText>
 
         <HorizontalBottomRule />
 
