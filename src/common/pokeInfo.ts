@@ -96,6 +96,8 @@ export type StoredPokedex = {
   pokedexName: string,
   genFilter: PokeFilter["genFilter"],
   caughtPokemon: Record<number, true>,
+
+  hidePokeVariants: boolean,
 }
 
 

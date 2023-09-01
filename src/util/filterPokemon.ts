@@ -22,6 +22,7 @@ function isPokeGenIncluded(dexNumber: number, genFilter: boolean[]) {
 export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter, activePokedex: StoredPokedex | null, sortCriteria: PokeSorting): Pokemon[] {
 
   const genFilter = activePokedex ? activePokedex.genFilter : filters.genFilter; // use gen filter from pokedex if it is specified
+  const hideVariants = filters.hideVariants || activePokedex?.hidePokeVariants === true;
 
   const genFiltered = allPokemon.filter(poke => isPokeGenIncluded(poke.nationalDexNumber, genFilter))
   const filteredByString = genFiltered.filter(e => stringSearchMatchSimilar(filters.searchString, e.displayName))
@@ -45,7 +46,7 @@ export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter, active
     }
   }
 
-  const filteredByVariants = filters.hideVariants ? filteredByThreshold.filter(e => e.variantIndex === 0) : filteredByThreshold
+  const filteredByVariants = hideVariants ? filteredByThreshold.filter(e => e.variantIndex === 0) : filteredByThreshold
 
   return sortPokemon(filteredByVariants, sortCriteria);
 }

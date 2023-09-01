@@ -1,6 +1,6 @@
 import { StatusBar } from 'react-native';
 import styled from 'styled-components/native'
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PokeDetails from '../components/PokeDetails';
 import { colorPalette } from '../styles/styles';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -12,6 +12,7 @@ import ScrollPokeDisplay from '../components/mainScreen/scrollPokeDisplay';
 import useDisplayPreselectedPoke from '../actions/useDisplayPreselectedPoke';
 import { useDebouncedPokeFilter } from '../actions/useDebouncedPokefilter';
 import { usePokedataStore } from '../actions/pokedata';
+import { usePersistentStorage } from '../localstore/storage';
 
 const Body = styled.View`
   background-color: ${colorPalette.backgroundBlack};
@@ -21,6 +22,13 @@ const Body = styled.View`
 
 function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
   const preSelectedPoke = props.route.params.preSelectedPokemonId
+
+  const resetFilters = usePokedataStore(e => e.resetToDefaultFilters);
+  const activePokedex = usePersistentStorage(e => e.activePokedex);
+
+  useEffect(() => { // whenever active pokedex changes, reset active filters. This saves a big headache.
+    resetFilters();
+  }, [activePokedex, resetFilters])
 
   const selectedPokemon = usePokedataStore(e => e.selectedPokemon);
 

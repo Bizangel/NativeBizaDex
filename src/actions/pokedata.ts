@@ -17,6 +17,7 @@ interface PokedataStore {
   setCurrentSortingKey: (key: PokeSortKey) => void,
 
   resetToDefaultSorting: () => void,
+  resetToDefaultFilters: () => void,
 }
 
 export const usePokedataStore = create<PokedataStore>()((set, get) => ({
@@ -52,7 +53,5 @@ export const usePokedataStore = create<PokedataStore>()((set, get) => ({
   },
 
   resetToDefaultSorting: () => { set({ currentSorting: initialPokeSort }) },
-
-
-
+  resetToDefaultFilters: () => { set({ currentPokeFilter: initialPokefilter }) }
 }))

@@ -65,6 +65,29 @@ const SubHeader = styled.Text`
   color: ${colorPalette.textWhite};
 `
 
+const IncludeVariantsButtonRow = styled.View`
+
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+`
+
+const IncludeVariantButton = styled(TouchableOpacity) <{ isActive: boolean }>`
+  width: 150px;
+
+  padding: 7px;
+
+  background-color: ${p => p.isActive ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
+  border-radius: 10px;
+`
+
+const IncludeVariantButtonText = styled.Text`
+  color: ${colorPalette.textWhite};
+  font-size: 15px;
+
+  text-align: center;
+`
+
 
 const BottomBigActionButton = styled(TouchableOpacity).attrs({
   containerStyle: { marginTop: 20, marginBottom: 20, }
@@ -105,9 +128,12 @@ export type PokedexDetailsMenuProps = {
 
 export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDetailsMenuProps) {
   const isEditing = editingPokedex !== null;
+
   const { onCreatePokedexPress, onRenamePress, onDeletePokedexPress,
     pokedexNameField, setPokedexNameField,
-    genFilter, setGenFilter, slidingMenuRef } = usePokedexCreateEditPanelService(editingPokedex);
+    genFilter, setGenFilter, slidingMenuRef,
+    includeVariantInCreation, onIncludePokeVariantPress, onExcludePokeVariantPress
+  } = usePokedexCreateEditPanelService(editingPokedex);
 
   return <DirectionalSlidingMenu
     ref={slidingMenuRef}
@@ -150,6 +176,20 @@ export function PokedexCreateEditPanel({ dissmiss, editingPokedex }: PokedexDeta
       <GenFilterWrapper>
         <GenFilterSection currentFilter={genFilter} setCurrentFilter={isEditing ? () => { } : setGenFilter} hideToggleAll={isEditing} disableTouchableFeedback={isEditing} />
       </GenFilterWrapper>
+
+      <IncludeVariantsButtonRow>
+        <IncludeVariantButton isActive={includeVariantInCreation} style={{ marginRight: 15 }} onPress={onIncludePokeVariantPress}
+          activeOpacity={isEditing ? 1 : 0.2}
+        >
+          <IncludeVariantButtonText>Include Pokemon Variants</IncludeVariantButtonText>
+        </IncludeVariantButton>
+
+        <IncludeVariantButton isActive={!includeVariantInCreation} onPress={onExcludePokeVariantPress}
+          activeOpacity={isEditing ? 1 : 0.2}
+        >
+          <IncludeVariantButtonText>Exclude Pokemon Variants</IncludeVariantButtonText>
+        </IncludeVariantButton>
+      </IncludeVariantsButtonRow>
 
       {!isEditing &&
         <BottomBigActionButton onPress={onCreatePokedexPress}>

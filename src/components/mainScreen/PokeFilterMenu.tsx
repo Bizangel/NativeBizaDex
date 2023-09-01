@@ -198,6 +198,8 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
   }, [setCurrentFilter])
 
 
+  const variantObfuscatedByDex = activeDex !== null && activeDex.hidePokeVariants;
+
   // every time local filter changes, update global. This is done this way so maybe in the future if filters grow too complex to create an "apply filter" button.
   useEffect(() => {
     setCurrentGlobalAppliedFilter(currentFilter)
@@ -285,42 +287,54 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
         </FilterSectionHeader>
         <HorizontalBottomRule />
 
-        <IncludeMegasButton
-          activeOpacity={currentFilter.hideVariants ? 1 : 0.2} // disable touch feedback if hidden as if disabled.
-          megaFilter={currentFilter.displayMegas}
-          onPress={!currentFilter.hideVariants ? () => {
-            setCurrentFilter(prev => {
-              // cycle
-              if (prev.displayMegas === MegaFilter.IncludeMegas) {
+        {
+          !variantObfuscatedByDex &&
+          <IncludeMegasButton
+            activeOpacity={currentFilter.hideVariants ? 1 : 0.2} // disable touch feedback if hidden as if disabled.
+            megaFilter={currentFilter.displayMegas}
+            onPress={!currentFilter.hideVariants ? () => {
+              setCurrentFilter(prev => {
+                // cycle
+                if (prev.displayMegas === MegaFilter.IncludeMegas) {
+                  return {
+                    ...prev,
+                    displayMegas: MegaFilter.OnlyMega,
+                  }
+                } else if (prev.displayMegas === MegaFilter.OnlyMega) {
+                  return {
+                    ...prev,
+                    displayMegas: MegaFilter.NoMega,
+                  }
+                }
                 return {
                   ...prev,
-                  displayMegas: MegaFilter.OnlyMega,
+                  displayMegas: MegaFilter.IncludeMegas,
                 }
-              } else if (prev.displayMegas === MegaFilter.OnlyMega) {
-                return {
-                  ...prev,
-                  displayMegas: MegaFilter.NoMega,
-                }
-              }
-              return {
-                ...prev,
-                displayMegas: MegaFilter.IncludeMegas,
-              }
-            })
-          } : undefined
-          }>
-          <IncludeMegaText>{currentFilter.displayMegas}</IncludeMegaText>
-        </IncludeMegasButton>
+              })
+            } : undefined
+            }>
+            <IncludeMegaText>{currentFilter.displayMegas}</IncludeMegaText>
+          </IncludeMegasButton>
+        }
 
-        <ToggleVariantButton active={!currentFilter.hideVariants} onPress={() => {
-          setCurrentFilter(prev => produce(prev, draft => {
-            draft.hideVariants = !prev.hideVariants;
-          }))
-        }}>
-          <ToggleVariantsButtonText style={{ fontSize: !currentFilter.hideVariants ? 15 : 12 }}>
-            {currentFilter.hideVariants ? "Hidden PokeVariants (Megas, Regional, Costumes, etc)" : "Showing Pokevariants"}
-          </ToggleVariantsButtonText>
-        </ToggleVariantButton>
+        {!variantObfuscatedByDex &&
+          <ToggleVariantButton active={!currentFilter.hideVariants} onPress={() => {
+            setCurrentFilter(prev => produce(prev, draft => {
+              draft.hideVariants = !prev.hideVariants;
+            }))
+          }}>
+            <ToggleVariantsButtonText style={{ fontSize: !currentFilter.hideVariants ? 15 : 12 }}>
+              {currentFilter.hideVariants ? "Hidden PokeVariants (Megas, Regional, Costumes, etc)" : "Showing Pokevariants"}
+            </ToggleVariantsButtonText>
+          </ToggleVariantButton>
+        }
+
+        {variantObfuscatedByDex &&
+          <GenerationTextDisplayControlledByPokedex>
+            Pokemon Variants are currently hidden by active dex
+          </GenerationTextDisplayControlledByPokedex>
+        }
+
 
         <BaseStatThresholdWrapper>
           <BaseStatTextDisplay>

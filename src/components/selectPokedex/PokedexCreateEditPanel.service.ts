@@ -33,6 +33,10 @@ function usePokedexCreateEditPanelService(editingPokedex: StoredPokedex | null) 
   const renameStoredDex = usePersistentStorage(e => e.renameStoredPokedex);
   const [pokedexNameField, setPokedexNameField] = useState(editingPokedex?.pokedexName ?? "");
   const [genFilter, setGenFilter] = useState<PokeFilter["genFilter"]>(editingPokedex ? editingPokedex.genFilter : initialPokefilter.genFilter);
+  const [includeVariantInCreation, setIncludeVariantInCreation] = useState<boolean>(editingPokedex?.hidePokeVariants ?? false);
+
+  const onIncludePokeVariantPress = useCallback(() => { if (!editingPokedex) setIncludeVariantInCreation(true); }, [setIncludeVariantInCreation, editingPokedex]);
+  const onExcludePokeVariantPress = useCallback(() => { if (!editingPokedex) setIncludeVariantInCreation(false) }, [setIncludeVariantInCreation, editingPokedex]);
 
   const onRenamePress = useCallback(() => {
     if (editingPokedex) {
@@ -60,11 +64,12 @@ function usePokedexCreateEditPanelService(editingPokedex: StoredPokedex | null) 
       pokedexName: pokedexNameField,
       genFilter: genFilter,
       caughtPokemon: [],
+      hidePokeVariants: !includeVariantInCreation,
     }
 
     storeNewPokedex(newPokedexToAdd)
     slidingMenuRef.current?.closeOverlay();
-  }, [pokedexNameField, genFilter, storeNewPokedex])
+  }, [pokedexNameField, genFilter, storeNewPokedex, includeVariantInCreation])
 
   const onDeletePokedexPress = useCallback(() => {
     Alert.alert('Delete Pokedex', `Delete ${editingPokedex?.pokedexName}?`, [
@@ -81,7 +86,14 @@ function usePokedexCreateEditPanelService(editingPokedex: StoredPokedex | null) 
     return;
   }, [editingPokedex, removePokedexByID, slidingMenuRef])
 
-  return { onCreatePokedexPress, onRenamePress, onDeletePokedexPress, pokedexNameField, setPokedexNameField, genFilter, setGenFilter, slidingMenuRef }
+  return {
+    onCreatePokedexPress, onRenamePress, onDeletePokedexPress,
+    pokedexNameField, setPokedexNameField,
+    genFilter, setGenFilter,
+    slidingMenuRef,
+    includeVariantInCreation,
+    onIncludePokeVariantPress, onExcludePokeVariantPress
+  }
 }
 
 export default usePokedexCreateEditPanelService
