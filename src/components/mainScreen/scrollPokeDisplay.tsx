@@ -62,6 +62,8 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress, onSortingPress 
   const updateCurrentSearchFilter = usePokedataStore(e => e.setTextSearchPokefilter);
   const selectedPokemon = usePokedataStore(e => e.selectedPokemon);
 
+  const visibleIndexes = useRef<[number, number]>([0, 0]);
+
   const flashListRef = useRef<FlashList<Pokemon>>(null);
   const [isDraggingFastScroll, setIsDraggingFastScroll] = useState(false);
   const scrollTopValue = useRef(new Animated.Value(topBarHeightPx)).current;
@@ -83,15 +85,22 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress, onSortingPress 
 
   const hasFilterChangedExceptSearch = !deepEqual(currentPokefilter, { ...initialPokefilter, searchString: currentPokefilter.searchString });
 
-  // automatically scroll to selected pokemon, should it be available in the list
+  // automatically scroll to selected pokemon, should it be available in the list AND is not visible.
   useEffect(() => {
     if (!selectedPokemon)
       return;
 
     const foundIndex = currentlyFilteredPokemon.map(e => e.id).indexOf(selectedPokemon.id)
-    if (foundIndex !== -1)
-      flashListRef.current?.scrollToIndex({ animated: true, index: foundIndex, viewPosition: 0 });
-  }, [selectedPokemon, currentlyFilteredPokemon])
+    if (foundIndex === -1)
+      return;
+
+    const isVisible = (visibleIndexes.current[0] <= foundIndex && foundIndex <= visibleIndexes.current[1])
+    if (isVisible)
+      return;
+
+    flashListRef.current?.scrollToIndex({ animated: true, index: foundIndex, viewPosition: 0 });
+
+  }, [selectedPokemon, currentlyFilteredPokemon, visibleIndexes])
 
   const { onDraggableFastScrollHandlePan, onFlashlistScroll } = useFlashlistScrollSyncFasthandle(flashListRef, isDraggingFastScroll, draggableScrollbarHeight, scrollTopValue, currentlyFilteredPokemon.length);
 
@@ -110,6 +119,11 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress, onSortingPress 
         onBurgerBarPress={onBurgerBarPress}
         displayFilterIndicator={hasFilterChangedExceptSearch} />
       <FlashList
+        viewabilityConfig={{ itemVisiblePercentThreshold: 30 }}
+        onViewableItemsChanged={(ev) => {
+          const viewableIndexes = ev.viewableItems.map(e => e.index)
+          visibleIndexes.current = [viewableIndexes.at(0) ?? 0, viewableIndexes.at(-1) ?? 0];
+        }}
         showsVerticalScrollIndicator={!isDraggingFastScroll}
         ref={flashListRef}
         onScroll={onFlashlistScroll}
