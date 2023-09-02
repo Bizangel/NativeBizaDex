@@ -10,6 +10,7 @@ import AllAbilitiesScreen from './screens/AllAbilitiesScreen';
 import TypeChartScreen from './screens/TypeChartScreen';
 import TeamBuilderScreen from './screens/TeamBuilderScreen';
 import { SelectPokedexScreen } from './screens/SelectPokedexScreen';
+import ExportImportScreen from './screens/ExportImportScreen';
 
 export type RootStackParamList = {
   MainScreen: { preSelectedPokemonId: string | null },
@@ -18,6 +19,7 @@ export type RootStackParamList = {
   TypeChartScreen: {},
   TeamBuilderScreen: {},
   SelectPokedexScreen: {},
+  ExportImportScreen: {},
 }
 
 export type ScreenNameType = keyof RootStackParamList;
@@ -52,30 +54,22 @@ function App() {
         <Stack.Screen
           name="AllAbilitiesScreen"
           component={withGestureHandler(AllAbilitiesScreen)}
-          options={{
-            // presentation: 'transparentModal',
-          }}
         />
         <Stack.Screen
           name="TypeChartScreen"
           component={withGestureHandler(TypeChartScreen)}
-          options={{
-            // presentation: 'transparentModal',
-          }}
         />
         <Stack.Screen
           name="TeamBuilderScreen"
           component={withGestureHandler(TeamBuilderScreen)}
-          options={{
-            // presentation: 'transparentModal',
-          }}
         />
         <Stack.Screen
           name="SelectPokedexScreen"
           component={withGestureHandler(SelectPokedexScreen)}
-          options={{
-            // presentation: 'transparentModal',
-          }}
+        />
+        <Stack.Screen
+          name="ExportImportScreen"
+          component={withGestureHandler(ExportImportScreen)}
         />
       </Stack.Navigator>
     </NavigationContainer>

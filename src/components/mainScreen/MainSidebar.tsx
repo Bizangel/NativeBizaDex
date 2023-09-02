@@ -2,7 +2,7 @@ import DirectionalSlidingMenu, { DirectionalSlidingMenuRef } from "../../common/
 import styled from "styled-components/native";
 import { colorPalette } from "../../styles/styles";
 import { HorizontalBottomRule } from "../../common/common";
-import { Image, ImageSourcePropType } from "react-native"
+import { Image, ImageSourcePropType, View } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useCallback, useRef } from "react";
 import useTypedNavigation from "../../hooks/useTypedNavigation";
@@ -96,6 +96,10 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
     navigation.push("SelectPokedexScreen", {})
   }, [navigation])
 
+  const navigateToExportImportData = useCallback(() => {
+    navigation.push("ExportImportScreen", {})
+  }, [navigation])
+
   return (
     <DirectionalSlidingMenu
       dismissLayout={dissmissMenu}
@@ -118,11 +122,13 @@ function MainSidebar({ dissmissMenu }: MainSidebarProps) {
 
         {/* Not planning to implement for now. */}
         {/* <SectionButtonLink text="Team Builder" iconSource={require('../icons/teambuilder_icon.png')} onPress={navigateToTeamBuilder} /> */}
-
         <SectionButtonLink text="Type Chart Table" iconSource={require('../../icons/typetable_icon.png')} onPress={navigateToTypechartTable} />
 
-        {/* Not planning to implement for now. */}
         <SectionButtonLink text="Switch Pokedex" iconSource={require('../../icons/caught_empty.png')} onPress={navigateToSelectPokedex} />
+
+        <View style={{ width: "100%", marginTop: "auto", marginBottom: 10 }}>
+          <SectionButtonLink text="Export/Import Data" iconSource={require('../../icons/wrench_icon.png')} onPress={navigateToExportImportData} />
+        </View>
 
       </SidebarWrapper>
     </DirectionalSlidingMenu>
