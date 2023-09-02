@@ -42,9 +42,7 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
 
 
   const onPreselectedPokeDisplay = useCallback(() => { setShowFilterMenu(false); setShowMainSidebar(false); }, [setShowFilterMenu, setShowMainSidebar])
-
   useDisplayPreselectedPoke(preSelectedPoke, onPreselectedPokeDisplay);
-  useDisplayPreselectedPoke(preSelectedPoke, () => { });
   useDebouncedPokeFilter();
 
   const dissmissPokeFilterMenu = useCallback(() => { setShowFilterMenu(false); }, [])
