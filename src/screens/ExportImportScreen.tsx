@@ -7,7 +7,7 @@ import { useCallback } from "react"
 import { Image } from "react-native"
 import useTypedNavigation from "../hooks/useTypedNavigation";
 import { HorizontalBottomRule } from "../common/common";
-import { SerializeStore } from "../util/exportimport";
+import { exportStoredDataViaShare, importStoredDataFromFile } from "../util/exportImportUtils";
 
 
 const Body = styled.View`
@@ -59,6 +59,8 @@ const SmallTextExpl = styled.Text`
 
   width: 80%;
   text-align: justify;
+
+  margin-top: 20px;
 `
 
 function Button({ text, onPress }: { text: string, onPress?: () => void }) {
@@ -75,9 +77,8 @@ function ExportImportScreen(_: NativeStackScreenProps<RootStackParamList, 'Expor
   const navigation = useTypedNavigation();
   const closeExportImportScreen = useCallback(() => { navigation.pop() }, [navigation])
 
-  const exportViaClipboard = () => {
-    SerializeStore();
-  }
+  const exportViaShare = useCallback(() => { exportStoredDataViaShare(); }, [])
+  const importFile = useCallback(() => { importStoredDataFromFile() }, []);
 
   return (
     <Body>
@@ -91,21 +92,18 @@ function ExportImportScreen(_: NativeStackScreenProps<RootStackParamList, 'Expor
         <Image source={require('../icons/cross.png')} resizeMode="contain" style={{ width: "100%", height: "100%" }} />
       </CloseButtonWrapper>
 
-      <Button text="Export via Share" />
-      <Button text="Export to Clipboard" onPress={exportViaClipboard} />
+      <Button text="Export via Share" onPress={exportViaShare} />
 
       <HeaderText>
         Import Data
       </HeaderText>
       <HorizontalBottomRule />
 
+      <Button text="Import File" onPress={importFile} />
 
       <SmallTextExpl>
-        To import data via share, share the exported file and open with this app.
-        Similar to how you share a picture, and choose an app as a target to share with.
+        In the future I intend to have more robust exporting/import mechanisms. But for now it will suffice.
       </SmallTextExpl>
-
-      <Button text="Import Via Clipboard" />
 
     </Body>
   );
