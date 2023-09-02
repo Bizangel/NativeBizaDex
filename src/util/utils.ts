@@ -138,3 +138,13 @@ export function splitIntoThrees<T>(arr: T[]) {
   })
   return splitted;
 }
+
+
+
+export function cycleValues<T>(val: T, allValues: T[]) {
+  const currIndex = allValues.findIndex(e => e === val)
+  if (currIndex === (allValues.length - 1))
+    return allValues[0];
+
+  return allValues[currIndex + 1];
+}

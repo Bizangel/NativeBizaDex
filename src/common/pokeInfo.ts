@@ -55,11 +55,20 @@ export const TypeChart = TypeChartLines.map(e => e.split(" ").filter(i => i.leng
 
 export type TypeEffectiveness = "1/2" | "1" | "2" | "0" | "1/4" | "4"
 
+// note this way of obtaining all values, only works as they are string enums.
 export enum MegaFilter {
-  NoMega = "No Mega Evolutions",
+  NoMega = "Hiding Mega Evolutions",
   IncludeMegas = "Showing Mega Evolutions",
-  OnlyMega = "Only Mega Evolutions",
+  OnlyMega = "Showing Only Mega Evolutions",
 }
+export const MegaFilterValues = Object.values(MegaFilter) as MegaFilter[];
+
+export enum CaughtPokeFilter {
+  NotCaught = "Showing Only Missing Pokemon",
+  AllPokemon = "Showing Caught Pokemon",
+  OnlyCaught = "Showing Only Caught Pokemon",
+}
+export const CaughtPokeFilterValues = Object.values(CaughtPokeFilter) as CaughtPokeFilter[];
 
 export type PokeFilter = {
   searchString: string,
@@ -70,6 +79,8 @@ export type PokeFilter = {
 
   baseStatThreshold: number | undefined,
   baseStatThresholdOperator: "le" | "ge",
+
+  caughtPokemonFilter: CaughtPokeFilter,
 }
 
 
@@ -109,7 +120,7 @@ const initialTypeFilter = Object.fromEntries(PokemonTypes.map(e => [e, true])) a
 
 export const initialPokefilter: PokeFilter = {
   searchString: "", typesFilter: initialTypeFilter, genFilter: Array(lastPokegen).fill(true), displayMegas: MegaFilter.IncludeMegas,
-  baseStatThreshold: undefined, baseStatThresholdOperator: "ge", hideVariants: false,
+  baseStatThreshold: undefined, baseStatThresholdOperator: "ge", hideVariants: false, caughtPokemonFilter: CaughtPokeFilter.AllPokemon,
 }
 
 export const initialPokeSort: PokeSorting = {

@@ -81,7 +81,7 @@ function ScrollPokeDisplay({ onBurgerBarPress, onTopFilterPress, onSortingPress 
   // every time filter changes, scroll to top
   useEffect(() => {
     flashListRef.current?.scrollToIndex({ animated: true, index: 0 })
-  }, [currentlyFilteredPokemon])
+  }, [currentPokefilter])
 
   const hasFilterChangedExceptSearch = !deepEqual(currentPokefilter, { ...initialPokefilter, searchString: currentPokefilter.searchString });
 

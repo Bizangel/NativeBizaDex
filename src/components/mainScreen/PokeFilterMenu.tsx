@@ -9,10 +9,11 @@ import DirectionalSlidingMenu from "../../common/DirectionalSlidingMenu"
 import { produce } from "immer"
 import { useOnKeyboardShow } from "../../hooks/useKeyboardHooks"
 import { isEqual as deepEqual } from "lodash"
-import { MegaFilter, PokeFilter, initialPokefilter } from "../../common/pokeInfo"
+import { CaughtPokeFilter, CaughtPokeFilterValues, MegaFilter, MegaFilterValues, PokeFilter, initialPokefilter } from "../../common/pokeInfo"
 import { OpacitySpawn, TextInputWithBlurOnHide } from "../../common/common"
 import { usePokedataStore } from "../../actions/pokedata"
 import usePersistentActiveDex from "../../hooks/usePersistentActiveDex"
+import { cycleValues } from "../../util/utils"
 
 const FilterHeader = styled.Text`
   font-size: 24px;
@@ -29,7 +30,7 @@ const FilterSectionHeader = styled.Text`
   color: ${colorPalette.textWhite};
 `
 
-const IncludeMegaText = styled.Text`
+const ToggeableButtonText = styled.Text`
   font-size: 14px;
   color: ${colorPalette.textWhite};
   text-align: center;
@@ -41,7 +42,17 @@ const IncludeMegasButton = styled(TouchableOpacity) <{ megaFilter: MegaFilter }>
 
   width: 120px;
   border-radius: 10px;
-  background-color: ${p => p.megaFilter === MegaFilter.OnlyMega ? "#e8578e" : p.megaFilter === MegaFilter.IncludeMegas ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
+  background-color: ${p => p.megaFilter === MegaFilter.OnlyMega ? colorPalette.megaEvolutionPink : p.megaFilter === MegaFilter.IncludeMegas ? colorPalette.foregroundButtonBlackActive : colorPalette.foregroundButtonBlackInactive};
+`
+
+const IncludePokecaughtButton = styled(TouchableOpacity) <{ caughtFilter: CaughtPokeFilter }>`
+  margin-top: 5px;
+
+  width: 120px;
+  border-radius: 10px;
+  background-color: ${p => p.caughtFilter === CaughtPokeFilter.AllPokemon ? colorPalette.megaEvolutionPink :
+    p.caughtFilter === CaughtPokeFilter.OnlyCaught ? colorPalette.notSoBrightRed
+      : colorPalette.foregroundButtonBlackActive};
 `
 
 const ToggleVariantButton = styled(TouchableOpacity) <{ active: boolean }>`
@@ -293,27 +304,10 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
             activeOpacity={currentFilter.hideVariants ? 1 : 0.2} // disable touch feedback if hidden as if disabled.
             megaFilter={currentFilter.displayMegas}
             onPress={!currentFilter.hideVariants ? () => {
-              setCurrentFilter(prev => {
-                // cycle
-                if (prev.displayMegas === MegaFilter.IncludeMegas) {
-                  return {
-                    ...prev,
-                    displayMegas: MegaFilter.OnlyMega,
-                  }
-                } else if (prev.displayMegas === MegaFilter.OnlyMega) {
-                  return {
-                    ...prev,
-                    displayMegas: MegaFilter.NoMega,
-                  }
-                }
-                return {
-                  ...prev,
-                  displayMegas: MegaFilter.IncludeMegas,
-                }
-              })
+              setCurrentFilter(prev => ({ ...prev, displayMegas: cycleValues(prev.displayMegas, MegaFilterValues) })) // cycle
             } : undefined
             }>
-            <IncludeMegaText>{currentFilter.displayMegas}</IncludeMegaText>
+            <ToggeableButtonText>{currentFilter.displayMegas}</ToggeableButtonText>
           </IncludeMegasButton>
         }
 
@@ -333,6 +327,17 @@ function PokeFilterMenu({ dismissLayout }: PokeFilterMenuProps) {
           <GenerationTextDisplayControlledByPokedex>
             Pokemon Variants are currently hidden by active dex
           </GenerationTextDisplayControlledByPokedex>
+        }
+
+        {
+          activeDex !== null &&
+          <IncludePokecaughtButton
+            caughtFilter={currentFilter.caughtPokemonFilter}
+            onPress={() => {
+              setCurrentFilter(prev => ({ ...prev, caughtPokemonFilter: cycleValues(prev.caughtPokemonFilter, CaughtPokeFilterValues) })) // cycle
+            }}>
+            <ToggeableButtonText>{currentFilter.caughtPokemonFilter}</ToggeableButtonText>
+          </IncludePokecaughtButton>
         }
 
 

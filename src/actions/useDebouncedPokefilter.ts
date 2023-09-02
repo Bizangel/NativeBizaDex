@@ -12,15 +12,15 @@ export function useDebouncedPokeFilter() {
   const sortCriteria = usePokedataStore(e => e.currentSorting)
   const setCurrentFilteredPokemon = usePokedataStore(e => e.setCurrentFilteredPokemon)
   const activeDexGenFilter = usePersistentActiveDex(e => e.genFilter);
+  const caughtPokemon = usePersistentActiveDex(e => e.caughtPokemon);
   const activeDexHidePokevariants = usePersistentActiveDex(e => e.hidePokeVariants);
-
-  // const dexFilters = usePersistentActiveDex(e => ({ genFilter: e.genFilter, hideVariants: e.hidePokeVariants }));
 
   // debounce filter for efficiency
   useEffect(() => {
     const timeout = setTimeout(() => {
       const filteredPoke = filterPokemon(allPokemon, currentPokeFilter,
         activeDexHidePokevariants && activeDexGenFilter ? { genFilter: activeDexGenFilter, hideVariants: activeDexHidePokevariants } : null,
+        caughtPokemon,
         sortCriteria);
       setCurrentFilteredPokemon(filteredPoke)
     }, debounceDelay);
@@ -28,6 +28,6 @@ export function useDebouncedPokeFilter() {
     return () => {
       clearTimeout(timeout)
     }
-  }, [currentPokeFilter, activeDexGenFilter, activeDexHidePokevariants, setCurrentFilteredPokemon, sortCriteria])
+  }, [currentPokeFilter, activeDexGenFilter, activeDexHidePokevariants, setCurrentFilteredPokemon, sortCriteria, caughtPokemon])
 
 }

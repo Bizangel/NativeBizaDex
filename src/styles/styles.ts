@@ -28,7 +28,9 @@ export const colorPalette = {
 
 
   notVeryEffectiveRed: "#cc1313",
-  superEffectiveGreen: "#25680a"
+  superEffectiveGreen: "#25680a",
+
+  megaEvolutionPink: "#e8578e",
 } as const
 
 export const types2color: Record<PokeType, string> = {

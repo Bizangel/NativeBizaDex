@@ -1,4 +1,4 @@
-import { GenerationalDexSteps, MegaFilter, PokeFilter, PokeSorting, StoredPokedex } from "../common/pokeInfo";
+import { CaughtPokeFilter, GenerationalDexSteps, MegaFilter, PokeFilter, PokeSorting, StoredPokedex } from "../common/pokeInfo";
 import { Pokemon } from "../types/Pokemon";
 import { sortPokemon } from "./sortPokemon";
 import { lowercaseAZNormalizeMobile } from "./utils";
@@ -21,6 +21,7 @@ function isPokeGenIncluded(dexNumber: number, genFilter: boolean[]) {
 
 export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter,
   activeDexFilters: { genFilter: StoredPokedex["genFilter"], hideVariants: StoredPokedex["hidePokeVariants"] } | null,
+  caughtPokemon: Record<string, true> | null,
   sortCriteria: PokeSorting): Pokemon[] {
 
   const genFilter = activeDexFilters ? activeDexFilters.genFilter : filters.genFilter; // use gen filter from pokedex if it is specified
@@ -39,7 +40,20 @@ export function filterPokemon(allPokemon: Pokemon[], filters: PokeFilter,
     filteredMegas = filteredMegas.filter(e => e.isMega);
   }
 
-  let filteredByThreshold = filteredMegas;
+  // filter by caught
+  let filteredCaught = filteredMegas;
+  if (filters.caughtPokemonFilter !== CaughtPokeFilter.AllPokemon && caughtPokemon !== null) {
+    const caughtPokes = new Set(Object.keys(caughtPokemon));
+
+    if (filters.caughtPokemonFilter === CaughtPokeFilter.NotCaught) {
+      filteredCaught = filteredCaught.filter(e => !caughtPokes.has(e.id));
+    } else if (filters.caughtPokemonFilter === CaughtPokeFilter.OnlyCaught) {
+      filteredCaught = filteredCaught.filter(e => caughtPokes.has(e.id));
+    }
+  }
+
+
+  let filteredByThreshold = filteredCaught;
   if (filters.baseStatThreshold !== undefined) {
     if (filters.baseStatThresholdOperator === "ge") {
       filteredByThreshold = filteredByThreshold.filter(e => e.baseStatTotal >= (filters.baseStatThreshold ?? 0))
