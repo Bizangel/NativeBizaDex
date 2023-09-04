@@ -21,6 +21,17 @@ const sortkey2pokekey: Record<PokeSortKey, (poke: Pokemon) => string | number> =
 
 export function sortPokemon(pokemon: Pokemon[], sortCriteria: PokeSorting): Pokemon[] {
   const sortKeySelector = sortkey2pokekey[sortCriteria.sortKey];
-  pokemon.sort((a, b) => (sortCriteria.ascending ? 1 : -1) * (sortKeySelector(a) < sortKeySelector(b) ? -1 : 1))
+  pokemon.sort((a, b) => {
+    const valA = sortKeySelector(a);
+    const valB = sortKeySelector(b);
+
+    if (valA === valB) // if they're equal in whatever it is, fallback to variantIndex
+      return a.variantIndex - b.variantIndex;
+
+    return (valA < valB) ? -1 : 1;
+  })
+  if (!sortCriteria.ascending)
+    pokemon.reverse();
+
   return pokemon;
 }
