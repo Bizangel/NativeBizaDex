@@ -1,7 +1,6 @@
 import React from 'react';
 import MainScreen from './screens/MainScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { setIdleTimerDisabled } from 'react-native-idle-timer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -31,10 +30,6 @@ const withGestureHandler = <P extends NativeStackScreenProps<RootStackParamList,
 
 
 function App() {
-
-  if (process.env.NODE_ENV === "development")
-    setIdleTimerDisabled(true);
-
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="MainScreen">

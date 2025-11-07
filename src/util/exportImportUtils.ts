@@ -1,7 +1,7 @@
 import { usePersistentStorage } from "../localstore/storage";
 import * as RNFS from '@dr.pogodin/react-native-fs';
 import Share from "react-native-share"
-import DocumentPicker, { DocumentPickerResponse } from "react-native-document-picker"
+import DocumentPicker, { DocumentPickerResponse } from "@react-native-documents/picker"
 import { Alert } from "react-native"
 
 // In the future I'd like to handle this better with deep links with custom-made components
@@ -38,9 +38,9 @@ const equalSets = <T>(xs: Set<T>, ys: Set<T>) =>
   [...xs].every((x) => ys.has(x));
 
 export async function importStoredDataFromFile() {
-  let pickerResult: DocumentPickerResponse;
+  let pickerResult: DocumentPickerResponse
   try {
-    pickerResult = await DocumentPicker.pickSingle({ type: DocumentPicker.types.plainText })
+    [pickerResult] = await DocumentPicker.pick({ type: DocumentPicker.types.plainText })
   }
   catch (err) {
     return;
