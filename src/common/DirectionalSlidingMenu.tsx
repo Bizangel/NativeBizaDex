@@ -4,6 +4,7 @@ import React, { useRef, useEffect, forwardRef, useImperativeHandle, useCallback 
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useBackHandler } from "../hooks/useBackHandler"
 import useActiveRoutes from "../hooks/useActiveRoutes"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const FullFilterOverlayWrapper = styled(Animated.View)`
   position: absolute;
@@ -81,6 +82,8 @@ const originToDirections: Record<"top" | "bottom" | "left" | "right", number> = 
 const DirectionalSlidingMenu = forwardRef<DirectionalSlidingMenuRef, SlidingMenuProps>(function DirectionalSlidingMenu(
   { dismissLayout, overlayedComponent, children, slidingOrigin, menuViewportSize, onBackCloseTap, contentContainerWrapperStyle, extraOverflowSize }, ref) {
   // animation regarding opening progress
+  const safeAreaInsets = useSafeAreaInsets();
+
   const animOpeningProgress = useRef(new Animated.Value(0)).current;
   const animatedOriginProp = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: [`-${menuViewportSize + (extraOverflowSize ?? 0)}%`, "0%"] });
   const animatedBackgroundOpacity = animOpeningProgress.interpolate({ inputRange: [0, 100], outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,.8)'] });
@@ -149,7 +152,7 @@ const DirectionalSlidingMenu = forwardRef<DirectionalSlidingMenuRef, SlidingMenu
 
   return (
     <GestureDetector gesture={backgroundTapCloseGesture}>
-      <FullFilterOverlayWrapper style={{ backgroundColor: animatedBackgroundOpacity }}>
+      <FullFilterOverlayWrapper style={{ backgroundColor: animatedBackgroundOpacity, top: safeAreaInsets.top, left: safeAreaInsets.left }}>
         <GestureDetector gesture={Gesture.Race(backgroundTapAvoidCaptureEmptyTap, closeFlingToOppositeGesture)}>
           <SlidingComponentWrapper style={{
             [slidingOrigin]: animatedOriginProp,

@@ -13,6 +13,7 @@ import useDisplayPreselectedPoke from '../actions/useDisplayPreselectedPoke';
 import { useDebouncedPokeFilter } from '../actions/useDebouncedPokefilter';
 import { usePokedataStore } from '../actions/pokedata';
 import { usePersistentStorage } from '../localstore/storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Body = styled.View`
   background-color: ${colorPalette.backgroundBlack};
@@ -21,6 +22,8 @@ const Body = styled.View`
 `
 
 function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScreen'>) {
+  const safeAreaInsets = useSafeAreaInsets();
+
   const preSelectedPoke = props.route.params.preSelectedPokemonId
 
   const resetFilters = usePokedataStore(e => e.resetToDefaultFilters);
@@ -50,7 +53,9 @@ function MainScreen(props: NativeStackScreenProps<RootStackParamList, 'MainScree
   const dismissMainSidebar = useCallback(() => { setShowMainSidebar(false); }, [])
 
   return (
-    <Body>
+    <Body
+      style={{ paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom, paddingLeft: safeAreaInsets.left, paddingRight: safeAreaInsets.right }}
+    >
       <ScrollPokeDisplay {...{ onTopFilterPress, onBurgerBarPress, onSortingPress }} />
 
       {

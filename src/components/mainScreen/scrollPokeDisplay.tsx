@@ -18,6 +18,7 @@ const FlatListWrapper = styled.View`
   justify-content: center;
   flex-grow: 1;
   background-color: ${colorPalette.backgroundBlack};
+  z-index: 0
 `
 
 const draggableScrollbarHeight = 70;
