@@ -11,6 +11,7 @@ import { StoredPokedex } from "../common/pokeInfo";
 import { generateRangesWithPrefix } from "../util/utils";
 import useTypedNavigation from "../hooks/useTypedNavigation";
 import { usePersistentStorage } from "../localstore/storage";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Body = styled.View`
   width: 100%;
@@ -22,8 +23,6 @@ const Body = styled.View`
   flex-direction: column;
 
   align-items: center;
-
-  padding: 20px;
 `
 
 
@@ -104,7 +103,7 @@ const ScrollableDexView = styled(ScrollView).attrs({
 `
 
 export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList, 'SelectPokedexScreen'>) {
-
+  const safeAreaInsets = useSafeAreaInsets();
   const storedPokedexes = usePersistentStorage(e => e.allStoredPokedexes);
   const currentlyActiveDexIndex = usePersistentStorage(e => e.activePokedexIndex);
 
@@ -126,8 +125,9 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
 
   return (
     <>
-
-      <Body>
+      <Body
+        style={{ paddingTop: safeAreaInsets.top + 20, paddingBottom: safeAreaInsets.bottom + 20, paddingLeft: safeAreaInsets.left + 20, paddingRight: safeAreaInsets.right + 20 }}
+      >
         <HeaderText style={{}}>
           Choose Pokedex
         </HeaderText>
@@ -169,7 +169,7 @@ export function SelectPokedexScreen(_: NativeStackScreenProps<RootStackParamList
 
 
 
-        <AddPokeButton onPress={showCreateNewPokedexPanel}>
+        <AddPokeButton onPress={showCreateNewPokedexPanel} style={{bottom: safeAreaInsets.bottom , right: safeAreaInsets.right}}>
           <Image source={require('../icons/cross.png')} style={{ height: "50%", width: "50%", transform: [{ rotateZ: "45deg" }] }} />
         </AddPokeButton>
 

@@ -8,6 +8,7 @@ import { Image } from "react-native"
 import useTypedNavigation from "../hooks/useTypedNavigation";
 import { HorizontalBottomRule } from "../common/common";
 import { exportStoredDataViaShare, importStoredDataFromFile } from "../util/exportImportUtils";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
 const Body = styled.View`
@@ -19,8 +20,6 @@ const Body = styled.View`
   flex-direction: column;
 
   align-items: center;
-
-  padding: 20px;
 `
 
 const CloseButtonWrapper = styled(TouchableOpacity).attrs({
@@ -73,7 +72,7 @@ function Button({ text, onPress }: { text: string, onPress?: () => void }) {
 }
 
 function ExportImportScreen(_: NativeStackScreenProps<RootStackParamList, 'ExportImportScreen'>) {
-
+  const safeAreainsets = useSafeAreaInsets();
   const navigation = useTypedNavigation();
   const closeExportImportScreen = useCallback(() => { navigation.pop() }, [navigation])
 
@@ -81,14 +80,16 @@ function ExportImportScreen(_: NativeStackScreenProps<RootStackParamList, 'Expor
   const importFile = useCallback(() => { importStoredDataFromFile() }, []);
 
   return (
-    <Body>
+    <Body
+      style={{ paddingTop: safeAreainsets.top + 20, paddingBottom: safeAreainsets.bottom + 20, paddingLeft: safeAreainsets.left + 20, paddingRight: safeAreainsets.right + 20 }}
+    >
 
       <HeaderText>
         Export Data
       </HeaderText>
       <HorizontalBottomRule />
 
-      <CloseButtonWrapper onPress={closeExportImportScreen}>
+      <CloseButtonWrapper onPress={closeExportImportScreen} style={{top: safeAreainsets.top, right: safeAreainsets.right}}>
         <Image source={require('../icons/cross.png')} resizeMode="contain" style={{ width: "100%", height: "100%" }} />
       </CloseButtonWrapper>
 
