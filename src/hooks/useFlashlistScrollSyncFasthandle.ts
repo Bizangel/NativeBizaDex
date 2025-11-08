@@ -7,7 +7,7 @@ import { useWindowDimensions, Animated, NativeSyntheticEvent, NativeScrollEvent 
 import { topBarHeightPx } from "../common/common";
 
 export function useFlashlistScrollSyncFasthandle(
-  flashListRef: React.RefObject<FlashList<Pokemon>>,
+  flashListRef: React.RefObject<FlashList<Pokemon>  | null>,
   isDraggingFastScroll: boolean,
   draggableScrollbarHeight: number,
   valueToSync: Animated.Value,
