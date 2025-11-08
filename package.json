@@ -9,7 +9,7 @@
     "start": "react-native start",
     "test": "jest",
     "android_production_install": "react-native run-android --mode=release",
-    "build:android": "ts-node ./scripts/buildApk.ts",
+    "build:android": "ts-node --project tsconfig.scripts.json ./scripts/buildApk.ts",
     "datagen": "ts-node --project tsconfig.scripts.json data_extractor/generate.ts",
     "imagegen": "ts-node --project tsconfig.scripts.json data_extractor/generate_imageassets.ts"
   },
