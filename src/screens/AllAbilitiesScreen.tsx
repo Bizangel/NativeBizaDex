@@ -11,6 +11,7 @@ import { OpacitySpawn, TextInputWithBlurOnHide } from "../common/common";
 import { lowercaseAZNormalizeMobile } from "../util/utils";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import { Image } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
 
@@ -59,7 +60,6 @@ const AllAbilitiesWrapper = styled.View`
   height: 100%;
 
   background-color: ${colorPalette.backgroundBlack};
-  padding: 20px;
 `
 
 const TopBarSearchWrapper = styled.View`
@@ -97,6 +97,7 @@ const CloseButtonWrapper = styled(TouchableOpacity).attrs({
 `
 
 function AllAbilitiesScreen(_: NativeStackScreenProps<RootStackParamList, 'AllAbilitiesScreen'>) {
+  const safeAreainsets = useSafeAreaInsets();
 
   const [currentAbilitySearch, setCurrentAbilitySearch] = useState("");
   const flashListRef = useRef<FlashList<Ability>>(null);
@@ -124,8 +125,10 @@ function AllAbilitiesScreen(_: NativeStackScreenProps<RootStackParamList, 'AllAb
     toRenderAbilities = toRenderAbilities.filter(e => lowercaseAZNormalizeMobile(e.displayName).includes(lowercaseAZNormalizeMobile(currentAbilitySearch)));
 
   return (
-    <AllAbilitiesWrapper>
-      <CloseButtonWrapper onPress={closeAbilityScreen}>
+    <AllAbilitiesWrapper
+      style={{ paddingTop: safeAreainsets.top + 20, paddingBottom: safeAreainsets.bottom + 20, paddingLeft: safeAreainsets.left + 20, paddingRight: safeAreainsets.right + 20 }}
+    >
+      <CloseButtonWrapper onPress={closeAbilityScreen} style={{top:  safeAreainsets.top, right: safeAreainsets.right }}>
         <Image source={require('../icons/cross.png')} resizeMode="contain" style={{ width: "100%", height: "100%" }} />
       </CloseButtonWrapper>
 

@@ -9,6 +9,7 @@ import { PokeRowInAbility } from "../components/abilityComponents/PokeRowInAbili
 import { Pokemon } from "../types/Pokemon";
 import { ProgressiveRenderer, ProgressiveRendererRenderItem } from "../common/ProgressiveRenderer";
 import { HorizontalBottomRule } from "../common/common";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Body = styled.View`
   width: 100%;
@@ -81,6 +82,8 @@ const PokemonThatHaveTheAbilityScrollableDisplay = styled(ScrollView).attrs({
 `
 
 function AbilityScreen({ route }: NativeStackScreenProps<RootStackParamList, 'AbilityScreen'>) {
+  const safeAreaInsets = useSafeAreaInsets();
+
   const abilityId = route.params.abilityId;
   const pokemonThatHaveTheAbility = useMemo(() => allPokemon.filter(e => e.abilitiesId.some(abi => abi === abilityId) || e.hiddenAbility === abilityId), [abilityId]);
 
@@ -91,7 +94,9 @@ function AbilityScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Ab
   const renderPokeRow: ProgressiveRendererRenderItem<Pokemon> = useCallback((e) => <PokeRowInAbility pokemon={e} />, [])
 
   return (
-    <Body>
+    <Body
+      style={{ paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom, paddingLeft: safeAreaInsets.left, paddingRight: safeAreaInsets.right }}
+    >
       <AbilityHeader>
         {ability.displayName}
       </AbilityHeader>

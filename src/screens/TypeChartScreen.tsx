@@ -9,6 +9,7 @@ import useTypedNavigation from "../hooks/useTypedNavigation";
 import { PokemonTypes, TypeChart } from "../common/pokeInfo";
 import { ProgressiveRenderer, ProgressiveRendererRenderItem } from "../common/ProgressiveRenderer";
 import { PokeType } from "../types/Pokemon";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const tableRowHeight = "50px";
 const tableRowWidth = "70px"
@@ -131,7 +132,7 @@ const TableTypeLeftColumn = styled.View`
 `
 
 function TypeChartScreen(_: NativeStackScreenProps<RootStackParamList, 'TypeChartScreen'>) {
-
+  const safeAreaInsets = useSafeAreaInsets();
   const topBarHorizontalScroll = useRef<ScrollView>(null);
 
   const navigation = useTypedNavigation()
@@ -161,8 +162,10 @@ function TypeChartScreen(_: NativeStackScreenProps<RootStackParamList, 'TypeChar
   }, [topBarHorizontalScroll])
 
   return (
-    <Body>
-      <CloseButtonWrapper onPress={onCloseButtonPress}>
+    <Body
+      style={{ paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom, paddingLeft: safeAreaInsets.left, paddingRight: safeAreaInsets.right }}
+    >
+      <CloseButtonWrapper onPress={onCloseButtonPress} style={{top: safeAreaInsets.top, right: safeAreaInsets.right}}>
         <Image source={require('../icons/cross.png')} resizeMode="contain" style={{ width: "100%", height: "100%" }} />
       </CloseButtonWrapper>
 
