@@ -25,6 +25,7 @@ Also it was a great learning exercise to try out and learn some React Native, an
 npm run datagen
 npm run imagegen
 ```
+**Note: It is very likely these break as they update the pages and everything. TODO: move to a uniform api like https://pokeapi.co/**
 
 Ensure the datagen runs without errors before running the imagegen!
 The datagen may fail sometimes as it has to fetch a lot of data from different pages. It will cache the previous ones.

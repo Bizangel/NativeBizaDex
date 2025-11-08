@@ -10,8 +10,8 @@
     "test": "jest",
     "android_production_install": "react-native run-android --mode=release",
     "build:android": "ts-node ./scripts/buildApk.ts",
-    "datagen": "ts-node data_extractor/generate.ts",
-    "imagegen": "ts-node data_extractor/generate_imageassets.ts"
+    "datagen": "ts-node --project tsconfig.scripts.json data_extractor/generate.ts",
+    "imagegen": "ts-node --project tsconfig.scripts.json data_extractor/generate_imageassets.ts"
   },
   "dependencies": {
     "@dr.pogodin/react-native-fs": "^2.36.1",
@@ -42,6 +42,7 @@
     "@react-native/metro-config": "0.82.1",
     "@react-native/typescript-config": "0.82.1",
     "@types/cli-progress": "^3.11.0",
+    "@types/jest": "^29.5.13",
     "@types/lodash": "^4.14.197",
     "@types/progress": "^2.0.5",
     "@types/react": "^19.1.1",

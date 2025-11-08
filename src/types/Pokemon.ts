@@ -1,4 +1,4 @@
-import { z } from 'Zod'
+import { z } from 'zod'
 import { PokemonTypes } from '../common/pokeInfo';
 
 export const StatNames = ["hp", "atk", "def", "spa", "spd", "spe"] as const;

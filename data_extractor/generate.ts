@@ -6,6 +6,7 @@ import fs from "fs";
 import CliProgress from "cli-progress"
 
 const excludedPokemonId = new Set(["eternatus-eternamax"]); // ensure to exclude so that everything is valid ! (don't exclude an evo and forget to exclude its prevo)
+const excludedPokeTabs = new Set(["Floette (Eternal Flower)"]); // Doesn't have image yet.
 
 const baseDatabaseUrl = "https://pokemondb.net"
 
@@ -218,7 +219,9 @@ async function getPokemonFromUrl(url: string): Promise<Pokemon[]> {
 
     const html = response.data;
 
-    const tabsPoke = await getPokevariantsTabs(html, url);
+    let tabsPoke = await getPokevariantsTabs(html, url);
+    tabsPoke = tabsPoke.filter(e => !excludedPokeTabs.has(e.displayName))
+
     const poke = tabsPoke.map(e => parsePokeTab(html, e))
 
     return poke.filter(e => !excludedPokemonId.has(e.id));
@@ -311,7 +314,7 @@ async function fetchAllAbilities(multiBar: CliProgress.MultiBar) {
   const abilityProgressBar = multiBar.create(allAbilities.length, 0, { barDisplay: "Downloading Abilities".padEnd(20, ' ') })
   const fetchAndParseAbilityWithTick = withProgressBarTick(fetchAndParseAbility, abilityProgressBar)
 
-  let abilityResult = await Promise.all(
+  let abilityResult: Ability[] = await Promise.all(
     allAbilities.map(e => fetchAndParseAbilityWithTick(e))
   )
 
