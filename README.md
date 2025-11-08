@@ -20,6 +20,10 @@ Also it was a great learning exercise to try out and learn some React Native, an
 
 ## Generate/fetch PokeData Required
 
+```
+npm install --legacy-peer-deps
+```
+
 ```bash
 # using npm
 npm run datagen
