@@ -89,7 +89,7 @@ async function handlePokedownloadExceptions(id: string, pokedex_n: number, form_
   }
 
   if (pokedex_n === 227 && form_index) { // mega skarmory
-    await downloadImage("https://bulbapedia.bulbagarden.net/wiki/File:Spr_9z_0227M.png", targetPath)
+    await downloadImage("https://archives.bulbagarden.net/media/upload/5/5d/Spr_9z_0227M.png", targetPath)
     return true;
   }
 
